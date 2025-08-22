@@ -3,93 +3,111 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sandbox - Hola Mundo</title>
+    <title>KnowmadProject - Bienvenida</title>
+    <link rel="icon" href="https://knowmadproject.com/images/logo/favicon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary: #009f4d;
+            --secondary: #56c596;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
+            color: #333;
         }
 
-        .container {
-            text-align: center;
-            padding: 2rem;
-            background: rgba(255, 255, 255, 0.1);
+        .dashboard {
+            width: 90%;
+            max-width: 600px;
+            background: #fff;
             border-radius: 20px;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            animation: fadeIn 1s ease-in;
+            padding: 2.5rem 2rem;
+            text-align: center;
+            box-shadow: 0 15px 25px rgba(0,0,0,0.2);
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+        }
+
+        .logo-text {
+            max-width: 160px;
         }
 
         h1 {
-            font-size: 3.5rem;
-            margin-bottom: 1rem;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-            background: linear-gradient(45deg, #fff, #f0f0f0);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            font-size: 1.9rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
         }
 
-        .subtitle {
-            font-size: 1.2rem;
-            opacity: 0.9;
+        p {
             margin-bottom: 2rem;
+            font-size: 1rem;
+            color: #555;
         }
 
-        .status {
-            display: inline-block;
-            padding: 0.5rem 1rem;
-            background: rgba(76, 175, 80, 0.8);
-            border-radius: 25px;
-            font-size: 0.9rem;
-            font-weight: 500;
+        .downloads {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
         }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .download-link {
+            text-decoration: none;
+            padding: 0.8rem 1.2rem;
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            color: var(--primary);
+            transition: all 0.3s ease;
+            font-weight: 600;
         }
 
-        .pulse {
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.05);
-            }
-            100% {
-                transform: scale(1);
-            }
+        .download-link:hover {
+            background: var(--primary);
+            color: #fff;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1 class="pulse">¡Hola Mundo!</h1>
-        <p class="subtitle">Sandbox funcionando correctamente</p>
-        <div class="status">✅ Conectado</div>
+    <div class="dashboard">
+        <div class="logo-container">
+            <img class="logo-icon" src="https://knowmadproject.com/images/logo/favicon.png" alt="Icono KnowmadProject">
+            <img class="logo-text" src="https://knowmadproject.com/images/logo/logo-text.png" alt="KnowmadProject">
+        </div>
+        <h1>Tecnología que entiende personas</h1>
+        <p>No seguimos fórmulas, leemos contextos. Construimos soluciones adaptadas
+            a necesidades reales.</p>
+        <p>Estamos encantados de que te unas a nuestra comunidad. Comienza tu viaje
+            con los recursos del Welcome Pack.</p>
+        <div class="downloads">
+            <a href="#" class="download-link"
+               onclick="event.preventDefault(); alert('Descarga simulada: Guía de Bienvenida');">
+                Guía de Bienvenida (PDF)</a>
+            <a href="#" class="download-link"
+               onclick="event.preventDefault(); alert('Descarga simulada: Checklist de Onboarding');">
+                Checklist de Onboarding (DOCX)</a>
+        </div>
     </div>
 </body>
-</html> 
+</html>
