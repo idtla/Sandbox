@@ -7,7 +7,7 @@ Un repositorio completamente limpio para experimentar con cualquier tipo de proy
 Este es un **sandbox real** - un espacio de pruebas donde puedes crear cualquier cosa:
 
 - **Hoy:** Portada de un restaurante
-- **Mañana:** Página de un monitor de gimnasio  
+- **Mañana:** Página de un monitor de gimnasio
 - **Pasado mañana:** API de Node.js
 - **Cualquier día:** Lo que se te ocurra
 
@@ -27,4 +27,8 @@ Este es un **sandbox real** - un espacio de pruebas donde puedes crear cualquier
 
 ---
 
-*Este repositorio está listo para ser cualquier cosa que imagines.* 
+*Este repositorio está listo para ser cualquier cosa que imagines.*
+
+## Knowmad Project Dashboard
+
+Abre `index.html` en tu navegador para ver el dashboard y `register.html` para el portal de registro.

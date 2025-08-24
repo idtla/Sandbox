@@ -1,0 +1,59 @@
+:root {
+    --primary-color: #2a9d8f;
+    --secondary-color: #2a9d8f12;
+    --text-color: #264653;
+    --font-family: 'Segoe UI', 'Roboto', 'Oxygen', sans-serif;
+}
+
+body {
+    font-family: var(--font-family);
+    color: var(--text-color);
+    background-color: var(--secondary-color);
+    margin: 0;
+}
+
+header {
+    background-color: var(--primary-color);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+}
+
+header img {
+    height: 40px;
+    margin-right: 1rem;
+}
+
+nav a {
+    color: #fff;
+    margin-right: 1rem;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.container {
+    padding: 2rem;
+}
+
+button.primary {
+    background-color: var(--primary-color);
+    color: #fff;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+input, select, textarea {
+    padding: 0.5rem;
+    border: 1px solid var(--primary-color);
+    border-radius: 4px;
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+form {
+    max-width: 400px;
+    margin: 0 auto;
+}
