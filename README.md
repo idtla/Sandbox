@@ -4,15 +4,14 @@ Un proyecto simple de prueba para verificar la conexión con Codex y el desplieg
 
 ## Características
 
-- Página HTML simple con "Hola Mundo"
-- CSS moderno con gradientes y animaciones
-- Diseño responsive
-- Efectos visuales atractivos
+- Panel de bienvenida inspirado en KnowmadProject en `index.html`
+- Formulario de registro para nuevos miembros en `register.html`
 
 ## Uso
 
-Simplemente abre `index.html` en tu navegador para ver el resultado.
+Abre `index.html` para acceder al dashboard con enlaces simulados al Welcome Pack de la comunidad.
+Si deseas unirte, utiliza `register.html` y completa el formulario de inscripción.
 
 ## Despliegue
 
-Este proyecto está configurado para ser desplegado en el servidor siguiendo la estructura documentada en `Estructura_Servidor.md`. 
+Este proyecto está configurado para ser desplegado en el servidor siguiendo la estructura documentada en `Estructura_Servidor.md`.
