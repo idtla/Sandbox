@@ -1,0 +1,13 @@
+{
+  "forceSendyDown": false,
+  "forceRateLimit": false,
+  "forceSoldOut": false,
+  "forceHoldImmediateExpire": false,
+  "holdTtlSeconds": 180,
+  "latencyMinMs": 200,
+  "latencyMaxMs": 600,
+  "failRatePercent": 5,
+  "freezeTimeOffsetMs": 0,
+  "bypassCaptcha": false,
+  "disableEmailDelivery": false
+}

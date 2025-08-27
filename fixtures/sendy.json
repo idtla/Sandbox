@@ -1,0 +1,16 @@
+{
+  "lists": {
+    "event_default": {
+      "members": [
+        { "email": "ya@existe.com", "status": "subscribed", "fields": { "nombre": "Ana", "telefono": "" } }
+      ]
+    },
+    "test": {
+      "members": [
+        { "email": "admin@test.com" },
+        { "email": "inego@knowmadproject.com" }
+      ]
+    }
+  },
+  "behaviour": { "latencyMs": [200, 600], "failRatePercent": 5 }
+}

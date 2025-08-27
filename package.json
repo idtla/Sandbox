@@ -1,0 +1,26 @@
+{
+  "name": "preestreno",
+  "version": "0.1.0",
+  "description": "Landing de preestreno con Sendy y admin.",
+  "type": "module",
+  "scripts": {
+    "dev": "node server/index.js",
+    "start": "node server/index.js",
+    "seed": "node scripts/seed_event.js",
+    "smoke": "node scripts/smoke.js",
+    "lint": "echo 'lint sin configurar'",
+    "fmt": "echo 'format sin configurar'",
+    "test": "npm run lint"
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.2.0",
+    "csurf": "^1.11.0",
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.0.1",
+    "helmet": "^8.1.0",
+    "nodemailer": "^7.0.5",
+    "qrcode": "^1.5.4",
+    "uuid": "^11.1.0"
+  }
+}

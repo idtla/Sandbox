@@ -1,0 +1,13 @@
+body {
+  font-family: 'Segoe UI','Roboto','Oxygen', sans-serif;
+  color: #264653;
+  padding: 2rem;
+}
+button {
+  background: #2a9d8f;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
