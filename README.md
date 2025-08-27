@@ -1,34 +1,32 @@
-# 🧪 Sandbox
+# Landing de Preestreno (Esqueleto)
 
-Un repositorio completamente limpio para experimentar con cualquier tipo de proyecto.
+Repositorio inicial para una landing de reservas con Sendy y panel de administración.
 
-## 🎯 Propósito
+## Instalación
 
-Este es un **sandbox real** - un espacio de pruebas donde puedes crear cualquier cosa:
+```bash
+npm install
+cp .env.example .env
+npm run seed
+npm start
+```
 
-- **Hoy:** Portada de un restaurante
-- **Mañana:** Página de un monitor de gimnasio
-- **Pasado mañana:** API de Node.js
-- **Cualquier día:** Lo que se te ocurra
+## Modo MOCK y REAL
 
-## 🚀 Uso
+El proyecto está preparado para soportar servicios reales o mocks mediante variables de entorno `MOCK_SENDY` y `MOCK_SMTP`.
 
-1. **Codex puede crear cualquier proyecto** desde cero
-2. **Sin restricciones** de estructura o tecnología
-3. **Reset completo** cuando quieras cambiar de proyecto
-4. **Libertad total** para experimentar
+## Sendy y SMTP
 
-## 📝 Notas
+Configurar las variables de entorno `SENDY_URL`, `SENDY_API_KEY` y credenciales SMTP en `.env` para el modo real.
 
-- **Todo es temporal** - no hay "proyecto principal"
-- **Puede cambiar completamente** en cualquier momento
-- **Ideal para prototipos** y experimentos
-- **Codex tiene libertad total** para crear lo que quiera
+## Captcha y Redis
 
----
+Soporta Turnstile o hCaptcha según `CAPTCHA_PROVIDER`. Redis es opcional mediante `REDIS_URL`.
 
-*Este repositorio está listo para ser cualquier cosa que imagines.*
+## Semillas y pruebas
 
-## Knowmad Project Dashboard
+`scripts/seed_event.js` crea un evento de demostración. `npm test` ejecuta comprobaciones mínimas.
 
-Abre `index.html` en tu navegador para ver el dashboard y `register.html` para el portal de registro.
+## Seguridad
+
+El servidor usa Express con Helmet y rate limiting. Este es un esqueleto inicial, se requieren más validaciones antes de producción.
