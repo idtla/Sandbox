@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Project Timer (Glass)</title>
   <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
 </head>
 <body>
   <div class="noise" aria-hidden="true"></div>
@@ -25,8 +28,6 @@
             <div class="brand"><span class="dot" aria-hidden="true"></span> Project Timer</div>
             <div class="controls">
               <select id="projectSelect" aria-label="Selecciona proyecto"></select>
-              <button id="modeWork" class="btn-primary" type="button" aria-pressed="true">Work</button>
-              <button id="modeBreak" type="button" aria-pressed="false">Break</button>
             </div>
           </div>
           <div class="timer">
@@ -35,6 +36,9 @@
             <div class="btnrow">
               <button id="startBtn" class="btn-primary" type="button">Start</button>
               <button id="stopBtn" type="button" disabled>Stop</button>
+            </div>
+            <div class="btnrow secondary">
+              <button id="breakBtn" type="button" class="btn-break">Break</button>
               <button id="resetBtn" type="button">Reset sesión</button>
             </div>
             <div class="pillrow">
@@ -51,7 +55,7 @@
               <div class="value" id="todayWork">00:00:00</div>
             </div>
             <div class="stat">
-              <div class="label">Break (proyecto actual)</div>
+              <div class="label">Break (global)</div>
               <div class="value" id="todayBreak">00:00:00</div>
             </div>
             <div class="stat">
@@ -64,8 +68,8 @@
             <div id="perProjectRows"></div>
           </div>
           <div class="footerrow">
-            <button id="exportBtn" type="button">Exportar JSON</button>
-            <button id="clearTodayBtn" type="button">Borrar hoy</button>
+            <button id="exportBtn" type="button"><span class="material-icons" aria-hidden="true">download</span> Exportar JSON</button>
+            <button id="clearTodayBtn" type="button"><span class="material-icons" aria-hidden="true">delete_sweep</span> Borrar hoy</button>
           </div>
           <div class="log" id="log" aria-label="Registro de bloques"></div>
         </div>
@@ -85,7 +89,20 @@
                 <span style="color: var(--muted); font-size: 13px;">Color secundario</span>
                 <input type="color" id="projectColorB" value="#0d3b4a" title="Color B" aria-label="Color secundario" />
               </div>
-              <button type="button" id="addProjectBtn" class="btn-primary">Añadir proyecto</button>
+              <div class="form-actions">
+                <button type="button" id="addProjectBtn" class="btn-primary">
+                  <span class="material-icons" aria-hidden="true">add</span>
+                  Añadir proyecto
+                </button>
+                <button type="button" id="saveProjectBtn" class="btn-primary" style="display:none;">
+                  <span class="material-icons" aria-hidden="true">save</span>
+                  Guardar cambios
+                </button>
+                <button type="button" id="cancelEditBtn" style="display:none;">
+                  <span class="material-icons" aria-hidden="true">close</span>
+                  Cancelar
+                </button>
+              </div>
             </div>
           </div>
           <h3 style="margin-top:18px;">Proyectos actuales</h3>
@@ -100,7 +117,8 @@
           <div id="statsContent"></div>
           <div class="export-section">
             <p>Guarda todos los datos (proyectos, tiempos, logs) en un archivo JSON para llevártelo donde quieras o hacer copia de seguridad.</p>
-            <button type="button" id="exportStatsBtn" class="btn-primary">Guardar todo en JSON</button>
+            <button type="button" id="exportStatsBtn" class="btn-primary"><span class="material-icons" aria-hidden="true">save</span> Guardar todo en JSON</button>
+            <button type="button" id="importFromDataBtn" title="Carga data/store.json (sirve la carpeta con un servidor estático)"><span class="material-icons" aria-hidden="true">upload_file</span> Importar desde data/store.json</button>
           </div>
         </div>
       </div>

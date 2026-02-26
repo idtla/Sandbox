@@ -2,6 +2,7 @@
 :root {
   --bg-a: #4bbcee;
   --bg-b: #0d3b4a;
+  --bg-dark: #0a0e14; /* azul marino muy oscuro (pestañas Proyectos y Estadísticas) */
   --glass: rgba(255, 255, 255, 0.1);
   --glass-2: rgba(255, 255, 255, 0.14);
   --stroke: rgba(255, 255, 255, 0.2);
@@ -26,6 +27,12 @@ body {
     "Apple Color Emoji", "Segoe UI Emoji";
   color: var(--text);
   overflow: hidden;
+  background: var(--bg-dark);
+  transition: background 0.35s ease;
+}
+
+/* Solo en la pestaña Timer: fondo con el color del proyecto */
+body.tab-timer {
   background: radial-gradient(900px 600px at 30% 20%, var(--bg-a), transparent 60%),
     radial-gradient(900px 600px at 70% 10%, var(--bg-b), transparent 55%),
     linear-gradient(135deg, var(--bg-a), var(--bg-b));
@@ -207,6 +214,23 @@ button:disabled {
   border-color: rgba(255, 150, 150, 0.4);
 }
 
+/* Material Icons (ligatures) */
+.material-icons {
+  font-family: "Material Icons";
+  font-weight: normal;
+  font-style: normal;
+  font-size: 18px;
+  display: inline-block;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  direction: ltr;
+  -webkit-font-feature-settings: "liga";
+  -webkit-font-smoothing: antialiased;
+}
+
 /* Timer */
 .timer {
   display: grid;
@@ -237,6 +261,46 @@ button:disabled {
   flex-wrap: wrap;
   justify-content: center;
   margin-bottom: 12px;
+}
+
+.btnrow.secondary {
+  margin-top: -4px;
+}
+
+/* Botones del timer: Start/Stop más grandes */
+#startBtn,
+#stopBtn {
+  padding: 14px 18px;
+  font-size: 16px;
+  min-width: 120px;
+  border-radius: 16px;
+}
+
+/* Start: fondo claro (alto contraste) */
+#startBtn {
+  background: rgba(255, 255, 255, 0.92);
+  color: #0a0e14;
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+#startBtn:hover {
+  background: rgba(255, 255, 255, 0.98);
+  border-color: rgba(255, 255, 255, 0.45);
+}
+
+/* Stop: rojo siempre */
+#stopBtn {
+  background: rgba(255, 70, 70, 0.28);
+  border-color: rgba(255, 120, 120, 0.55);
+}
+
+#stopBtn:hover {
+  background: rgba(255, 70, 70, 0.35);
+  border-color: rgba(255, 150, 150, 0.65);
+}
+
+#stopBtn:disabled {
+  opacity: 0.65;
 }
 
 .pillrow {
@@ -357,6 +421,11 @@ button:disabled {
   border-top: 1px solid rgba(255, 255, 255, 0.14);
   max-height: 170px;
   overflow: auto;
+  scrollbar-width: none; /* Firefox */
+}
+
+.log::-webkit-scrollbar {
+  display: none; /* Chrome, Edge, Safari */
 }
 
 .logitem {
@@ -417,6 +486,10 @@ button:disabled {
   font-weight: 600;
 }
 
+.project-form input[type="text"]::placeholder {
+  color: rgba(255, 255, 255, 0.55);
+}
+
 .project-form input[type="color"] {
   height: 40px;
   cursor: pointer;
@@ -432,6 +505,21 @@ button:disabled {
 
 .color-row label {
   min-width: 80px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.form-actions .material-icons,
+.btn-icon .material-icons,
+.footerrow .material-icons {
+  font-size: 18px;
+  vertical-align: middle;
+  margin-right: 4px;
 }
 
 .project-list-item {
@@ -455,7 +543,19 @@ button:disabled {
 
 .project-list-item .actions {
   display: flex;
-  gap: 8px;
+  gap: 6px;
+  align-items: center;
+}
+
+.project-list-item .actions button {
+  padding: 8px 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.project-list-item .actions .material-icons {
+  font-size: 18px;
 }
 
 /* ===== Estadísticas ===== */

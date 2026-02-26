@@ -1,0 +1,13 @@
+{
+  "projects": [
+    { "id": "vass", "name": "VASS", "bgA": "#4bbcee", "bgB": "#0d3b4a" },
+    { "id": "sapos", "name": "Sapos y Princesas", "bgA": "#00a632", "bgB": "#003d14" },
+    { "id": "knowmad", "name": "Knowmad Project", "bgA": "#2a9d8f", "bgB": "#124e47" }
+  ],
+  "selectedProjectId": "vass",
+  "mode": "work",
+  "running": false,
+  "startedAt": null,
+  "accSessionMs": 0,
+  "days": {}
+}

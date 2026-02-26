@@ -1,6 +1,15 @@
 /* ===== Project Timer (Glass) - Lógica ===== */
 
-// Proyectos por defecto (se sobrescriben con store si existe)
+// Proyecto fijo de Break (no editable)
+const BREAK_PROJECT_ID = "__break";
+const BREAK_PROJECT = {
+  id: BREAK_PROJECT_ID,
+  name: "Break",
+  bgA: "#444bff",
+  bgB: "#14162e",
+};
+
+// Proyectos por defecto (sin incluir Break, que se añade siempre aparte)
 const DEFAULT_PROJECTS = [
   { id: "vass", name: "VASS", bgA: "#4bbcee", bgB: "#0d3b4a" },
   { id: "sapos", name: "Sapos y Princesas", bgA: "#00a632", bgB: "#003d14" },
@@ -14,14 +23,15 @@ const els = {};
 
 function gatherElements() {
   const ids = [
-    "projectSelect", "modeWork", "modeBreak", "statusText", "timeText",
-    "startBtn", "stopBtn", "resetBtn", "pillProject", "pillMode",
+    "projectSelect", "statusText", "timeText",
+    "startBtn", "stopBtn", "breakBtn", "resetBtn", "pillProject", "pillMode",
     "todayWork", "todayBreak", "sessionElapsed", "perProjectRows", "log",
     "exportBtn", "clearTodayBtn",
     "tabTimer", "tabProyectos", "tabEstadisticas",
     "panelTimer", "panelProyectos", "panelEstadisticas",
     "projectsList", "projectNameInput", "projectColorA", "projectColorB", "addProjectBtn",
-    "statsContent", "exportStatsBtn"
+    "saveProjectBtn", "cancelEditBtn",
+    "statsContent", "exportStatsBtn", "importFromDataBtn"
   ];
   ids.forEach(id => {
     const el = document.getElementById(id);
@@ -58,8 +68,14 @@ function saveStore(store) {
 }
 
 function getProjects(store) {
-  if (store?.projects?.length) return store.projects;
-  return DEFAULT_PROJECTS.map((p) => ({ ...p }));
+  const base = store?.projects?.length
+    ? store.projects.slice()
+    : DEFAULT_PROJECTS.map((p) => ({ ...p }));
+  // Aseguramos que el proyecto Break exista siempre (una sola vez)
+  if (!base.find((p) => p.id === BREAK_PROJECT_ID)) {
+    base.unshift({ ...BREAK_PROJECT });
+  }
+  return base;
 }
 
 function initStore() {
@@ -68,8 +84,10 @@ function initStore() {
     existing.projects = getProjects(existing);
     return existing;
   }
+  const projects = getProjects(null);
   const store = {
-    projects: DEFAULT_PROJECTS.map((p) => ({ ...p })),
+    projects,
+    // Proyecto inicial por defecto: el primero \"real\", no Break
     selectedProjectId: DEFAULT_PROJECTS[0]?.id ?? "vass",
     mode: "work",
     running: false,
@@ -84,6 +102,7 @@ function initStore() {
 let store = initStore();
 let PROJECTS = store.projects;
 let tickTimer = null;
+let editingProjectId = null;
 
 function ensureDayProject(dayKey, projectId) {
   store.days[dayKey] ??= {};
@@ -102,16 +121,6 @@ function setThemeByProject(projectId) {
 function setMode(mode) {
   store.mode = mode;
   if (els.pillMode) els.pillMode.textContent = mode === "break" ? "Break" : "Work";
-
-  const isWork = mode === "work";
-  if (els.modeWork) {
-    els.modeWork.classList.toggle("btn-primary", isWork);
-    els.modeWork.setAttribute("aria-pressed", String(isWork));
-  }
-  if (els.modeBreak) {
-    els.modeBreak.classList.toggle("btn-primary", !isWork);
-    els.modeBreak.setAttribute("aria-pressed", String(!isWork));
-  }
 
   if (els.statusText) {
     els.statusText.textContent = store.running
@@ -166,10 +175,11 @@ function stopTimer(silent = false) {
   const dayKey = nowISODate();
   const projectId = store.selectedProjectId;
   const bucket = ensureDayProject(dayKey, projectId);
+  const nowLog = { ts: Date.now(), mode: store.mode, ms: store.accSessionMs };
 
   const modeKey = store.mode === "break" ? "breakMs" : "workMs";
-  bucket[modeKey] += store.accSessionMs;
-  bucket.logs.push({ ts: Date.now(), mode: store.mode, ms: store.accSessionMs });
+  bucket[modeKey] = (bucket[modeKey] || 0) + store.accSessionMs;
+  bucket.logs.push(nowLog);
 
   store.running = false;
   store.startedAt = null;
@@ -186,6 +196,11 @@ function stopTimer(silent = false) {
   if (!silent) {
     renderTotalsAndLog();
     renderTime();
+  }
+
+  // Después de un break volvemos a modo work por defecto
+  if (store.mode === "break") {
+    setMode("work");
   }
 }
 
@@ -226,7 +241,9 @@ function renderPerProjectTotals() {
 
   els.perProjectRows.innerHTML = PROJECTS.map((p) => {
     const d = day[p.id] || { workMs: 0, breakMs: 0 };
-    const total = (d.workMs || 0) + (d.breakMs || 0);
+    // Para proyectos normales usamos su Work; para el proyecto Break usamos su Break
+    const isBreakProject = p.id === BREAK_PROJECT_ID;
+    const total = isBreakProject ? (d.breakMs || 0) : (d.workMs || 0);
     return `
       <div class="row">
         <div class="name">
@@ -234,8 +251,6 @@ function renderPerProjectTotals() {
           ${p.name}
         </div>
         <div class="nums">
-          <span class="badge">Work ${fmtHMS(d.workMs || 0)}</span>
-          <span class="badge">Break ${fmtHMS(d.breakMs || 0)}</span>
           <span class="badge">Total ${fmtHMS(total)}</span>
         </div>
       </div>
@@ -248,15 +263,22 @@ function renderTotalsAndLog() {
   const pid = store.selectedProjectId;
   const day = getDayAllProjects(dayKey);
   const current = day[pid];
+  const breakBucket = day[BREAK_PROJECT_ID] || { workMs: 0, breakMs: 0, logs: [] };
 
   if (els.todayWork) els.todayWork.textContent = fmtHMS(current?.workMs || 0);
-  if (els.todayBreak) els.todayBreak.textContent = fmtHMS(current?.breakMs || 0);
+  if (els.todayBreak) els.todayBreak.textContent = fmtHMS(breakBucket?.breakMs || 0);
 
   renderPerProjectTotals();
 
   if (els.log) {
-    const logs = (current?.logs || []).slice().reverse().slice(0, 20);
-    els.log.innerHTML = logs
+    const projectLogs = current?.logs || [];
+    const breakLogs = breakBucket?.logs || [];
+    const allLogs =
+      pid === BREAK_PROJECT_ID
+        ? breakLogs
+        : [...projectLogs, ...breakLogs];
+    const limited = allLogs.sort((a, b) => (b.ts || 0) - (a.ts || 0)).slice(0, 20);
+    els.log.innerHTML = limited
       .map((l) => {
         const when = new Date(l.ts);
         const hh = String(when.getHours()).padStart(2, "0");
@@ -273,7 +295,7 @@ function renderTotalsAndLog() {
   }
 }
 
-// ===== Export JSON (descarga portable) =====
+// ===== Export / Import JSON =====
 function exportJSON() {
   const data = loadStore() || store;
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
@@ -285,6 +307,31 @@ function exportJSON() {
   a.click();
   a.remove();
   URL.revokeObjectURL(url);
+}
+
+/** Carga data/store.json (solo funciona si la página se sirve por HTTP, no con file://) y sustituye el store. */
+async function importFromDataFile() {
+  try {
+    const res = await fetch("data/store.json");
+    if (!res.ok) {
+      alert("No se encontró data/store.json. Asegúrate de haber ejecutado el script de sincronización y de abrir la página con un servidor (p. ej. npx serve .).");
+      return;
+    }
+    const data = await res.json();
+    if (!data || typeof data !== "object") {
+      alert("El archivo no tiene un formato válido.");
+      return;
+    }
+    if (!data.projects || !Array.isArray(data.projects)) {
+      alert("El JSON no tiene la estructura esperada (falta 'projects').");
+      return;
+    }
+    if (!confirm("Se sustituirán todos los datos actuales por los de data/store.json. ¿Continuar?")) return;
+    saveStore(data);
+    location.reload();
+  } catch (e) {
+    alert("Error al cargar data/store.json: " + (e.message || e));
+  }
 }
 
 function clearToday() {
@@ -304,36 +351,80 @@ function showTab(tabId) {
     const tab = document.getElementById(id);
     if (tab) tab.classList.toggle("active", "panel" + id.slice(3) === tabId);
   });
+  // Fondo: color del proyecto solo en Timer; azul marino oscuro en Proyectos y Estadísticas
+  document.body.classList.toggle("tab-timer", tabId === "panelTimer");
   if (tabId === "panelEstadisticas") renderStatsPanel();
   if (tabId === "panelProyectos") renderProjectsConfig();
 }
 
 // ===== Configuración de proyectos =====
-function addProject() {
+function setProjectFormVisible(editing) {
+  const addBtn = els.addProjectBtn;
+  const saveBtn = els.saveProjectBtn;
+  const cancelBtn = els.cancelEditBtn;
+  if (addBtn) addBtn.style.display = editing ? "none" : "";
+  if (saveBtn) saveBtn.style.display = editing ? "" : "none";
+  if (cancelBtn) cancelBtn.style.display = editing ? "" : "none";
+}
+
+function startEditProject(projectId) {
+  if (projectId === BREAK_PROJECT_ID) return; // Break no es editable
+  const p = PROJECTS.find((x) => x.id === projectId);
+  if (!p) return;
+  editingProjectId = projectId;
+  if (els.projectNameInput) els.projectNameInput.value = p.name;
+  if (els.projectColorA) els.projectColorA.value = p.bgA || "#4bbcee";
+  if (els.projectColorB) els.projectColorB.value = p.bgB || "#0d3b4a";
+  setProjectFormVisible(true);
+}
+
+function cancelEdit() {
+  editingProjectId = null;
+  if (els.projectNameInput) els.projectNameInput.value = "";
+  if (els.projectColorA) els.projectColorA.value = "#4bbcee";
+  if (els.projectColorB) els.projectColorB.value = "#0d3b4a";
+  setProjectFormVisible(false);
+}
+
+function addOrSaveProject() {
   const nameEl = els.projectNameInput;
   const colorA = els.projectColorA?.value || "#4bbcee";
   const colorB = els.projectColorB?.value || "#0d3b4a";
   const name = (nameEl?.value || "").trim();
   if (!name) return;
 
-  const id = idFromName(name);
-  const existing = PROJECTS.find((p) => p.id === id);
-  if (existing) {
-    existing.name = name;
-    existing.bgA = colorA;
-    existing.bgB = colorB;
+  if (editingProjectId) {
+    if (editingProjectId === BREAK_PROJECT_ID) return; // seguridad extra
+    const existing = PROJECTS.find((p) => p.id === editingProjectId);
+    if (existing) {
+      existing.name = name;
+      existing.bgA = colorA;
+      existing.bgB = colorB;
+    }
+    store.projects = PROJECTS;
+    saveStore(store);
+    cancelEdit();
   } else {
-    PROJECTS.push({ id, name, bgA: colorA, bgB: colorB });
+    const id = idFromName(name);
+    const existing = PROJECTS.find((p) => p.id === id);
+    if (existing) {
+      existing.name = name;
+      existing.bgA = colorA;
+      existing.bgB = colorB;
+    } else {
+      PROJECTS.push({ id, name, bgA: colorA, bgB: colorB });
+    }
+    store.projects = PROJECTS;
+    saveStore(store);
+    if (nameEl) nameEl.value = "";
   }
-  store.projects = PROJECTS;
-  saveStore(store);
-  if (nameEl) nameEl.value = "";
   renderProjectsConfig();
   refreshProjectSelect();
   renderTotalsAndLog();
 }
 
 function deleteProject(projectId) {
+  if (projectId === BREAK_PROJECT_ID) return; // no se puede borrar Break
   if (PROJECTS.length <= 1) return;
   PROJECTS = PROJECTS.filter((p) => p.id !== projectId);
   store.projects = PROJECTS;
@@ -355,7 +446,7 @@ function refreshProjectSelect() {
 
 function renderProjectsConfig() {
   if (!els.projectsList) return;
-  els.projectsList.innerHTML = PROJECTS.map(
+  els.projectsList.innerHTML = PROJECTS.filter((p) => p.id !== BREAK_PROJECT_ID).map(
     (p) => `
     <div class="project-list-item">
       <div class="name">
@@ -363,12 +454,22 @@ function renderProjectsConfig() {
         ${p.name}
       </div>
       <div class="actions">
-        <button type="button" class="btn-danger delete-project" data-id="${p.id}">Eliminar</button>
+        <button type="button" class="edit-project" data-id="${p.id}" title="Editar">
+          <span class="material-icons" aria-hidden="true">edit</span>
+          Editar
+        </button>
+        <button type="button" class="btn-danger delete-project" data-id="${p.id}" title="Eliminar">
+          <span class="material-icons" aria-hidden="true">delete</span>
+          Eliminar
+        </button>
       </div>
     </div>
   `
   ).join("");
 
+  els.projectsList.querySelectorAll(".edit-project").forEach((btn) => {
+    btn.addEventListener("click", () => startEditProject(btn.dataset.id));
+  });
   els.projectsList.querySelectorAll(".delete-project").forEach((btn) => {
     btn.addEventListener("click", () => deleteProject(btn.dataset.id));
   });
@@ -384,7 +485,8 @@ function renderStatsPanel() {
     html += `<h3 style="margin:14px 0 8px; font-size:14px;">${dayKey}</h3>`;
     for (const p of PROJECTS) {
       const d = day[p.id] || { workMs: 0, breakMs: 0 };
-      const total = (d.workMs || 0) + (d.breakMs || 0);
+      const isBreakProject = p.id === BREAK_PROJECT_ID;
+      const total = isBreakProject ? (d.breakMs || 0) : (d.workMs || 0);
       if (total === 0) continue;
       html += `
         <div class="row">
@@ -393,8 +495,6 @@ function renderStatsPanel() {
             ${p.name}
           </div>
           <div class="nums">
-            <span class="badge">Work ${fmtHMS(d.workMs || 0)}</span>
-            <span class="badge">Break ${fmtHMS(d.breakMs || 0)}</span>
             <span class="badge">Total ${fmtHMS(total)}</span>
           </div>
         </div>
@@ -409,6 +509,8 @@ function renderStatsPanel() {
 function initUI() {
   gatherElements();
   PROJECTS = store.projects;
+
+  document.body.classList.add("tab-timer");
 
   refreshProjectSelect();
   setThemeByProject(store.selectedProjectId);
@@ -440,16 +542,39 @@ function initUI() {
   if (els.exportBtn) els.exportBtn.addEventListener("click", exportJSON);
   if (els.clearTodayBtn) els.clearTodayBtn.addEventListener("click", clearToday);
 
-  if (els.addProjectBtn) els.addProjectBtn.addEventListener("click", addProject);
+  if (els.addProjectBtn) els.addProjectBtn.addEventListener("click", addOrSaveProject);
+  if (els.saveProjectBtn) els.saveProjectBtn.addEventListener("click", addOrSaveProject);
+  if (els.cancelEditBtn) els.cancelEditBtn.addEventListener("click", cancelEdit);
   if (els.exportStatsBtn) els.exportStatsBtn.addEventListener("click", exportJSON);
+  if (els.importFromDataBtn) els.importFromDataBtn.addEventListener("click", () => importFromDataFile());
+
+  function startQuickBreak() {
+    if (store.running && store.mode === "break") return;
+    if (store.running) {
+      stopTimer(false);
+    }
+    // Cambiamos explícitamente al proyecto Break y arrancamos en modo break
+    store.selectedProjectId = BREAK_PROJECT_ID;
+    saveStore(store);
+    if (els.projectSelect) els.projectSelect.value = BREAK_PROJECT_ID;
+    setThemeByProject(BREAK_PROJECT_ID);
+    setMode("break");
+    startTimer(false);
+  }
+
+  if (els.breakBtn) els.breakBtn.addEventListener("click", startQuickBreak);
 
   window.addEventListener("keydown", (e) => {
     if (e.target && ["INPUT", "TEXTAREA", "SELECT"].includes(e.target.tagName)) return;
     if (e.code === "Space") {
       e.preventDefault();
       store.running ? stopTimer(false) : startTimer(false);
-    } else if (e.key.toLowerCase() === "b") setMode("break");
-    else if (e.key.toLowerCase() === "w") setMode("work");
+    } else if (e.key.toLowerCase() === "b") {
+      e.preventDefault();
+      startQuickBreak();
+    } else if (e.key.toLowerCase() === "w") {
+      setMode("work");
+    }
   });
 }
 

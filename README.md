@@ -46,3 +46,24 @@ Abre `index.html` en el navegador (o sirve la carpeta con cualquier servidor est
 - En el dashboard de Supabase, en Authentication → URL Configuration, añade tu origen (ej. `http://localhost:3000`) si usas autenticación.
 
 Con eso, tu HTML/CSS/JS local puede leer y escribir en Supabase sin desplegar la app en ningún lado.
+
+## Sincronizar datos con un JSON estático
+
+Puedes usar un script para **descargar/salvar los datos en un JSON** y que la página estática los cargue:
+
+1. **Exportar desde la app**: En Estadísticas, "Guardar todo en JSON" y guarda el archivo donde quieras.
+2. **Llevar ese JSON al proyecto**: ejecuta (reemplaza la ruta por tu archivo):
+   ```bash
+   node scripts/sync-to-json.js ruta/a/project-timer-2025-02-26.json
+   ```
+   Eso escribe `data/store.json`.
+3. **Servir la carpeta** (necesario para que `fetch('data/store.json')` funcione):
+   ```bash
+   npx serve .
+   ```
+4. En la app, pestaña **Estadísticas** → **Importar desde data/store.json**. Los datos del JSON sustituyen a los del navegador y la página se recarga.
+
+**Opciones del script** (ver ayuda con `node scripts/sync-to-json.js --help`):
+- `node scripts/sync-to-json.js <archivo.json>` — copia ese archivo a `data/store.json`.
+- `node scripts/sync-to-json.js --stdin` — lee JSON por stdin y escribe en `data/store.json`.
+- Con variables `SUPABASE_URL` y `SUPABASE_ANON_KEY`, el script puede descargar desde una tabla de Supabase y guardar en `data/store.json`.
