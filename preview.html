@@ -1,0 +1,711 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Project Timer (Glass)</title>
+  <style>
+    :root{
+      --bg-a: #4bbcee; /* default VASS */
+      --bg-b: #0d3b4a;
+      --glass: rgba(255,255,255,.10);
+      --glass-2: rgba(255,255,255,.14);
+      --stroke: rgba(255,255,255,.20);
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.70);
+      --shadow: 0 24px 60px rgba(0,0,0,.28);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      color: var(--text);
+      overflow:hidden;
+      background: radial-gradient(900px 600px at 30% 20%, var(--bg-a), transparent 60%),
+                  radial-gradient(900px 600px at 70% 10%, var(--bg-b), transparent 55%),
+                  linear-gradient(135deg, var(--bg-a), var(--bg-b));
+    }
+
+    .noise{
+      position: fixed; inset:0;
+      pointer-events:none;
+      opacity:.08;
+      mix-blend-mode: overlay;
+      background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+      background-size: 220px 220px;
+    }
+
+    .wrap{
+      height:100%;
+      display:grid;
+      place-items:center;
+      padding: 28px;
+    }
+
+    .card{
+      width:min(980px, 96vw);
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 18px;
+      padding: 18px;
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, var(--glass), rgba(255,255,255,.06));
+      border: 1px solid var(--stroke);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+
+    .panel{
+      border-radius: calc(var(--radius) - 8px);
+      background: linear-gradient(180deg, var(--glass-2), rgba(255,255,255,.06));
+      border: 1px solid rgba(255,255,255,.16);
+      padding: 18px;
+      min-height: 300px;
+    }
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      font-weight: 650;
+      letter-spacing:.2px;
+    }
+    .dot{
+      width: 10px; height: 10px; border-radius:999px;
+      background: rgba(255,255,255,.9);
+      box-shadow: 0 0 0 6px rgba(255,255,255,.10);
+    }
+
+    .controls{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    /* Select cerrado: blanco (glass) */
+    select{
+      appearance:none;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.08);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 10px 34px 10px 12px;
+      font-weight: 700;
+      outline: none;
+      background-image:
+        linear-gradient(45deg, transparent 50%, rgba(255,255,255,.85) 50%),
+        linear-gradient(135deg, rgba(255,255,255,.85) 50%, transparent 50%);
+      background-position:
+        calc(100% - 16px) 55%,
+        calc(100% - 11px) 55%;
+      background-size: 6px 6px, 6px 6px;
+      background-repeat:no-repeat;
+    }
+
+    /* Dropdown nativo: opciones legibles (negro sobre blanco) */
+    select option{
+      color: #000;
+      background: #fff;
+    }
+
+    button{
+      appearance:none;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.08);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 10px 12px;
+      font-weight: 700;
+      cursor:pointer;
+      transition: transform .08s ease, background .15s ease, border-color .15s ease;
+    }
+    button:hover{ background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.28); }
+    button:active{ transform: translateY(1px); }
+    button:disabled{ opacity:.55; cursor:not-allowed; }
+
+    .btn-primary{
+      background: rgba(255,255,255,.16);
+      border-color: rgba(255,255,255,.28);
+    }
+
+    .timer{
+      display:grid;
+      place-items:center;
+      padding: 18px 10px 8px;
+      text-align:center;
+    }
+    .time{
+      font-size: clamp(58px, 8vw, 92px);
+      line-height: 1;
+      font-weight: 800;
+      letter-spacing: 1px;
+      margin: 8px 0 10px;
+      text-shadow: 0 12px 40px rgba(0,0,0,.20);
+    }
+    .subtitle{
+      color: var(--muted);
+      font-weight: 700;
+      letter-spacing: .2px;
+      margin-bottom: 14px;
+    }
+
+    .btnrow{
+      display:flex;
+      gap: 10px;
+      flex-wrap:wrap;
+      justify-content:center;
+      margin-bottom: 12px;
+    }
+
+    .pillrow{
+      display:flex;
+      gap:8px;
+      justify-content:center;
+      flex-wrap:wrap;
+      margin-top: 6px;
+    }
+    .pill{
+      font-size: 12px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.06);
+      color: rgba(255,255,255,.82);
+    }
+    .pill strong{ color: rgba(255,255,255,.95); }
+
+    .side h3{
+      margin: 2px 0 10px;
+      font-size: 14px;
+      letter-spacing:.25px;
+      color: rgba(255,255,255,.86);
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .stats{
+      display:grid;
+      gap: 10px;
+    }
+    .stat{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      padding: 12px 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+    }
+    .stat .label{ color: rgba(255,255,255,.74); font-weight: 750; }
+    .stat .value{ font-weight: 850; letter-spacing:.3px; }
+
+    .perProject{
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255,255,255,.14);
+    }
+    .row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      padding: 10px 10px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.05);
+      margin-bottom: 8px;
+    }
+    .row .name{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      font-weight: 850;
+      color: rgba(255,255,255,.90);
+    }
+    .swatch{
+      width:10px; height:10px; border-radius:999px;
+      box-shadow: 0 0 0 6px rgba(255,255,255,.08);
+    }
+    .row .nums{
+      display:flex;
+      gap: 12px;
+      align-items:center;
+      justify-content:flex-end;
+      font-weight: 800;
+      letter-spacing:.2px;
+      color: rgba(255,255,255,.92);
+      flex-wrap:wrap;
+    }
+    .badge{
+      font-size: 12px;
+      font-weight: 850;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.06);
+      color: rgba(255,255,255,.86);
+      white-space:nowrap;
+    }
+
+    .log{
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255,255,255,.14);
+      max-height: 170px;
+      overflow:auto;
+    }
+    .logitem{
+      display:flex;
+      justify-content:space-between;
+      gap: 10px;
+      padding: 10px 8px;
+      border-radius: 12px;
+      color: rgba(255,255,255,.82);
+    }
+    .logitem:hover{ background: rgba(255,255,255,.06); }
+    .logitem small{ color: rgba(255,255,255,.64); font-weight:750; }
+
+    .footerrow{
+      margin-top: 10px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    @media (max-width: 860px){
+      .card{ grid-template-columns: 1fr; }
+      .controls{ justify-content:flex-start; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="noise"></div>
+
+  <div class="wrap">
+    <div class="card" role="application" aria-label="Project timer">
+      <!-- LEFT -->
+      <div class="panel">
+        <div class="topbar">
+          <div class="brand"><span class="dot" aria-hidden="true"></span> Project Timer</div>
+          <div class="controls">
+            <select id="projectSelect" aria-label="Selecciona proyecto"></select>
+            <button id="modeWork" class="btn-primary" type="button" aria-pressed="true">Work</button>
+            <button id="modeBreak" type="button" aria-pressed="false">Break</button>
+          </div>
+        </div>
+
+        <div class="timer">
+          <div class="subtitle" id="statusText">Listo</div>
+          <div class="time" id="timeText">00:00:00</div>
+
+          <div class="btnrow">
+            <button id="startBtn" class="btn-primary" type="button">Start</button>
+            <button id="stopBtn" type="button" disabled>Stop</button>
+            <button id="resetBtn" type="button">Reset sesión</button>
+          </div>
+
+          <div class="pillrow">
+            <div class="pill">Proyecto: <strong id="pillProject">—</strong></div>
+            <div class="pill">Modo: <strong id="pillMode">Work</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT -->
+      <div class="panel side">
+        <h3>Totales (hoy)</h3>
+        <div class="stats">
+          <div class="stat">
+            <div class="label">Work (proyecto actual)</div>
+            <div class="value" id="todayWork">00:00:00</div>
+          </div>
+          <div class="stat">
+            <div class="label">Break (proyecto actual)</div>
+            <div class="value" id="todayBreak">00:00:00</div>
+          </div>
+          <div class="stat">
+            <div class="label">Sesión actual</div>
+            <div class="value" id="sessionElapsed">00:00:00</div>
+          </div>
+        </div>
+
+        <div class="perProject" aria-label="Totales por proyecto">
+          <h3 style="margin-top:14px;">Hoy por proyecto</h3>
+          <div id="perProjectRows"></div>
+        </div>
+
+        <div class="footerrow">
+          <button id="exportBtn" type="button">Export JSON</button>
+          <button id="clearTodayBtn" type="button">Borrar hoy</button>
+        </div>
+
+        <div class="log" id="log" aria-label="Registro de bloques"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ====== PROYECTOS ======
+    const PROJECTS = [
+      { id: "vass",   name: "VASS",               bgA: "#4bbcee", bgB: "#0d3b4a" },
+      { id: "sapos",  name: "Sapos y Princesas",  bgA: "#00a632", bgB: "#003d14" },
+      { id: "knowmad",name: "Knowmad Project",    bgA: "#2a9d8f", bgB: "#124e47" },
+    ];
+
+    // ====== DOM ======
+    const els = {
+      projectSelect: document.getElementById("projectSelect"),
+      modeWork: document.getElementById("modeWork"),
+      modeBreak: document.getElementById("modeBreak"),
+      statusText: document.getElementById("statusText"),
+      timeText: document.getElementById("timeText"),
+      startBtn: document.getElementById("startBtn"),
+      stopBtn: document.getElementById("stopBtn"),
+      resetBtn: document.getElementById("resetBtn"),
+      pillProject: document.getElementById("pillProject"),
+      pillMode: document.getElementById("pillMode"),
+      todayWork: document.getElementById("todayWork"),
+      todayBreak: document.getElementById("todayBreak"),
+      sessionElapsed: document.getElementById("sessionElapsed"),
+      perProjectRows: document.getElementById("perProjectRows"),
+      log: document.getElementById("log"),
+      exportBtn: document.getElementById("exportBtn"),
+      clearTodayBtn: document.getElementById("clearTodayBtn"),
+    };
+
+    const STORAGE_KEY = "project_timer_glass_v2";
+
+    const nowISODate = () => new Date().toISOString().slice(0,10); // YYYY-MM-DD
+    const fmtHMS = (ms) => {
+      ms = Math.max(0, Math.floor(ms));
+      const totalSec = Math.floor(ms / 1000);
+      const h = Math.floor(totalSec / 3600);
+      const m = Math.floor((totalSec % 3600) / 60);
+      const s = totalSec % 60;
+      const pad = (n) => String(n).padStart(2, "0");
+      return `${pad(h)}:${pad(m)}:${pad(s)}`;
+    };
+
+    function loadStore(){
+      try{
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if(!raw) return null;
+        return JSON.parse(raw);
+      }catch(_){ return null; }
+    }
+    function saveStore(store){
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
+    }
+
+    // store schema:
+    // {
+    //   selectedProjectId, mode: "work"|"break",
+    //   running: bool, startedAt: epochMs|null, accSessionMs: number,
+    //   days: { "YYYY-MM-DD": { [projectId]: { workMs, breakMs, logs:[...] } } }
+    // }
+    function initStore(){
+      const existing = loadStore();
+      if(existing) return existing;
+
+      const store = {
+        selectedProjectId: PROJECTS[0]?.id ?? "vass",
+        mode: "work",
+        running: false,
+        startedAt: null,
+        accSessionMs: 0,
+        days: {}
+      };
+      saveStore(store);
+      return store;
+    }
+
+    let store = initStore();
+    let tickTimer = null;
+
+    function ensureDayProject(dayKey, projectId){
+      store.days[dayKey] ??= {};
+      store.days[dayKey][projectId] ??= { workMs: 0, breakMs: 0, logs: [] };
+      return store.days[dayKey][projectId];
+    }
+
+    function setThemeByProject(projectId){
+      const p = PROJECTS.find(x => x.id === projectId) || PROJECTS[0];
+      if(!p) return;
+      document.documentElement.style.setProperty("--bg-a", p.bgA);
+      document.documentElement.style.setProperty("--bg-b", p.bgB);
+      els.pillProject.textContent = p.name;
+    }
+
+    function setMode(mode){
+      store.mode = mode;
+      els.pillMode.textContent = mode === "break" ? "Break" : "Work";
+
+      const isWork = mode === "work";
+      els.modeWork.classList.toggle("btn-primary", isWork);
+      els.modeBreak.classList.toggle("btn-primary", !isWork);
+      els.modeWork.setAttribute("aria-pressed", String(isWork));
+      els.modeBreak.setAttribute("aria-pressed", String(!isWork));
+
+      els.statusText.textContent = store.running
+        ? (mode === "break" ? "En break" : "En foco")
+        : "Listo";
+
+      saveStore(store);
+      renderTotalsAndLog();
+    }
+
+    function setProject(projectId){
+      // Si está corriendo: cerrar bloque y reabrir para el nuevo proyecto
+      if(store.running){
+        stopTimer(true /* silent */);
+        store.selectedProjectId = projectId;
+        saveStore(store);
+        setThemeByProject(projectId);
+        startTimer(true /* resumed */);
+        return;
+      }
+      store.selectedProjectId = projectId;
+      saveStore(store);
+      setThemeByProject(projectId);
+      renderTotalsAndLog();
+    }
+
+    function currentSessionMs(){
+      if(!store.running || !store.startedAt) return store.accSessionMs || 0;
+      return (store.accSessionMs || 0) + (Date.now() - store.startedAt);
+    }
+
+    function startTimer(resumed=false){
+      if(store.running) return;
+      store.running = true;
+      store.startedAt = Date.now();
+      saveStore(store);
+
+      els.startBtn.disabled = true;
+      els.stopBtn.disabled = false;
+
+      els.statusText.textContent = store.mode === "break" ? "En break" : "En foco";
+      if(!resumed) renderTime();
+
+      if(tickTimer) clearInterval(tickTimer);
+      tickTimer = setInterval(renderTime, 250);
+    }
+
+    function stopTimer(silent=false){
+      if(!store.running) return;
+
+      // consolidar ms de la sesión
+      const elapsedMs = Date.now() - store.startedAt;
+      store.accSessionMs = (store.accSessionMs || 0) + elapsedMs;
+
+      // guardar en totales del día/proyecto y log
+      const dayKey = nowISODate();
+      const projectId = store.selectedProjectId;
+      const bucket = ensureDayProject(dayKey, projectId);
+
+      const modeKey = store.mode === "break" ? "breakMs" : "workMs";
+      bucket[modeKey] += store.accSessionMs;
+
+      bucket.logs.push({
+        ts: Date.now(),
+        mode: store.mode,
+        ms: store.accSessionMs
+      });
+
+      // reset sesión
+      store.running = false;
+      store.startedAt = null;
+      store.accSessionMs = 0;
+
+      saveStore(store);
+
+      if(tickTimer) clearInterval(tickTimer);
+      tickTimer = null;
+
+      els.startBtn.disabled = false;
+      els.stopBtn.disabled = true;
+
+      els.statusText.textContent = "Listo";
+
+      if(!silent){
+        renderTotalsAndLog();
+        renderTime();
+      }
+    }
+
+    function resetSession(){
+      // resetea contador actual sin registrar nada
+      store.running = false;
+      store.startedAt = null;
+      store.accSessionMs = 0;
+      saveStore(store);
+
+      if(tickTimer) clearInterval(tickTimer);
+      tickTimer = null;
+
+      els.startBtn.disabled = false;
+      els.stopBtn.disabled = true;
+
+      els.statusText.textContent = "Listo";
+      renderTime();
+      renderTotalsAndLog();
+    }
+
+    function renderTime(){
+      const ms = currentSessionMs();
+      els.timeText.textContent = fmtHMS(ms);
+      els.sessionElapsed.textContent = fmtHMS(ms);
+    }
+
+    function getDayAllProjects(dayKey){
+      store.days[dayKey] ??= {};
+      // asegurar todos los proyectos (para pintar filas aunque estén a 0)
+      for(const p of PROJECTS){
+        store.days[dayKey][p.id] ??= { workMs: 0, breakMs: 0, logs: [] };
+      }
+      return store.days[dayKey];
+    }
+
+    function renderPerProjectTotals(){
+      const dayKey = nowISODate();
+      const day = getDayAllProjects(dayKey);
+
+      els.perProjectRows.innerHTML = PROJECTS.map(p => {
+        const d = day[p.id] || { workMs: 0, breakMs: 0 };
+        const total = (d.workMs || 0) + (d.breakMs || 0);
+        return `
+          <div class="row">
+            <div class="name">
+              <span class="swatch" style="background:${p.bgA}"></span>
+              ${p.name}
+            </div>
+            <div class="nums">
+              <span class="badge">Work ${fmtHMS(d.workMs || 0)}</span>
+              <span class="badge">Break ${fmtHMS(d.breakMs || 0)}</span>
+              <span class="badge">Total ${fmtHMS(total)}</span>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderTotalsAndLog(){
+      const dayKey = nowISODate();
+      const pid = store.selectedProjectId;
+      const day = getDayAllProjects(dayKey);
+      const current = day[pid];
+
+      els.todayWork.textContent = fmtHMS(current?.workMs || 0);
+      els.todayBreak.textContent = fmtHMS(current?.breakMs || 0);
+
+      renderPerProjectTotals();
+
+      // log del proyecto actual (últimos 20)
+      const logs = (current?.logs || []).slice().reverse().slice(0, 20);
+      els.log.innerHTML = logs.map(l => {
+        const when = new Date(l.ts);
+        const hh = String(when.getHours()).padStart(2,"0");
+        const mm = String(when.getMinutes()).padStart(2,"0");
+        const label = l.mode === "break" ? "Break" : "Work";
+        return `
+          <div class="logitem">
+            <div><strong>${label}</strong> · ${fmtHMS(l.ms)}</div>
+            <div><small>${hh}:${mm}</small></div>
+          </div>
+        `;
+      }).join("") || `<div class="logitem"><div>No hay registros hoy para este proyecto.</div></div>`;
+    }
+
+    function exportJSON(){
+      const data = loadStore() || store;
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `project-timer-${nowISODate()}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function clearToday(){
+      const dayKey = nowISODate();
+      // borra hoy para TODOS los proyectos
+      store.days[dayKey] = {};
+      saveStore(store);
+      renderTotalsAndLog();
+    }
+
+    // ====== UI init ======
+    function initUI(){
+      els.projectSelect.innerHTML = PROJECTS.map(p => (
+        `<option value="${p.id}">${p.name}</option>`
+      )).join("");
+
+      // Apply saved selection
+      els.projectSelect.value = store.selectedProjectId;
+      setThemeByProject(store.selectedProjectId);
+
+      setMode(store.mode);
+      renderTotalsAndLog();
+      renderTime();
+
+      // Restore running state if reload
+      if(store.running && store.startedAt){
+        els.startBtn.disabled = true;
+        els.stopBtn.disabled = false;
+        els.statusText.textContent = store.mode === "break" ? "En break" : "En foco";
+        tickTimer = setInterval(renderTime, 250);
+      }else{
+        els.startBtn.disabled = false;
+        els.stopBtn.disabled = true;
+      }
+
+      // Events
+      els.projectSelect.addEventListener("change", (e) => setProject(e.target.value));
+      els.modeWork.addEventListener("click", () => setMode("work"));
+      els.modeBreak.addEventListener("click", () => setMode("break"));
+
+      els.startBtn.addEventListener("click", () => startTimer(false));
+      els.stopBtn.addEventListener("click", () => stopTimer(false));
+      els.resetBtn.addEventListener("click", () => resetSession());
+
+      els.exportBtn.addEventListener("click", exportJSON);
+      els.clearTodayBtn.addEventListener("click", clearToday);
+
+      // Shortcuts: Space start/stop, B break, W work
+      window.addEventListener("keydown", (e) => {
+        if(e.target && ["INPUT","TEXTAREA","SELECT"].includes(e.target.tagName)) return;
+        if(e.code === "Space"){
+          e.preventDefault();
+          store.running ? stopTimer(false) : startTimer(false);
+        }else if(e.key.toLowerCase() === "b"){
+          setMode("break");
+        }else if(e.key.toLowerCase() === "w"){
+          setMode("work");
+        }
+      });
+    }
+
+    initUI();
+  </script>
+</body>
+</html>
