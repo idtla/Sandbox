@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Project Timer</title>
+  <link rel="stylesheet" href="./css/styles.css" />
+</head>
+<body>
+  <div class="noise"></div>
+  <div class="wrap">
+    <div class="nav-tabs">
+      <a class="tab active" href="./index.html">Timer</a>
+      <a class="tab" href="./config.html">Config</a>
+      <a class="tab" href="./charts.html">Charts</a>
+    </div>
+
+    <div class="card" role="application" aria-label="Project timer">
+      <div class="panel">
+        <div class="topbar">
+          <div class="brand"><span class="dot" aria-hidden="true"></span> Project Timer</div>
+          <div class="controls">
+            <select id="projectSelect" aria-label="Selecciona proyecto"></select>
+            <button id="modeWork" class="btn-primary" type="button" aria-pressed="true">Work</button>
+            <button id="modeBreak" type="button" aria-pressed="false">Break (global)</button>
+          </div>
+        </div>
+
+        <div class="timer">
+          <div class="subtitle" id="statusText">Listo</div>
+          <div class="time" id="timeText">00:00:00</div>
+
+          <div class="btnrow">
+            <button id="startBtn" class="btn-primary" type="button">Start</button>
+            <button id="stopBtn" type="button" disabled>Stop</button>
+            <button id="resetBtn" type="button">Reset sesión</button>
+            <button id="syncBtn" type="button">Sincronizar</button>
+            <button id="toConfigBtn" type="button">Ir a Configuración</button>
+          </div>
+
+          <div class="pillrow">
+            <div class="pill">Proyecto: <strong id="pillProject">—</strong></div>
+            <div class="pill">Modo: <strong id="pillMode">Work</strong></div>
+            <div class="pill">Última sync: <strong id="lastSync">Nunca</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel side">
+        <h3>Totales (hoy)</h3>
+        <div class="stats">
+          <div class="stat"><div class="label">Work (proyecto actual)</div><div class="value" id="todayWork">00:00:00</div></div>
+          <div class="stat"><div class="label">Break global (no proyecto)</div><div class="value" id="todayBreak">00:00:00</div></div>
+          <div class="stat"><div class="label">Sesión actual</div><div class="value" id="sessionElapsed">00:00:00</div></div>
+        </div>
+
+        <div class="perProject" aria-label="Totales por proyecto">
+          <h3 style="margin-top:14px;">Hoy por proyecto + break</h3>
+          <div id="perProjectRows"></div>
+        </div>
+
+        <div class="log" id="log" aria-label="Registro de bloques"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="./js/data.js"></script>
+  <script src="./js/timer.js"></script>
+</body>
+</html>

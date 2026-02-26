@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Project Timer · Charts</title>
+  <link rel="stylesheet" href="./css/styles.css" />
+</head>
+<body>
+  <div class="noise"></div>
+  <div class="wrap simple-wrap">
+    <div class="nav-tabs">
+      <a class="tab" href="./index.html">Timer</a>
+      <a class="tab" href="./config.html">Config</a>
+      <a class="tab active" href="./charts.html">Charts</a>
+    </div>
+
+    <div class="card one-col">
+      <div class="panel">
+        <div class="topbar">
+          <h2>Analíticas: proyecto + break global</h2>
+          <button id="refreshCharts" type="button">Refrescar</button>
+        </div>
+
+        <div class="chart-grid">
+          <div>
+            <h3>Líneas por día (cada proyecto + break + total)</h3>
+            <canvas id="dailyLineChart"></canvas>
+          </div>
+          <div>
+            <h3>Total por semana</h3>
+            <canvas id="weekChart"></canvas>
+          </div>
+          <div>
+            <h3>Total por mes</h3>
+            <canvas id="monthChart"></canvas>
+          </div>
+          <div>
+            <h3>Pie último día: Work vs Break</h3>
+            <canvas id="breakWorkPie"></canvas>
+          </div>
+          <div>
+            <h3>Pie último día: reparto por proyecto + break</h3>
+            <canvas id="projectPie"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="./js/data.js"></script>
+  <script src="./js/charts.js"></script>
+</body>
+</html>
