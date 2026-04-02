@@ -169,55 +169,60 @@
       <div>
         <div class="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 backdrop-blur-xl md:p-8">
           <!-- Phase and Progress -->
-          <div class="mb-8 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-            <div class="flex-1 pr-0 lg:pr-8">
-              <div class="mb-2 text-[10px] uppercase tracking-[0.28em] text-white/35">Fase actual</div>
-              <h2 id="phaseLabel" class="text-2xl font-medium tracking-[-0.04em] text-white md:text-3xl">--</h2>
-              
-              <!-- Bloque explicativo con icono Explore en Neón -->
-              <div class="mt-4 rounded-xl border border-white/10 bg-white/5 p-5">
-                <div class="mb-2 flex items-center gap-2 text-[10px] uppercase tracking-[0.28em] text-white/35">
-                  <span class="material-icons neon-icon-blue" style="font-size: 15px;">explore</span>
-                  Detalle de la operación
-                </div>
-                <p id="phaseDesc" class="text-sm leading-7 text-white/75">--</p>
+          <div class="mb-8">
+            <div class="mb-2 text-[10px] uppercase tracking-[0.28em] text-white/35">Fase actual</div>
+            <h2 id="phaseLabel" class="text-2xl font-medium tracking-[-0.04em] text-white md:text-3xl">--</h2>
+            
+            <!-- Bloque explicativo con icono Explore en Neón -->
+            <div class="mt-4 rounded-xl border border-white/10 bg-white/5 p-5">
+              <div class="mb-2 flex items-center gap-2 text-[10px] uppercase tracking-[0.28em] text-white/35">
+                <span class="material-icons neon-icon-blue" style="font-size: 15px;">explore</span>
+                Detalle de la operación
               </div>
+              <p id="phaseDesc" class="text-sm leading-7 text-white/75">--</p>
             </div>
 
-            <div class="relative h-32 w-32 shrink-0 lg:self-start lg:mt-2">
-              <svg class="h-32 w-32 -rotate-90" viewBox="0 0 120 120">
-                <circle cx="60" cy="60" r="44" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="7" />
-                <circle id="ringCircle" cx="60" cy="60" r="44" fill="none" stroke="white" stroke-width="7" stroke-linecap="round" stroke-dasharray="276.46" stroke-dashoffset="276.46" class="transition-all duration-700" />
-              </svg>
-              <div class="absolute inset-0 flex flex-col items-center justify-center">
-                <span id="ringText" class="font-mono text-2xl font-semibold tracking-tight">0.0%</span>
-                <span class="text-[10px] uppercase tracking-[0.28em] text-white/40">De la fase</span>
+            <!-- NUEVA Barra horizontal responsiva de progreso de fase -->
+            <div class="mt-6 w-full">
+              <div class="flex justify-between items-end mb-2">
+                <span class="text-[10px] uppercase tracking-[0.28em] text-white/40">Progreso de la fase</span>
+                <span id="phaseBarText" class="font-mono text-xl font-semibold tracking-tight text-cyan-400">0.0%</span>
+              </div>
+              <div class="h-2 w-full bg-white/10 rounded-full overflow-hidden relative">
+                <div id="phaseBarFill" class="absolute top-0 left-0 h-full bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.8)] transition-all duration-700 ease-out" style="width: 0%"></div>
               </div>
             </div>
           </div>
 
           <!-- Ship Tracker -->
           <div class="relative mb-8 h-36 overflow-hidden rounded-[1.75rem] border border-white/10 bg-black/60">
-            <div class="absolute inset-x-6 top-1/2 h-px -translate-y-1/2 bg-white/10"></div>
-            <div id="shipTrack" class="absolute left-6 top-1/2 h-px -translate-y-1/2 bg-white/80 transition-all duration-1000 ease-out" style="width: 0%"></div>
+            <!-- Línea de fondo -->
+            <div class="absolute top-1/2 h-px -translate-y-1/2 bg-white/10 z-0" style="left: 52px; right: 48px;"></div>
+            <!-- Línea de estela -->
+            <div id="shipTrack" class="absolute top-1/2 h-px -translate-y-1/2 bg-white/80 transition-all duration-1000 ease-out z-0" style="left: 52px; width: 0%"></div>
 
-            <div class="absolute left-5 top-1/2 -translate-y-1/2">
-              <div class="flex h-16 w-16 items-center justify-center rounded-full border border-white/10 bg-white/[0.06] shadow-[0_0_60px_rgba(255,255,255,0.05)]">
-                <span class="material-icons text-white/90" style="font-size: 26px;">public</span>
+            <div class="absolute left-5 top-1/2 -translate-y-1/2 z-10">
+              <div class="flex h-16 w-16 items-center justify-center rounded-full border border-white/10 bg-black shadow-[0_0_60px_rgba(255,255,255,0.05)]">
+                <div class="flex h-full w-full items-center justify-center rounded-full bg-white/[0.06]">
+                  <span class="material-icons text-white/90" style="font-size: 26px;">public</span>
+                </div>
               </div>
               <div class="mt-3 text-center text-[10px] uppercase tracking-[0.28em] text-white/30">Tierra</div>
             </div>
 
-            <div id="shipDot" class="absolute top-1/2 z-10 -translate-y-1/2 transition-all duration-1000 ease-out" style="left: 0%">
-              <div class="relative flex h-12 w-12 items-center justify-center rounded-full border border-white/15 bg-white/[0.08] shadow-[0_0_40px_rgba(255,255,255,0.08)]">
-                <span class="material-icons text-white" style="font-size: 20px; transform: rotate(45deg);">rocket</span>
-                <div class="absolute -left-5 h-px w-5 bg-gradient-to-r from-transparent to-white/80"></div>
+            <!-- Cohete con -translate-x-1/2 para centrar la coordenada exacta y evitar solapamientos -->
+            <div id="shipDot" class="absolute top-1/2 z-20 -translate-x-1/2 -translate-y-1/2 transition-all duration-1000 ease-out" style="left: 52px;">
+              <div class="relative flex items-center justify-center">
+                <span id="rocketIcon" class="material-icons text-white transition-transform duration-1000 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]" style="font-size: 28px; transform: rotate(45deg); z-index: 10;">rocket</span>
+                <div id="rocketTail" class="absolute top-1/2 right-full h-px w-8 -translate-y-1/2 bg-gradient-to-r from-transparent to-white/80 mr-1"></div>
               </div>
             </div>
 
-            <div class="absolute right-5 top-1/2 -translate-y-1/2">
-              <div class="flex h-14 w-14 items-center justify-center rounded-full border border-white/10 bg-white/[0.03]">
-                <span class="material-icons text-white/72" style="font-size: 22px;">dark_mode</span>
+            <div class="absolute right-5 top-1/2 -translate-y-1/2 z-10">
+              <div class="flex h-14 w-14 items-center justify-center rounded-full border border-white/10 bg-black">
+                <div class="flex h-full w-full items-center justify-center rounded-full bg-white/[0.03]">
+                  <span class="material-icons text-white/72" style="font-size: 22px;">dark_mode</span>
+                </div>
               </div>
               <div class="mt-3 text-center text-[10px] uppercase tracking-[0.28em] text-white/30">Luna</div>
             </div>
@@ -261,19 +266,25 @@
             </div>
             <span class="material-icons text-white/35" style="font-size: 20px;">photo_camera</span>
           </div>
+          
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <!-- Primera Foto -->
             <div class="group relative overflow-hidden rounded-2xl border border-white/10 bg-black/40 transition hover:border-white/20">
               <img src="https://pbs.twimg.com/media/HE3UIoTWgAAiMl3?format=jpg&name=4096x4096" alt="Lanzamiento y Ascenso del SLS" class="aspect-video w-full object-cover transition duration-500 group-hover:scale-110" />
               <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 transition group-hover:opacity-100 flex items-end p-4">
                 <span class="text-[10px] uppercase tracking-widest text-white/80">Lanzamiento y Ascenso del SLS</span>
               </div>
             </div>
+            
+            <!-- Segunda Foto -->
             <div class="group relative overflow-hidden rounded-2xl border border-white/10 bg-black/40 transition hover:border-white/20">
               <img src="https://www.jammulinksnews.com/wp-content/uploads/2026/04/Capture-15.jpg" alt="Desacoplamiento de la etapa superior" class="aspect-video w-full object-cover transition duration-500 group-hover:scale-110" />
               <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 transition group-hover:opacity-100 flex items-end p-4">
                 <span class="text-[10px] uppercase tracking-widest text-white/80">Desacoplamiento de la etapa superior</span>
               </div>
             </div>
+            
+            <!-- Marcador de posición -->
             <div class="aspect-video rounded-2xl border border-dashed border-white/10 bg-white/[0.02] flex flex-col items-center justify-center text-white/20 transition hover:bg-white/5 cursor-pointer">
               <span class="material-icons mb-2">add_photo_alternate</span>
               <span class="text-[10px] uppercase tracking-widest">Esperando señal...</span>
@@ -329,6 +340,7 @@
           <div id="syncTime"></div>
           <div id="feedList"></div>
         </div>
+
       </aside>
     </section>
   </main>
@@ -344,9 +356,9 @@
         id: 2, 
         label: 'Verificación en órbita terrestre', 
         time: '2026-04-02T02:00:00Z', 
-        desc: 'Tras la inserción en órbita alta, la tripulación evalúa extensamente los sistemas de Orion durante unas 42 horas. Durante esta fase se validan el sistema de soporte vital, las comunicaciones y los paneles solares. Además, se ejecuta una demostración crítica de operaciones de proximidad (RPO) usando la etapa superior del cohete SLS como objetivo, asegurando que la nave es plenamente segura para abandonar la gravedad de la Tierra.' 
+        desc: 'Tras la inserción en órbita alta, la tripulación evalúa extensamente los sistemas de Orion durante unas 24 horas. Durante esta fase se validan el sistema de soporte vital, las comunicaciones y los paneles solares. Además, se ejecuta una demostración crítica de operaciones de proximidad (RPO) usando la etapa superior del cohete SLS como objetivo, asegurando que la nave es plenamente segura para abandonar la gravedad de la Tierra.' 
       },
-      { id: 3, label: 'Inyección translunar', time: '2026-04-02T22:00:00Z', desc: 'Encendido crítico para abandonar la órbita terrestre.' },
+      { id: 3, label: 'Inyección translunar', time: '2026-04-03T00:10:00Z', desc: 'Encendido crítico para abandonar la órbita terrestre y poner rumbo a la Luna.' },
       { id: 4, label: 'Tránsito lunar', time: '2026-04-03T12:00:00Z', desc: 'Tramo de crucero hacia el entorno lunar.' },
       { id: 5, label: 'Sobrevuelo lunar', time: '2026-04-06T15:00:00Z', desc: 'Máxima aproximación y paso por la cara oculta.' },
       { id: 6, label: 'Retorno libre', time: '2026-04-08T10:00:00Z', desc: 'Trayectoria de regreso a la Tierra confirmada.' },
@@ -384,7 +396,6 @@
       }
     ];
 
-    // --- FORMATEADORES ---
     function formatClock(date) {
       return new Intl.DateTimeFormat('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false, timeZone: 'Europe/Madrid' }).format(date);
     }
@@ -403,12 +414,6 @@
       return [hours, minutes, seconds].map(val => String(val).padStart(2, '0')).join(':');
     }
 
-    function stripHtml(html) {
-      const doc = new DOMParser().parseFromString(html, 'text/html');
-      return doc.body.textContent || "";
-    }
-
-    // --- RENDERIZADO DEL CREW ---
     function renderCrew() {
       document.getElementById('crewListEl').innerHTML = CREW.map(member => `
         <div class="crew-item">
@@ -425,7 +430,6 @@
       `).join('');
     }
 
-    // --- LOGICA DE ACTUALIZACION DE LA MISIÓN ---
     function updateApp() {
       const now = new Date();
       const total = MISSION_END.getTime() - MISSION_START.getTime();
@@ -444,7 +448,6 @@
       }
 
       const daysRemaining = Math.max(0, Math.ceil((MISSION_END.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)));
-      const shipPosition = Math.min(Math.max(globalProgress, 2), 98);
 
       document.getElementById('clockVal').innerText = formatClock(now);
       
@@ -466,14 +469,47 @@
       document.getElementById('phaseLabel').innerText = currentMilestone.label;
       document.getElementById('phaseDesc').innerText = currentMilestone.desc;
 
-      const radius = 44;
-      const circumference = 2 * Math.PI * radius;
-      const dashoffset = circumference - (phaseProgress / 100) * circumference;
-      document.getElementById('ringCircle').style.strokeDashoffset = dashoffset;
-      document.getElementById('ringText').innerText = phaseProgress.toFixed(1) + '%';
+      // ACTUALIZACIÓN BARRA HORIZONTAL
+      document.getElementById('phaseBarFill').style.width = phaseProgress.toFixed(1) + '%';
+      document.getElementById('phaseBarText').innerText = phaseProgress.toFixed(1) + '%';
 
-      document.getElementById('shipTrack').style.width = `calc(${shipPosition}% - 3rem)`;
-      document.getElementById('shipDot').style.left = `calc(${shipPosition}% - 14px)`;
+      // --- TRAYECTORIA Y DISTANCIA ---
+      const tliTime = new Date('2026-04-03T00:10:00Z').getTime();
+      const flybyTime = new Date('2026-04-06T15:00:00Z').getTime();
+      const splashdownTime = new Date('2026-04-11T00:21:00Z').getTime();
+      const currentTime = now.getTime();
+
+      let travelDist = 0;
+      let isReturning = false;
+
+      if (currentTime < tliTime) {
+        travelDist = 0; 
+      } else if (currentTime < flybyTime) {
+        const transitProgress = (currentTime - tliTime) / (flybyTime - tliTime);
+        travelDist = transitProgress;
+      } else if (currentTime < splashdownTime) {
+        const returnProgress = (currentTime - flybyTime) / (splashdownTime - flybyTime);
+        travelDist = 1 - returnProgress;
+        isReturning = true;
+      } else {
+        travelDist = 0;
+      }
+      
+      const rocketPosCSS = 'calc(52px + (100% - 100px) * ' + travelDist + ')';
+      
+      document.getElementById('shipDot').style.left = rocketPosCSS;
+      document.getElementById('shipTrack').style.width = 'calc((100% - 100px) * ' + travelDist + ')';
+
+      const rocketIcon = document.getElementById('rocketIcon');
+      const rocketTail = document.getElementById('rocketTail');
+      
+      if (isReturning) {
+        if (rocketIcon) rocketIcon.style.transform = 'rotate(-135deg)';
+        if (rocketTail) rocketTail.className = 'absolute top-1/2 left-full h-px w-8 -translate-y-1/2 bg-gradient-to-l from-transparent to-white/80 ml-1';
+      } else {
+        if (rocketIcon) rocketIcon.style.transform = 'rotate(45deg)';
+        if (rocketTail) rocketTail.className = 'absolute top-1/2 right-full h-px w-8 -translate-y-1/2 bg-gradient-to-r from-transparent to-white/80 mr-1';
+      }
 
       document.getElementById('statProgress').innerText = `${globalProgress.toFixed(2)}%`;
       document.getElementById('statNext').innerText = nextMilestone ? nextMilestone.label : 'Recuperación';
@@ -510,7 +546,6 @@
         tlEl.className = `relative flex gap-5 transition-opacity ${isPast ? 'opacity-100' : 'opacity-40'}`;
         
         if (isCurrent) {
-          // Sustitución de la "mancha negra" por un Radar Pulse (Blip de rastreo)
           iconEl.innerHTML = `
             <div class="radar-pulse">
               <div class="radar-dot"></div>
@@ -527,39 +562,35 @@
     }
 
     async function fetchMissionFeed() {
-      // Como estamos simulando la fecha del 2 de abril de 2026, interceptamos la API real
-      // y proporcionamos actualizaciones "en vivo" precisas para este momento de la misión.
-      // Simulamos un retraso de red para el efecto de carga.
       await new Promise(resolve => setTimeout(resolve, 800));
-      
       return [
         {
-          id: 'news-1',
-          date: new Date('2026-04-02T13:45:00Z'),
+          id: 'news-0',
+          date: new Date('2026-04-02T21:50:00Z'),
           href: 'https://www.nasa.gov/artemis-ii-news-and-updates/',
-          title: 'Sistemas de soporte vital operando al 100%',
-          excerpt: 'La tripulación ha completado la segunda ronda de verificaciones del sistema ECLSS de la cápsula Orion. Todos los parámetros son nominales mientras el control de vuelo en Houston prepara la Inyección Translunar (TLI).'
+          title: 'Reajuste del TLI confirmado (02:10 CEST)',
+          excerpt: 'La NASA ha confirmado un ligero reajuste orbital. El encendido de Inyección Translunar (TLI) se ejecutará finalmente a las 02:10 hora de Madrid (00:10 UTC).'
+        },
+        {
+          id: 'news-1',
+          date: new Date('2026-04-02T19:30:00Z'),
+          href: 'https://www.nasa.gov/artemis-ii-news-and-updates/',
+          title: 'Control de Misión da el "GO" para la Inyección Translunar (TLI)',
+          excerpt: 'El director de vuelo en Houston ha confirmado el estado "Go" para la crítica maniobra TLI.'
         },
         {
           id: 'news-2',
-          date: new Date('2026-04-02T09:30:00Z'),
+          date: new Date('2026-04-02T17:45:00Z'),
           href: 'https://www.nasa.gov/artemis-ii-news-and-updates/',
-          title: 'Exitosa demostración de Operaciones de Proximidad (RPO)',
-          excerpt: 'El Comandante Wiseman y el Piloto Glover han maniobrado manualmente la nave Orion utilizando la etapa superior inerte del SLS como punto de referencia visual, confirmando el excelente manejo de la nave.'
+          title: 'Preparativos finales: La tripulación asegura la cabina',
+          excerpt: 'Como medida de seguridad estándar previa a maniobras dinámicas, los astronautas han asegurado los objetos sueltos en la cabina y monitorizan los sistemas de propulsión a la espera del gran encendido.'
         },
         {
           id: 'news-3',
-          date: new Date('2026-04-02T04:00:00Z'),
+          date: new Date('2026-04-02T13:45:00Z'),
           href: 'https://www.nasa.gov/artemis-ii-news-and-updates/',
-          title: 'Primer descanso en órbita para la tripulación',
-          excerpt: 'Tras un ascenso perfecto y las críticas verificaciones iniciales, los cuatro astronautas inician su primer período de sueño programado en la órbita alta terrestre.'
-        },
-        {
-          id: 'news-4',
-          date: new Date('2026-04-01T23:15:00Z'),
-          href: 'https://www.nasa.gov/artemis-ii-news-and-updates/',
-          title: '¡Artemis II en órbita! Separación nominal confirmada',
-          excerpt: 'El megacohete SLS ha cumplido su objetivo. La cápsula Orion vuela libre en su trayectoria inicial alrededor de la Tierra tras un lanzamiento espectacular desde el Centro Espacial Kennedy.'
+          title: 'Sistemas de soporte vital operando al 100%',
+          excerpt: 'La tripulación ha completado la segunda ronda de verificaciones del sistema ECLSS de la cápsula Orion. Todos los parámetros son nominales en esta fase.'
         }
       ];
     }
@@ -571,7 +602,6 @@
       
       refreshBtn.innerHTML = `<span class="inline-block h-2.5 w-2.5 rounded-full border border-white/40 border-t-white animate-spin"></span> Actualizando`;
       
-      // Estado de carga adaptado al nuevo timeline
       feedList.innerHTML = `
         <div class="relative mt-4">
           <div class="absolute left-[5px] top-2 bottom-2 w-px bg-white/10"></div>
@@ -589,7 +619,6 @@
       const items = await fetchMissionFeed();
       
       if (items.length > 0) {
-        // Nuevo diseño de timeline limpio sin cajas
         feedList.innerHTML = `
           <div class="relative mt-4">
             <div class="absolute left-[5px] top-2 bottom-2 w-px bg-white/10"></div>
