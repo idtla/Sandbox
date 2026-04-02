@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Artemis II | Mission Control</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        .bg-slate-950 { background-color: #020617; }
+        .mission-gradient {
+            background: linear-gradient(to right, #3b82f6, #6366f1, #f97316);
+        }
+        @keyframes orbit {
+            from { transform: rotate(0deg) translateX(5px) rotate(0deg); }
+            to { transform: rotate(360deg) translateX(5px) rotate(-360deg); }
+        }
+        .animate-orbit { animation: orbit 4s linear infinite; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen p-4 md:p-8">
+
+    <div class="max-w-5xl mx-auto space-y-6">
+        
+        <!-- Header -->
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center bg-slate-900/40 p-6 rounded-2xl border border-slate-800 backdrop-blur-md shadow-2xl">
+            <div>
+                <div class="flex items-center gap-2 text-orange-500 mb-1">
+                    <i data-lucide="rocket" class="w-5 h-5"></i>
+                    <span class="text-xs font-bold tracking-[0.2em] uppercase">Telemetry Stream Active</span>
+                </div>
+                <h1 class="text-3xl font-black bg-gradient-to-br from-white via-slate-200 to-slate-500 bg-clip-text text-transparent">
+                    ARTEMIS II <span class="text-slate-600 font-light">| Mission Report</span>
+                </h1>
+            </div>
+            <div class="mt-4 md:mt-0 bg-slate-950/50 px-4 py-2 rounded-xl border border-slate-800">
+                <p class="text-slate-500 text-[10px] uppercase tracking-widest mb-1 text-center">Local Time (ES)</p>
+                <p id="local-clock" class="text-2xl font-mono font-bold text-white tabular-nums">00:00:00</p>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            <!-- Trayectoria Principal -->
+            <div class="md:col-span-2 bg-slate-900/60 border border-slate-800 rounded-3xl p-8 relative overflow-hidden">
+                <div class="relative z-10">
+                    <div class="flex justify-between items-start mb-10">
+                        <div>
+                            <h2 class="text-sm font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2 mb-1">
+                                <i data-lucide="navigation" class="w-4 h-4 text-blue-400"></i> Navigation Status
+                            </h2>
+                            <p id="current-milestone-label" class="text-2xl font-bold text-white">Cargando...</p>
+                        </div>
+                        <div class="text-right">
+                            <p id="countdown-label" class="text-[10px] text-slate-500 uppercase tracking-widest mb-1">T-Minus</p>
+                            <p id="countdown-timer" class="text-3xl font-mono font-black text-orange-500 tabular-nums drop-shadow-[0_0_10px_rgba(249,115,22,0.3)]">
+                                00:00:00
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Visual Map -->
+                    <div class="relative h-32 mb-12 flex items-center px-12">
+                        <div class="absolute left-12 right-12 h-[2px] bg-slate-800"></div>
+                        <div id="progress-line" class="absolute left-12 h-[2px] mission-gradient transition-all duration-1000" style="width: 0%"></div>
+                        
+                        <div class="absolute left-4 flex flex-col items-center">
+                            <div class="w-14 h-14 bg-blue-600 rounded-full border-4 border-blue-400/30 shadow-[0_0_30px_rgba(37,99,235,0.3)] flex items-center justify-center">
+                                <i data-lucide="globe" class="w-8 h-8 text-blue-200 opacity-80"></i>
+                            </div>
+                            <span class="text-[10px] mt-3 text-slate-500 font-black uppercase tracking-tighter">Earth</span>
+                        </div>
+
+                        <div id="rocket-icon" class="absolute transition-all duration-1000 ease-linear z-20" style="left: 12%; transform: translateX(-50%)">
+                            <i data-lucide="rocket" class="w-7 h-7 text-white rotate-90 drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"></i>
+                        </div>
+
+                        <div class="absolute right-4 flex flex-col items-center">
+                            <div class="w-10 h-10 bg-slate-700 rounded-full border-4 border-slate-600 flex items-center justify-center">
+                                <i data-lucide="moon" class="w-5 h-5 text-slate-400"></i>
+                            </div>
+                            <span class="text-[10px] mt-3 text-slate-500 font-black uppercase tracking-tighter">Moon</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-slate-950/40 p-4 rounded-2xl border border-slate-800/50">
+                            <p class="text-slate-500 text-[10px] uppercase font-bold mb-1">Mission Progress</p>
+                            <div class="flex items-baseline gap-2">
+                                <span id="progress-text" class="text-2xl font-mono font-bold text-white">0.0000</span>
+                                <span class="text-blue-500 font-bold text-xs">%</span>
+                            </div>
+                        </div>
+                        <div class="bg-slate-950/40 p-4 rounded-2xl border border-slate-800/50">
+                            <p class="text-slate-500 text-[10px] uppercase font-bold mb-1">Next Objective</p>
+                            <p id="next-milestone-label" class="text-sm font-bold text-slate-200 truncate">Sincronizando...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Crew -->
+            <div class="bg-slate-900/60 border border-slate-800 rounded-3xl p-6">
+                <h2 class="text-sm font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2 mb-6">
+                    <i data-lucide="users" class="w-4 h-4 text-purple-400"></i> Crew Manifest
+                </h2>
+                <div id="crew-list" class="space-y-3">
+                    <!-- Dinámico -->
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 pb-12">
+            <!-- Timeline -->
+            <div class="bg-slate-900/60 border border-slate-800 rounded-3xl p-8">
+                <h2 class="text-sm font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2 mb-8">
+                    <i data-lucide="clock" class="w-4 h-4 text-green-400"></i> Flight Timeline
+                </h2>
+                <div id="timeline-container" class="space-y-6 relative">
+                    <!-- Dinámico -->
+                </div>
+            </div>
+
+            <!-- Logbook -->
+            <div class="bg-slate-900/60 border border-slate-800 rounded-3xl p-8">
+                <h2 class="text-sm font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2 mb-8">
+                    <i data-lucide="newspaper" class="w-4 h-4 text-orange-400"></i> Mission Logbook
+                </h2>
+                <div id="log-container" class="space-y-4">
+                    <!-- Dinámico -->
+                </div>
+            </div>
+        </div>
+
+        <footer class="text-center pb-12">
+            <p class="text-[10px] text-slate-700 font-bold tracking-[0.5em] uppercase">
+                Deep Space Network Interface • GitHub Pages Deploy • 2026
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        // --- DATA DE LA MISIÓN ---
+        const MISSION_START = new Date('2026-04-01T22:35:00Z');
+        const MISSION_END = new Date('2026-04-11T00:21:00Z');
+        
+        const milestones = [
+            { id: 1, label: "Lanzamiento (SLS)", time: new Date('2026-04-01T22:35:00Z'), desc: "Despegue exitoso desde Kennedy." },
+            { id: 2, label: "Órbita Terrestre Alta", time: new Date('2026-04-02T02:00:00Z'), desc: "Sistemas y paneles solares verificados." },
+            { id: 3, label: "Inyección Trans-Lunar", time: new Date('2026-04-02T22:00:00Z'), desc: "Encendido crítico de salida." },
+            { id: 4, label: "Viaje a la Luna", time: new Date('2026-04-03T12:00:00Z'), desc: "Tránsito de 4 días hacia el sistema lunar." },
+            { id: 5, label: "Sobrevuelo Lunar (Máximo)", time: new Date('2026-04-06T15:00:00Z'), desc: "Punto más cercano a la superficie." },
+            { id: 6, label: "Retorno Libre", time: new Date('2026-04-08T10:00:00Z'), desc: "Regreso asistido por gravedad lunar." },
+            { id: 7, label: "Amerizaje (Pacífico)", time: new Date('2026-04-11T00:21:00Z'), desc: "Entrada atmosférica y rescate." }
+        ];
+
+        const missionLogs = [
+            { date: "02 Abr, 10:45", text: "Calibración de cámaras completada. Imágenes de la Tierra enviadas." },
+            { date: "02 Abr, 05:20", text: "Sistemas estables. Tripulación en periodo de sueño." },
+            { date: "01 Abr, 23:15", text: "Separación de etapa nominal. Orion en curso." }
+        ];
+
+        const crew = [
+            { name: "R. Wiseman", role: "Commander", id: "CDR" },
+            { name: "V. Glover", role: "Pilot", id: "PLT" },
+            { name: "C. Koch", role: "Mission Spec", id: "MS1" },
+            { name: "J. Hansen", role: "Mission Spec", id: "MS2" }
+        ];
+
+        // --- LÓGICA DEL DASHBOARD ---
+        function updateDashboard() {
+            const now = new Date();
+            
+            // Reloj
+            document.getElementById('local-clock').innerText = now.toLocaleTimeString('es-ES', { timeZone: 'Europe/Madrid' });
+
+            // Progreso
+            const total = MISSION_END - MISSION_START;
+            const elapsed = now - MISSION_START;
+            const progress = Math.min(Math.max((elapsed / total) * 100, 0), 100);
+
+            document.getElementById('progress-text').innerText = progress.toFixed(4);
+            document.getElementById('progress-line').style.width = `calc(${progress}% - ${progress > 50 ? '24px' : '0px'})`;
+            document.getElementById('rocket-icon').style.left = `calc(${progress}% + 24px)`;
+
+            // Hitos
+            const current = [...milestones].reverse().find(m => now >= m.time) || milestones[0];
+            const next = milestones.find(m => now < m.time);
+
+            document.getElementById('current-milestone-label').innerText = current.label;
+            document.getElementById('next-milestone-label').innerText = next ? next.label : "Misión Completada";
+
+            // Cuenta atrás
+            if (next) {
+                const diff = next.time - now;
+                const h = Math.floor(diff / (1000 * 60 * 60)).toString().padStart(2, '0');
+                const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, '0');
+                const s = Math.floor((diff % (1000 * 60)) / 1000).toString().padStart(2, '0');
+                document.getElementById('countdown-timer').innerText = `${h}:${m}:${s}`;
+                document.getElementById('countdown-label').innerText = `T-Minus to ${next.label}`;
+            } else {
+                document.getElementById('countdown-timer').innerText = "00:00:00";
+            }
+
+            renderTimeline(current);
+        }
+
+        function renderCrew() {
+            const container = document.getElementById('crew-list');
+            container.innerHTML = crew.map(m => `
+                <div class="flex items-center justify-between p-4 bg-slate-950/40 rounded-2xl border border-slate-800/50 hover:border-slate-700 transition-all">
+                    <div>
+                        <p class="text-sm font-bold text-slate-100">${m.name}</p>
+                        <p class="text-[10px] text-slate-500 uppercase">${m.role}</p>
+                    </div>
+                    <span class="text-[10px] font-mono font-bold px-2 py-1 bg-slate-800 text-slate-400 rounded-md border border-slate-700">${m.id}</span>
+                </div>
+            `).join('');
+        }
+
+        function renderTimeline(current) {
+            const container = document.getElementById('timeline-container');
+            const now = new Date();
+            container.innerHTML = `
+                <div class="absolute left-[11px] top-2 bottom-2 w-px bg-slate-800"></div>
+                ${milestones.map(m => {
+                    const isPast = now >= m.time;
+                    const isCurrent = current.id === m.id;
+                    return `
+                    <div class="flex gap-6 relative transition-all duration-500 ${isPast ? 'opacity-100' : 'opacity-30'}">
+                        <div class="w-6 h-6 rounded-full border-2 z-10 flex items-center justify-center shrink-0
+                            ${isCurrent ? 'bg-blue-600 border-blue-400' : isPast ? 'bg-slate-800 border-slate-700' : 'bg-slate-950 border-slate-800'}">
+                            ${isPast ? '<i data-lucide="check" class="w-3 h-3 text-white"></i>' : '<div class="w-1.5 h-1.5 rounded-full bg-slate-700"></div>'}
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex justify-between items-start">
+                                <p class="font-bold text-sm ${isCurrent ? 'text-blue-400' : 'text-slate-200'}">${m.label}</p>
+                                <p class="text-[10px] font-mono text-slate-500">${m.time.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}</p>
+                            </div>
+                            ${isCurrent ? `<p class="text-xs text-slate-400 mt-1 leading-relaxed">${m.desc}</p>` : ''}
+                        </div>
+                    </div>
+                    `;
+                }).join('')}`;
+            lucide.createIcons();
+        }
+
+        function renderLogs() {
+            const container = document.getElementById('log-container');
+            container.innerHTML = missionLogs.map(log => `
+                <div class="p-5 bg-slate-950/40 border border-slate-800/50 rounded-2xl hover:border-orange-500/30 transition-all">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="w-1.5 h-1.5 rounded-full bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.8)]"></span>
+                        <p class="text-[10px] font-mono font-bold text-slate-500 uppercase">${log.date} UTC</p>
+                    </div>
+                    <p class="text-sm text-slate-300 leading-relaxed italic font-serif">"${log.text}"</p>
+                </div>
+            `).join('') + `
+                <div class="pt-4">
+                    <button class="w-full py-4 text-[10px] font-black text-slate-500 border-2 border-dashed border-slate-800 rounded-2xl hover:bg-slate-800/30 hover:text-slate-400 transition-all tracking-[0.3em] uppercase">
+                        Fetch Full Archive
+                    </button>
+                </div>
+            `;
+        }
+
+        // Iniciar
+        renderCrew();
+        renderLogs();
+        setInterval(updateDashboard, 1000);
+        updateDashboard();
+        lucide.createIcons();
+    </script>
+</body>
+</html>
