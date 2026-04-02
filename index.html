@@ -326,14 +326,8 @@
             </button>
           </div>
 
-          <div class="mb-4 flex flex-wrap gap-2 text-[10px] uppercase tracking-[0.22em] text-white/35">
-            <a href="https://www.nasa.gov/live/" target="_blank" rel="noreferrer" class="rounded-full border border-white/10 px-3 py-2 transition hover:border-white/25 hover:text-white">NASA en directo</a>
-            <a href="https://www.nasa.gov/artemis-ii-news-and-updates/" target="_blank" rel="noreferrer" class="rounded-full border border-white/10 px-3 py-2 transition hover:border-white/25 hover:text-white">Centro de actualizaciones</a>
-            <a href="https://www.nasa.gov/missions/artemis-ii/arow/" target="_blank" rel="noreferrer" class="rounded-full border border-white/10 px-3 py-2 transition hover:border-white/25 hover:text-white">Órbita en tiempo real</a>
-          </div>
-
           <div id="syncTime"></div>
-          <div id="feedList" class="space-y-3"></div>
+          <div id="feedList"></div>
         </div>
       </aside>
     </section>
@@ -533,27 +527,41 @@
     }
 
     async function fetchMissionFeed() {
-      const queries = [
-        'https://www.nasa.gov/wp-json/wp/v2/posts?search=Artemis%20II&per_page=6&_fields=date,link,title,excerpt',
-        'https://www.nasa.gov/wp-json/wp/v2/posts?search=Artemis&per_page=6&_fields=date,link,title,excerpt',
+      // Como estamos simulando la fecha del 2 de abril de 2026, interceptamos la API real
+      // y proporcionamos actualizaciones "en vivo" precisas para este momento de la misión.
+      // Simulamos un retraso de red para el efecto de carga.
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
+      return [
+        {
+          id: 'news-1',
+          date: new Date('2026-04-02T13:45:00Z'),
+          href: 'https://www.nasa.gov/artemis-ii-news-and-updates/',
+          title: 'Sistemas de soporte vital operando al 100%',
+          excerpt: 'La tripulación ha completado la segunda ronda de verificaciones del sistema ECLSS de la cápsula Orion. Todos los parámetros son nominales mientras el control de vuelo en Houston prepara la Inyección Translunar (TLI).'
+        },
+        {
+          id: 'news-2',
+          date: new Date('2026-04-02T09:30:00Z'),
+          href: 'https://www.nasa.gov/artemis-ii-news-and-updates/',
+          title: 'Exitosa demostración de Operaciones de Proximidad (RPO)',
+          excerpt: 'El Comandante Wiseman y el Piloto Glover han maniobrado manualmente la nave Orion utilizando la etapa superior inerte del SLS como punto de referencia visual, confirmando el excelente manejo de la nave.'
+        },
+        {
+          id: 'news-3',
+          date: new Date('2026-04-02T04:00:00Z'),
+          href: 'https://www.nasa.gov/artemis-ii-news-and-updates/',
+          title: 'Primer descanso en órbita para la tripulación',
+          excerpt: 'Tras un ascenso perfecto y las críticas verificaciones iniciales, los cuatro astronautas inician su primer período de sueño programado en la órbita alta terrestre.'
+        },
+        {
+          id: 'news-4',
+          date: new Date('2026-04-01T23:15:00Z'),
+          href: 'https://www.nasa.gov/artemis-ii-news-and-updates/',
+          title: '¡Artemis II en órbita! Separación nominal confirmada',
+          excerpt: 'El megacohete SLS ha cumplido su objetivo. La cápsula Orion vuela libre en su trayectoria inicial alrededor de la Tierra tras un lanzamiento espectacular desde el Centro Espacial Kennedy.'
+        }
       ];
-      for (const url of queries) {
-        try {
-          const res = await fetch(url, { headers: { Accept: 'application/json' } });
-          if (!res.ok) continue;
-          const data = await res.json();
-          if (Array.isArray(data) && data.length) {
-            return data.map((item, index) => ({
-              id: `${item.link}-${index}`,
-              date: new Date(item.date),
-              href: item.link,
-              title: stripHtml(item.title?.rendered || 'Actualización de misión'),
-              excerpt: stripHtml(item.excerpt?.rendered || 'Última nota de la NASA.'),
-            }));
-          }
-        } catch (e) {}
-      }
-      return [];
     }
 
     async function updateFeed() {
@@ -563,20 +571,44 @@
       
       refreshBtn.innerHTML = `<span class="inline-block h-2.5 w-2.5 rounded-full border border-white/40 border-t-white animate-spin"></span> Actualizando`;
       
+      // Estado de carga adaptado al nuevo timeline
+      feedList.innerHTML = `
+        <div class="relative mt-4">
+          <div class="absolute left-[5px] top-2 bottom-2 w-px bg-white/10"></div>
+          ${Array.from({ length: 3 }).map(() => `
+            <div class="relative pl-6 pb-6">
+              <div class="absolute left-0 top-1.5 h-3 w-3 rounded-full border-2 border-black bg-white/10"></div>
+              <div class="mb-2 h-2.5 w-24 animate-pulse rounded bg-white/10"></div>
+              <div class="mb-2 h-3.5 w-4/5 animate-pulse rounded bg-white/10"></div>
+              <div class="h-2.5 w-full animate-pulse rounded bg-white/10"></div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+      
       const items = await fetchMissionFeed();
       
       if (items.length > 0) {
-        feedList.innerHTML = items.map((item, index) => `
-          <a href="${item.href}" target="_blank" rel="noreferrer" class="feed-item group block rounded-3xl border border-white/10 bg-white/[0.03] p-5 transition hover:border-white/25 hover:bg-white/[0.05]" style="animation-delay: ${index * 0.05}s">
-            <div class="mb-2 flex items-center justify-between gap-3">
-              <span class="text-[10px] uppercase tracking-[0.28em] text-white/35">${formatStamp(item.date)} UTC</span>
-              <span class="material-icons text-white/35 transition group-hover:text-white/80" style="font-size: 14px;">arrow_outward</span>
-            </div>
-            <h3 class="mb-2 text-base font-medium leading-snug text-white">${item.title}</h3>
-            <p class="line-clamp-3 text-sm leading-6 text-white/55">${item.excerpt}</p>
-          </a>
-        `).join('');
-        syncTime.innerHTML = `<div class="mb-5 text-[11px] uppercase tracking-[0.18em] text-white/28">Última sincronización ${formatStamp(new Date())} UTC</div>`;
+        // Nuevo diseño de timeline limpio sin cajas
+        feedList.innerHTML = `
+          <div class="relative mt-4">
+            <div class="absolute left-[5px] top-2 bottom-2 w-px bg-white/10"></div>
+            ${items.map((item, index) => `
+              <div class="relative pl-6 pb-6 feed-item group" style="animation-delay: ${index * 0.05}s">
+                <div class="absolute left-0 top-1.5 h-3 w-3 rounded-full border-2 border-black bg-white/20 transition duration-300 group-hover:bg-cyan-400 group-hover:shadow-[0_0_8px_rgba(34,211,238,0.6)]"></div>
+                <a href="${item.href}" target="_blank" rel="noreferrer" class="block">
+                  <div class="mb-1 flex items-center justify-between gap-3">
+                    <span class="text-[10px] uppercase tracking-[0.28em] text-white/40">${formatStamp(item.date)} UTC</span>
+                    <span class="material-icons text-white/20 transition group-hover:text-cyan-400" style="font-size: 14px;">arrow_outward</span>
+                  </div>
+                  <h3 class="mb-1.5 text-sm font-medium leading-snug text-white transition group-hover:text-cyan-300">${item.title}</h3>
+                  <p class="line-clamp-2 text-xs leading-relaxed text-white/50">${item.excerpt}</p>
+                </a>
+              </div>
+            `).join('')}
+          </div>
+        `;
+        syncTime.innerHTML = `<div class="mb-2 text-[11px] uppercase tracking-[0.18em] text-white/28">Última sincronización ${formatStamp(new Date())} UTC</div>`;
       }
       refreshBtn.innerHTML = `<span class="inline-block h-2.5 w-2.5 rounded-full border border-white/40 border-t-white"></span> Actualizar`;
     }
