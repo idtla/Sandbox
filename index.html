@@ -1,278 +1,593 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Artemis II | Mission Control</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-        .font-mono { font-family: 'JetBrains Mono', monospace; }
-        .bg-slate-950 { background-color: #020617; }
-        .mission-gradient {
-            background: linear-gradient(to right, #3b82f6, #6366f1, #f97316);
-        }
-        @keyframes orbit {
-            from { transform: rotate(0deg) translateX(5px) rotate(0deg); }
-            to { transform: rotate(360deg) translateX(5px) rotate(-360deg); }
-        }
-        .animate-orbit { animation: orbit 4s linear infinite; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Artemis II Tracker</title>
+  
+  <!-- Tailwind CSS para los estilos de la interfaz general -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Material Icons para la iconografía -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+  <style>
+    /* Asegurar centrado de los iconos de Material */
+    .material-icons {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      vertical-align: middle;
+    }
+
+    /* Efecto de fade in para el feed */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .feed-item {
+      animation: fadeIn 0.4s ease-out both;
+    }
+
+    /* === ESTILOS DEL CREW === */
+    .crew-item {
+      display: flex;
+      gap: 16px;
+      padding: 16px;
+      border-radius: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background-color: rgba(0, 0, 0, 0.2);
+      margin-bottom: 12px;
+    }
+    .crew-avatar {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .crew-body {
+      flex: 1;
+    }
+    .crew-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+    .crew-name {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: white;
+    }
+    .pill {
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 9999px;
+      padding: 4px 10px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.24em;
+      color: rgba(255, 255, 255, 0.45);
+    }
+    .muted {
+      font-size: 0.875rem;
+      color: rgba(255, 255, 255, 0.45);
+    }
+    
+    .crew-detail {
+      margin-top: 8px;
+      font-size: 0.9rem;
+      line-height: 1.6;
+      color: rgba(255,255,255,0.46);
+    }
+
+    /* Brillo Neón Mejorado */
+    .neon-icon-blue {
+      color: #22d3ee;
+      text-shadow: 0 0 10px rgba(34, 211, 238, 0.8), 0 0 20px rgba(34, 211, 238, 0.3);
+    }
+
+    /* Marcador de Pulso Radar para la fase actual */
+    .radar-pulse {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+    }
+    .radar-pulse::before {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: rgba(34, 211, 238, 0.4);
+      border-radius: 50%;
+      animation: pulse-ring 1.5s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
+    }
+    .radar-dot {
+      position: relative;
+      width: 10px;
+      height: 10px;
+      background: #22d3ee;
+      border-radius: 50%;
+      box-shadow: 0 0 10px #22d3ee;
+    }
+    @keyframes pulse-ring {
+      0% { transform: scale(0.3); opacity: 1; }
+      80%, 100% { transform: scale(2); opacity: 0; }
+    }
+  </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen p-4 md:p-8">
+<body class="bg-black text-white antialiased min-h-screen relative">
+  <!-- Fondos y texturas -->
+  <div class="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08),transparent_38%),linear-gradient(to_bottom,rgba(255,255,255,0.04),transparent_22%),linear-gradient(to_bottom,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[length:auto,auto,100%_6px] opacity-60"></div>
+  <div class="pointer-events-none fixed inset-0 bg-[linear-gradient(to_bottom,transparent,rgba(255,255,255,0.03),transparent)] opacity-20"></div>
 
-    <div class="max-w-5xl mx-auto space-y-6">
-        
-        <!-- Header -->
-        <header class="flex flex-col md:flex-row justify-between items-start md:items-center bg-slate-900/40 p-6 rounded-2xl border border-slate-800 backdrop-blur-md shadow-2xl">
+  <main class="relative mx-auto max-w-7xl px-4 py-6 md:px-8 md:py-8">
+    <!-- Header -->
+    <section class="mb-6 rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 backdrop-blur-xl md:p-8">
+      <div class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <div class="mb-3 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-[10px] uppercase tracking-[0.28em] text-white/45">
+            <span class="material-icons" style="font-size: 14px;">podcasts</span>
+            <span>Seguimiento en directo</span>
+          </div>
+          <h1 class="max-w-3xl text-3xl font-semibold tracking-[-0.04em] text-white md:text-5xl">
+            ARTEMIS II /
+            <span class="ml-2 text-white/45">seguimiento de misión</span>
+          </h1>
+          <p class="mt-4 max-w-2xl text-sm leading-7 text-white/52 md:text-base">
+            Seguimiento 24 horas de la misión Artemis II que llevará al ser humano a la Luna 50 años después.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 md:min-w-[360px]">
+          <div class="rounded-3xl border p-5 backdrop-blur-sm border-white/20 bg-white/[0.06]">
+            <div class="mb-4 flex items-center gap-2 text-[11px] uppercase tracking-[0.24em] text-white/45">
+              <span class="material-icons" style="font-size: 16px;">schedule</span>
+              <span>Hora local</span>
+            </div>
+            <div id="clockVal" class="text-xl font-medium tracking-tight text-white">--:--:--</div>
+            <div class="mt-1 text-sm text-white/45">Europa / Madrid</div>
+          </div>
+          <div id="statusCard" class="rounded-3xl border p-5 backdrop-blur-sm border-white/10 bg-white/[0.03]">
+            <div class="mb-4 flex items-center gap-2 text-[11px] uppercase tracking-[0.24em] text-white/45">
+              <span id="statusIcon" class="material-icons" style="font-size: 16px;">track_changes</span>
+              <span id="statusLabel">Estado</span>
+            </div>
+            <div id="statusVal" class="text-xl font-medium tracking-tight text-white">--:--:--</div>
+            <div id="statusSub" class="mt-1 text-sm text-white/45">--</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Content Grid -->
+    <section class="grid grid-cols-1 gap-6 xl:grid-cols-[1.3fr_0.7fr]">
+      <!-- Left Column -->
+      <div>
+        <div class="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 backdrop-blur-xl md:p-8">
+          <!-- Phase and Progress -->
+          <div class="mb-8 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+            <div class="flex-1 pr-0 lg:pr-8">
+              <div class="mb-2 text-[10px] uppercase tracking-[0.28em] text-white/35">Fase actual</div>
+              <h2 id="phaseLabel" class="text-2xl font-medium tracking-[-0.04em] text-white md:text-3xl">--</h2>
+              
+              <!-- Bloque explicativo con icono Explore en Neón -->
+              <div class="mt-4 rounded-xl border border-white/10 bg-white/5 p-5">
+                <div class="mb-2 flex items-center gap-2 text-[10px] uppercase tracking-[0.28em] text-white/35">
+                  <span class="material-icons neon-icon-blue" style="font-size: 15px;">explore</span>
+                  Detalle de la operación
+                </div>
+                <p id="phaseDesc" class="text-sm leading-7 text-white/75">--</p>
+              </div>
+            </div>
+
+            <div class="relative h-32 w-32 shrink-0 lg:self-start lg:mt-2">
+              <svg class="h-32 w-32 -rotate-90" viewBox="0 0 120 120">
+                <circle cx="60" cy="60" r="44" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="7" />
+                <circle id="ringCircle" cx="60" cy="60" r="44" fill="none" stroke="white" stroke-width="7" stroke-linecap="round" stroke-dasharray="276.46" stroke-dashoffset="276.46" class="transition-all duration-700" />
+              </svg>
+              <div class="absolute inset-0 flex flex-col items-center justify-center">
+                <span id="ringText" class="font-mono text-2xl font-semibold tracking-tight">0.0%</span>
+                <span class="text-[10px] uppercase tracking-[0.28em] text-white/40">De la fase</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Ship Tracker -->
+          <div class="relative mb-8 h-36 overflow-hidden rounded-[1.75rem] border border-white/10 bg-black/60">
+            <div class="absolute inset-x-6 top-1/2 h-px -translate-y-1/2 bg-white/10"></div>
+            <div id="shipTrack" class="absolute left-6 top-1/2 h-px -translate-y-1/2 bg-white/80 transition-all duration-1000 ease-out" style="width: 0%"></div>
+
+            <div class="absolute left-5 top-1/2 -translate-y-1/2">
+              <div class="flex h-16 w-16 items-center justify-center rounded-full border border-white/10 bg-white/[0.06] shadow-[0_0_60px_rgba(255,255,255,0.05)]">
+                <span class="material-icons text-white/90" style="font-size: 26px;">public</span>
+              </div>
+              <div class="mt-3 text-center text-[10px] uppercase tracking-[0.28em] text-white/30">Tierra</div>
+            </div>
+
+            <div id="shipDot" class="absolute top-1/2 z-10 -translate-y-1/2 transition-all duration-1000 ease-out" style="left: 0%">
+              <div class="relative flex h-12 w-12 items-center justify-center rounded-full border border-white/15 bg-white/[0.08] shadow-[0_0_40px_rgba(255,255,255,0.08)]">
+                <span class="material-icons text-white" style="font-size: 20px; transform: rotate(45deg);">rocket</span>
+                <div class="absolute -left-5 h-px w-5 bg-gradient-to-r from-transparent to-white/80"></div>
+              </div>
+            </div>
+
+            <div class="absolute right-5 top-1/2 -translate-y-1/2">
+              <div class="flex h-14 w-14 items-center justify-center rounded-full border border-white/10 bg-white/[0.03]">
+                <span class="material-icons text-white/72" style="font-size: 22px;">dark_mode</span>
+              </div>
+              <div class="mt-3 text-center text-[10px] uppercase tracking-[0.28em] text-white/30">Luna</div>
+            </div>
+          </div>
+
+          <!-- Extra Stats -->
+          <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+            <div class="rounded-3xl border border-white/10 bg-white/[0.03] p-5 backdrop-blur-sm">
+              <div class="mb-4 flex items-center gap-2 text-[11px] uppercase tracking-[0.24em] text-white/45">
+                <span class="material-icons" style="font-size: 16px;">rocket_launch</span>
+                <span>Progreso global</span>
+              </div>
+              <div id="statProgress" class="text-xl font-medium tracking-tight text-white">--%</div>
+              <div class="mt-1 text-sm text-white/45">Misión total completada</div>
+            </div>
+            <div class="rounded-3xl border border-white/10 bg-white/[0.03] p-5 backdrop-blur-sm">
+              <div class="mb-4 flex items-center gap-2 text-[11px] uppercase tracking-[0.24em] text-white/45">
+                <span class="material-icons" style="font-size: 16px;">track_changes</span>
+                <span>Siguiente objetivo</span>
+              </div>
+              <div id="statNext" class="text-xl font-medium tracking-tight text-white">--</div>
+              <div id="statNextSub" class="mt-1 text-sm text-white/45">--</div>
+            </div>
+            <div id="daysCard" class="rounded-3xl border border-white/10 bg-white/[0.03] p-5 backdrop-blur-sm">
+              <div class="mb-4 flex items-center gap-2 text-[11px] uppercase tracking-[0.24em] text-white/45">
+                <span class="material-icons" style="font-size: 16px;">warning</span>
+                <span>Días restantes</span>
+              </div>
+              <div id="statDays" class="text-xl font-medium tracking-tight text-white">--</div>
+              <div class="mt-1 text-sm text-white/45">Días aproximados restantes</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Galería de fotos -->
+        <div class="mt-6 mb-6 rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 backdrop-blur-xl md:p-8">
+          <div class="mb-6 flex items-center justify-between">
             <div>
-                <div class="flex items-center gap-2 text-orange-500 mb-1">
-                    <i data-lucide="rocket" class="w-5 h-5"></i>
-                    <span class="text-xs font-bold tracking-[0.2em] uppercase">Telemetry Stream Active</span>
-                </div>
-                <h1 class="text-3xl font-black bg-gradient-to-br from-white via-slate-200 to-slate-500 bg-clip-text text-transparent">
-                    ARTEMIS II <span class="text-slate-600 font-light">| Mission Report</span>
-                </h1>
+              <div class="mb-2 text-[10px] uppercase tracking-[0.28em] text-white/35">Multimedia</div>
+              <h2 class="text-2xl font-medium tracking-[-0.04em]">Imágenes de la misión</h2>
             </div>
-            <div class="mt-4 md:mt-0 bg-slate-950/50 px-4 py-2 rounded-xl border border-slate-800">
-                <p class="text-slate-500 text-[10px] uppercase tracking-widest mb-1 text-center">Local Time (ES)</p>
-                <p id="local-clock" class="text-2xl font-mono font-bold text-white tabular-nums">00:00:00</p>
+            <span class="material-icons text-white/35" style="font-size: 20px;">photo_camera</span>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div class="group relative overflow-hidden rounded-2xl border border-white/10 bg-black/40 transition hover:border-white/20">
+              <img src="https://pbs.twimg.com/media/HE3UIoTWgAAiMl3?format=jpg&name=4096x4096" alt="Lanzamiento y Ascenso del SLS" class="aspect-video w-full object-cover transition duration-500 group-hover:scale-110" />
+              <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 transition group-hover:opacity-100 flex items-end p-4">
+                <span class="text-[10px] uppercase tracking-widest text-white/80">Lanzamiento y Ascenso del SLS</span>
+              </div>
             </div>
-        </header>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            
-            <!-- Trayectoria Principal -->
-            <div class="md:col-span-2 bg-slate-900/60 border border-slate-800 rounded-3xl p-8 relative overflow-hidden">
-                <div class="relative z-10">
-                    <div class="flex justify-between items-start mb-10">
-                        <div>
-                            <h2 class="text-sm font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2 mb-1">
-                                <i data-lucide="navigation" class="w-4 h-4 text-blue-400"></i> Navigation Status
-                            </h2>
-                            <p id="current-milestone-label" class="text-2xl font-bold text-white">Cargando...</p>
-                        </div>
-                        <div class="text-right">
-                            <p id="countdown-label" class="text-[10px] text-slate-500 uppercase tracking-widest mb-1">T-Minus</p>
-                            <p id="countdown-timer" class="text-3xl font-mono font-black text-orange-500 tabular-nums drop-shadow-[0_0_10px_rgba(249,115,22,0.3)]">
-                                00:00:00
-                            </p>
-                        </div>
-                    </div>
-
-                    <!-- Visual Map -->
-                    <div class="relative h-32 mb-12 flex items-center px-12">
-                        <div class="absolute left-12 right-12 h-[2px] bg-slate-800"></div>
-                        <div id="progress-line" class="absolute left-12 h-[2px] mission-gradient transition-all duration-1000" style="width: 0%"></div>
-                        
-                        <div class="absolute left-4 flex flex-col items-center">
-                            <div class="w-14 h-14 bg-blue-600 rounded-full border-4 border-blue-400/30 shadow-[0_0_30px_rgba(37,99,235,0.3)] flex items-center justify-center">
-                                <i data-lucide="globe" class="w-8 h-8 text-blue-200 opacity-80"></i>
-                            </div>
-                            <span class="text-[10px] mt-3 text-slate-500 font-black uppercase tracking-tighter">Earth</span>
-                        </div>
-
-                        <div id="rocket-icon" class="absolute transition-all duration-1000 ease-linear z-20" style="left: 12%; transform: translateX(-50%)">
-                            <i data-lucide="rocket" class="w-7 h-7 text-white rotate-90 drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"></i>
-                        </div>
-
-                        <div class="absolute right-4 flex flex-col items-center">
-                            <div class="w-10 h-10 bg-slate-700 rounded-full border-4 border-slate-600 flex items-center justify-center">
-                                <i data-lucide="moon" class="w-5 h-5 text-slate-400"></i>
-                            </div>
-                            <span class="text-[10px] mt-3 text-slate-500 font-black uppercase tracking-tighter">Moon</span>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="bg-slate-950/40 p-4 rounded-2xl border border-slate-800/50">
-                            <p class="text-slate-500 text-[10px] uppercase font-bold mb-1">Mission Progress</p>
-                            <div class="flex items-baseline gap-2">
-                                <span id="progress-text" class="text-2xl font-mono font-bold text-white">0.0000</span>
-                                <span class="text-blue-500 font-bold text-xs">%</span>
-                            </div>
-                        </div>
-                        <div class="bg-slate-950/40 p-4 rounded-2xl border border-slate-800/50">
-                            <p class="text-slate-500 text-[10px] uppercase font-bold mb-1">Next Objective</p>
-                            <p id="next-milestone-label" class="text-sm font-bold text-slate-200 truncate">Sincronizando...</p>
-                        </div>
-                    </div>
-                </div>
+            <div class="group relative overflow-hidden rounded-2xl border border-white/10 bg-black/40 transition hover:border-white/20">
+              <img src="https://www.jammulinksnews.com/wp-content/uploads/2026/04/Capture-15.jpg" alt="Desacoplamiento de la etapa superior" class="aspect-video w-full object-cover transition duration-500 group-hover:scale-110" />
+              <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 transition group-hover:opacity-100 flex items-end p-4">
+                <span class="text-[10px] uppercase tracking-widest text-white/80">Desacoplamiento de la etapa superior</span>
+              </div>
             </div>
-
-            <!-- Crew -->
-            <div class="bg-slate-900/60 border border-slate-800 rounded-3xl p-6">
-                <h2 class="text-sm font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2 mb-6">
-                    <i data-lucide="users" class="w-4 h-4 text-purple-400"></i> Crew Manifest
-                </h2>
-                <div id="crew-list" class="space-y-3">
-                    <!-- Dinámico -->
-                </div>
+            <div class="aspect-video rounded-2xl border border-dashed border-white/10 bg-white/[0.02] flex flex-col items-center justify-center text-white/20 transition hover:bg-white/5 cursor-pointer">
+              <span class="material-icons mb-2">add_photo_alternate</span>
+              <span class="text-[10px] uppercase tracking-widest">Esperando señal...</span>
             </div>
+          </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 pb-12">
-            <!-- Timeline -->
-            <div class="bg-slate-900/60 border border-slate-800 rounded-3xl p-8">
-                <h2 class="text-sm font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2 mb-8">
-                    <i data-lucide="clock" class="w-4 h-4 text-green-400"></i> Flight Timeline
-                </h2>
-                <div id="timeline-container" class="space-y-6 relative">
-                    <!-- Dinámico -->
-                </div>
+        <!-- Timeline -->
+        <div class="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 backdrop-blur-xl md:p-8">
+          <div class="mb-8 flex items-center justify-between gap-4">
+            <div>
+              <div class="mb-2 text-[10px] uppercase tracking-[0.28em] text-white/35">Secuencia de vuelo</div>
+              <h2 class="text-2xl font-medium tracking-[-0.04em]">Cronología de la misión</h2>
             </div>
+            <a href="https://www.nasa.gov/missions/artemis-ii/arow/" target="_blank" rel="noreferrer" class="inline-flex items-center gap-2 rounded-full border border-white/10 px-3 py-2 text-[11px] uppercase tracking-[0.22em] text-white/50 transition hover:border-white/25 hover:text-white">
+              <span class="material-icons" style="font-size: 13px;">open_in_new</span> AROW
+            </a>
+          </div>
+          <div class="relative space-y-6">
+            <div class="absolute left-[11px] top-2 bottom-2 w-px bg-white/10"></div>
+            <div id="timeline"></div>
+          </div>
+        </div>
+      </div>
 
-            <!-- Logbook -->
-            <div class="bg-slate-900/60 border border-slate-800 rounded-3xl p-8">
-                <h2 class="text-sm font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2 mb-8">
-                    <i data-lucide="newspaper" class="w-4 h-4 text-orange-400"></i> Mission Logbook
-                </h2>
-                <div id="log-container" class="space-y-4">
-                    <!-- Dinámico -->
-                </div>
+      <!-- Right Column -->
+      <aside class="space-y-6">
+        <!-- Crew -->
+        <div class="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 backdrop-blur-xl md:p-7">
+          <div class="mb-6 flex items-center justify-between gap-4">
+            <div>
+              <div class="mb-2 text-[10px] uppercase tracking-[0.28em] text-white/35">Tripulación</div>
+              <h2 class="text-2xl font-medium tracking-[-0.04em]">Equipo de vuelo</h2>
             </div>
+            <span class="material-icons text-white/35" style="font-size: 20px;">group</span>
+          </div>
+          <div id="crewListEl"></div>
         </div>
 
-        <footer class="text-center pb-12">
-            <p class="text-[10px] text-slate-700 font-bold tracking-[0.5em] uppercase">
-                Deep Space Network Interface • GitHub Pages Deploy • 2026
-            </p>
-        </footer>
-    </div>
+        <!-- Mission Feed -->
+        <div class="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 backdrop-blur-xl md:p-7">
+          <div class="mb-6 flex items-start justify-between gap-4">
+            <div>
+              <div class="mb-2 text-[10px] uppercase tracking-[0.28em] text-white/35">Seguimiento en directo</div>
+              <h2 class="text-2xl font-medium tracking-[-0.04em]">Actualizaciones de la misión</h2>
+            </div>
+            <button id="refreshBtn" onclick="updateFeed()" class="inline-flex items-center gap-2 rounded-full border border-white/10 px-3 py-2 text-[11px] uppercase tracking-[0.22em] text-white/50 transition hover:border-white/25 hover:text-white">
+              <span class="inline-block h-2.5 w-2.5 rounded-full border border-white/40 border-t-white"></span>
+              Actualizar
+            </button>
+          </div>
 
-    <script>
-        // --- DATA DE LA MISIÓN ---
-        const MISSION_START = new Date('2026-04-01T22:35:00Z');
-        const MISSION_END = new Date('2026-04-11T00:21:00Z');
+          <div class="mb-4 flex flex-wrap gap-2 text-[10px] uppercase tracking-[0.22em] text-white/35">
+            <a href="https://www.nasa.gov/live/" target="_blank" rel="noreferrer" class="rounded-full border border-white/10 px-3 py-2 transition hover:border-white/25 hover:text-white">NASA en directo</a>
+            <a href="https://www.nasa.gov/artemis-ii-news-and-updates/" target="_blank" rel="noreferrer" class="rounded-full border border-white/10 px-3 py-2 transition hover:border-white/25 hover:text-white">Centro de actualizaciones</a>
+            <a href="https://www.nasa.gov/missions/artemis-ii/arow/" target="_blank" rel="noreferrer" class="rounded-full border border-white/10 px-3 py-2 transition hover:border-white/25 hover:text-white">Órbita en tiempo real</a>
+          </div>
+
+          <div id="syncTime"></div>
+          <div id="feedList" class="space-y-3"></div>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <script>
+    // --- VARIABLES GLOBALES ---
+    const MISSION_START = new Date('2026-04-01T22:35:00Z');
+    const MISSION_END = new Date('2026-04-11T00:21:00Z');
+
+    const FALLBACK_MILESTONES = [
+      { id: 1, label: 'Lanzamiento / Ascenso', time: '2026-04-01T22:35:00Z', desc: 'Despegue del SLS e inserción nominal de Orion.' },
+      { 
+        id: 2, 
+        label: 'Verificación en órbita terrestre', 
+        time: '2026-04-02T02:00:00Z', 
+        desc: 'Tras la inserción en órbita alta, la tripulación evalúa extensamente los sistemas de Orion durante unas 42 horas. Durante esta fase se validan el sistema de soporte vital, las comunicaciones y los paneles solares. Además, se ejecuta una demostración crítica de operaciones de proximidad (RPO) usando la etapa superior del cohete SLS como objetivo, asegurando que la nave es plenamente segura para abandonar la gravedad de la Tierra.' 
+      },
+      { id: 3, label: 'Inyección translunar', time: '2026-04-02T22:00:00Z', desc: 'Encendido crítico para abandonar la órbita terrestre.' },
+      { id: 4, label: 'Tránsito lunar', time: '2026-04-03T12:00:00Z', desc: 'Tramo de crucero hacia el entorno lunar.' },
+      { id: 5, label: 'Sobrevuelo lunar', time: '2026-04-06T15:00:00Z', desc: 'Máxima aproximación y paso por la cara oculta.' },
+      { id: 6, label: 'Retorno libre', time: '2026-04-08T10:00:00Z', desc: 'Trayectoria de regreso a la Tierra confirmada.' },
+      { id: 7, label: 'Amerizaje', time: '2026-04-11T00:21:00Z', desc: 'Reentrada, amerizaje y recuperación en el Pacífico.' },
+    ];
+
+    const CREW = [
+      {
+        name: 'Reid Wiseman',
+        role: 'Comandante',
+        tag: 'CDR',
+        image: 'https://www.nasa.gov/wp-content/uploads/2023/06/jsc2023e0016434-alt.jpg?w=768',
+        detail: 'Lidera la misión, supervisa las operaciones generales y toma las decisiones críticas durante las fases más delicadas del vuelo.'
+      },
+      {
+        name: 'Victor Glover',
+        role: 'Piloto',
+        tag: 'PLT',
+        image: 'https://www.nasa.gov/wp-content/uploads/2023/06/jsc2023e0016433-alt.jpg?w=768',
+        detail: 'Se encarga del control operativo de la nave, del seguimiento de sistemas clave y de apoyar la ejecución de maniobras y procedimientos.'
+      },
+      {
+        name: 'Christina Koch',
+        role: 'Especialista de misión',
+        tag: 'MS1',
+        image: 'https://www.nasa.gov/wp-content/uploads/2023/06/jsc2023e0016435-alt.jpg?w=768',
+        detail: 'Asume tareas técnicas y de validación a bordo, apoyando las comprobaciones de sistemas, los procedimientos y la actividad operativa de misión.'
+      },
+      {
+        name: 'Jeremy Hansen',
+        role: 'Especialista de misión',
+        tag: 'MS2',
+        image: 'https://www.nasa.gov/wp-content/uploads/2023/06/jsc2023e0016436-alt.jpg?w=768',
+        detail: 'Comparte la carga operativa de misión, colabora en navegación, procedimientos y evaluación del desempeño de Orion durante el vuelo lunar.'
+      }
+    ];
+
+    // --- FORMATEADORES ---
+    function formatClock(date) {
+      return new Intl.DateTimeFormat('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false, timeZone: 'Europe/Madrid' }).format(date);
+    }
+
+    function formatStamp(date) {
+      return new Intl.DateTimeFormat('es-ES', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'UTC' }).format(date);
+    }
+
+    function getCountdown(target, now) {
+      const diff = target.getTime() - now.getTime();
+      if (diff <= 0) return '00:00:00';
+      const totalSeconds = Math.floor(diff / 1000);
+      const hours = Math.floor(totalSeconds / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+      return [hours, minutes, seconds].map(val => String(val).padStart(2, '0')).join(':');
+    }
+
+    function stripHtml(html) {
+      const doc = new DOMParser().parseFromString(html, 'text/html');
+      return doc.body.textContent || "";
+    }
+
+    // --- RENDERIZADO DEL CREW ---
+    function renderCrew() {
+      document.getElementById('crewListEl').innerHTML = CREW.map(member => `
+        <div class="crew-item">
+          <img class="crew-avatar" src="${member.image}" alt="${member.name}" loading="eager" crossorigin="anonymous" referrerpolicy="no-referrer" />
+          <div class="crew-body">
+            <div class="crew-top">
+              <div class="crew-name">${member.name}</div>
+              <div class="pill">${member.tag}</div>
+            </div>
+            <div class="muted">${member.role}</div>
+            <div class="crew-detail">${member.detail}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // --- LOGICA DE ACTUALIZACION DE LA MISIÓN ---
+    function updateApp() {
+      const now = new Date();
+      const total = MISSION_END.getTime() - MISSION_START.getTime();
+      const elapsed = now.getTime() - MISSION_START.getTime();
+      const globalProgress = Math.min(Math.max((elapsed / total) * 100, 0), 100);
+
+      const milestones = FALLBACK_MILESTONES.map(m => ({ ...m, at: new Date(m.time) }));
+      const currentMilestone = [...milestones].reverse().find(m => now >= m.at) || milestones[0];
+      const nextMilestone = milestones.find(m => now < m.at) || null;
+      
+      let phaseProgress = 100;
+      if (nextMilestone) {
+        const phaseTotal = nextMilestone.at.getTime() - currentMilestone.at.getTime();
+        const phaseElapsed = now.getTime() - currentMilestone.at.getTime();
+        phaseProgress = Math.min(Math.max((phaseElapsed / phaseTotal) * 100, 0), 100);
+      }
+
+      const daysRemaining = Math.max(0, Math.ceil((MISSION_END.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)));
+      const shipPosition = Math.min(Math.max(globalProgress, 2), 98);
+
+      document.getElementById('clockVal').innerText = formatClock(now);
+      
+      const statusCard = document.getElementById('statusCard');
+      if (nextMilestone) {
+        document.getElementById('statusLabel').innerText = 'Cuenta atrás';
+        document.getElementById('statusIcon').innerText = 'track_changes';
+        document.getElementById('statusVal').innerText = getCountdown(nextMilestone.at, now);
+        document.getElementById('statusSub').innerText = nextMilestone.label;
+        statusCard.className = 'rounded-3xl border p-5 backdrop-blur-sm border-white/10 bg-white/[0.03]';
+      } else {
+        document.getElementById('statusLabel').innerText = 'Estado';
+        document.getElementById('statusIcon').innerText = 'check_circle';
+        document.getElementById('statusVal').innerText = 'COMPLETADA';
+        document.getElementById('statusSub').innerText = 'Amerizaje confirmado';
+        statusCard.className = 'rounded-3xl border p-5 backdrop-blur-sm border-white/20 bg-white/[0.06]';
+      }
+
+      document.getElementById('phaseLabel').innerText = currentMilestone.label;
+      document.getElementById('phaseDesc').innerText = currentMilestone.desc;
+
+      const radius = 44;
+      const circumference = 2 * Math.PI * radius;
+      const dashoffset = circumference - (phaseProgress / 100) * circumference;
+      document.getElementById('ringCircle').style.strokeDashoffset = dashoffset;
+      document.getElementById('ringText').innerText = phaseProgress.toFixed(1) + '%';
+
+      document.getElementById('shipTrack').style.width = `calc(${shipPosition}% - 3rem)`;
+      document.getElementById('shipDot').style.left = `calc(${shipPosition}% - 14px)`;
+
+      document.getElementById('statProgress').innerText = `${globalProgress.toFixed(2)}%`;
+      document.getElementById('statNext').innerText = nextMilestone ? nextMilestone.label : 'Recuperación';
+      document.getElementById('statNextSub').innerText = nextMilestone ? formatStamp(nextMilestone.at) + ' UTC' : 'Secuencia de misión finalizada';
+      document.getElementById('statDays').innerText = String(daysRemaining);
+      
+      const daysCard = document.getElementById('daysCard');
+      daysCard.className = daysRemaining <= 2 
+        ? 'rounded-3xl border p-5 backdrop-blur-sm border-amber-200/20 bg-amber-50/[0.04]'
+        : 'rounded-3xl border p-5 backdrop-blur-sm border-white/10 bg-white/[0.03]';
+
+      const tlContainer = document.getElementById('timeline');
+      if (tlContainer.children.length === 0) {
+        tlContainer.innerHTML = milestones.map(item => `
+          <div id="tl-${item.id}" class="relative flex gap-5 transition-opacity">
+            <div id="tl-icon-${item.id}" class="z-10 mt-1 flex h-6 w-6 shrink-0 items-center justify-center"></div>
+            <div class="flex-1 rounded-3xl border border-white/8 bg-black/20 p-4">
+              <div class="mb-2 flex flex-wrap items-center justify-between gap-3">
+                <div class="text-sm font-medium text-white">${item.label}</div>
+                <div class="font-mono text-[11px] uppercase tracking-[0.16em] text-white/40">${formatStamp(item.at)} UTC</div>
+              </div>
+              <div class="text-sm leading-6 text-white/48">${item.desc}</div>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      milestones.forEach(item => {
+        const isPast = now >= item.at;
+        const isCurrent = currentMilestone.id === item.id;
+        const tlEl = document.getElementById(`tl-${item.id}`);
+        const iconEl = document.getElementById(`tl-icon-${item.id}`);
         
-        const milestones = [
-            { id: 1, label: "Lanzamiento (SLS)", time: new Date('2026-04-01T22:35:00Z'), desc: "Despegue exitoso desde Kennedy." },
-            { id: 2, label: "Órbita Terrestre Alta", time: new Date('2026-04-02T02:00:00Z'), desc: "Sistemas y paneles solares verificados." },
-            { id: 3, label: "Inyección Trans-Lunar", time: new Date('2026-04-02T22:00:00Z'), desc: "Encendido crítico de salida." },
-            { id: 4, label: "Viaje a la Luna", time: new Date('2026-04-03T12:00:00Z'), desc: "Tránsito de 4 días hacia el sistema lunar." },
-            { id: 5, label: "Sobrevuelo Lunar (Máximo)", time: new Date('2026-04-06T15:00:00Z'), desc: "Punto más cercano a la superficie." },
-            { id: 6, label: "Retorno Libre", time: new Date('2026-04-08T10:00:00Z'), desc: "Regreso asistido por gravedad lunar." },
-            { id: 7, label: "Amerizaje (Pacífico)", time: new Date('2026-04-11T00:21:00Z'), desc: "Entrada atmosférica y rescate." }
-        ];
-
-        const missionLogs = [
-            { date: "02 Abr, 10:45", text: "Calibración de cámaras completada. Imágenes de la Tierra enviadas." },
-            { date: "02 Abr, 05:20", text: "Sistemas estables. Tripulación en periodo de sueño." },
-            { date: "01 Abr, 23:15", text: "Separación de etapa nominal. Orion en curso." }
-        ];
-
-        const crew = [
-            { name: "R. Wiseman", role: "Commander", id: "CDR" },
-            { name: "V. Glover", role: "Pilot", id: "PLT" },
-            { name: "C. Koch", role: "Mission Spec", id: "MS1" },
-            { name: "J. Hansen", role: "Mission Spec", id: "MS2" }
-        ];
-
-        // --- LÓGICA DEL DASHBOARD ---
-        function updateDashboard() {
-            const now = new Date();
-            
-            // Reloj
-            document.getElementById('local-clock').innerText = now.toLocaleTimeString('es-ES', { timeZone: 'Europe/Madrid' });
-
-            // Progreso
-            const total = MISSION_END - MISSION_START;
-            const elapsed = now - MISSION_START;
-            const progress = Math.min(Math.max((elapsed / total) * 100, 0), 100);
-
-            document.getElementById('progress-text').innerText = progress.toFixed(4);
-            document.getElementById('progress-line').style.width = `calc(${progress}% - ${progress > 50 ? '24px' : '0px'})`;
-            document.getElementById('rocket-icon').style.left = `calc(${progress}% + 24px)`;
-
-            // Hitos
-            const current = [...milestones].reverse().find(m => now >= m.time) || milestones[0];
-            const next = milestones.find(m => now < m.time);
-
-            document.getElementById('current-milestone-label').innerText = current.label;
-            document.getElementById('next-milestone-label').innerText = next ? next.label : "Misión Completada";
-
-            // Cuenta atrás
-            if (next) {
-                const diff = next.time - now;
-                const h = Math.floor(diff / (1000 * 60 * 60)).toString().padStart(2, '0');
-                const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, '0');
-                const s = Math.floor((diff % (1000 * 60)) / 1000).toString().padStart(2, '0');
-                document.getElementById('countdown-timer').innerText = `${h}:${m}:${s}`;
-                document.getElementById('countdown-label').innerText = `T-Minus to ${next.label}`;
-            } else {
-                document.getElementById('countdown-timer').innerText = "00:00:00";
-            }
-
-            renderTimeline(current);
+        tlEl.className = `relative flex gap-5 transition-opacity ${isPast ? 'opacity-100' : 'opacity-40'}`;
+        
+        if (isCurrent) {
+          // Sustitución de la "mancha negra" por un Radar Pulse (Blip de rastreo)
+          iconEl.innerHTML = `
+            <div class="radar-pulse">
+              <div class="radar-dot"></div>
+            </div>
+          `;
+        } else if (isPast) {
+          iconEl.className = 'z-10 mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white';
+          iconEl.innerHTML = '<span class="material-icons" style="font-size: 16px;">check_circle</span>';
+        } else {
+          iconEl.className = 'z-10 mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-white/10 bg-black text-white/50';
+          iconEl.innerHTML = '<span class="material-icons" style="font-size: 16px;">radio_button_unchecked</span>';
         }
+      });
+    }
 
-        function renderCrew() {
-            const container = document.getElementById('crew-list');
-            container.innerHTML = crew.map(m => `
-                <div class="flex items-center justify-between p-4 bg-slate-950/40 rounded-2xl border border-slate-800/50 hover:border-slate-700 transition-all">
-                    <div>
-                        <p class="text-sm font-bold text-slate-100">${m.name}</p>
-                        <p class="text-[10px] text-slate-500 uppercase">${m.role}</p>
-                    </div>
-                    <span class="text-[10px] font-mono font-bold px-2 py-1 bg-slate-800 text-slate-400 rounded-md border border-slate-700">${m.id}</span>
-                </div>
-            `).join('');
-        }
+    async function fetchMissionFeed() {
+      const queries = [
+        'https://www.nasa.gov/wp-json/wp/v2/posts?search=Artemis%20II&per_page=6&_fields=date,link,title,excerpt',
+        'https://www.nasa.gov/wp-json/wp/v2/posts?search=Artemis&per_page=6&_fields=date,link,title,excerpt',
+      ];
+      for (const url of queries) {
+        try {
+          const res = await fetch(url, { headers: { Accept: 'application/json' } });
+          if (!res.ok) continue;
+          const data = await res.json();
+          if (Array.isArray(data) && data.length) {
+            return data.map((item, index) => ({
+              id: `${item.link}-${index}`,
+              date: new Date(item.date),
+              href: item.link,
+              title: stripHtml(item.title?.rendered || 'Actualización de misión'),
+              excerpt: stripHtml(item.excerpt?.rendered || 'Última nota de la NASA.'),
+            }));
+          }
+        } catch (e) {}
+      }
+      return [];
+    }
 
-        function renderTimeline(current) {
-            const container = document.getElementById('timeline-container');
-            const now = new Date();
-            container.innerHTML = `
-                <div class="absolute left-[11px] top-2 bottom-2 w-px bg-slate-800"></div>
-                ${milestones.map(m => {
-                    const isPast = now >= m.time;
-                    const isCurrent = current.id === m.id;
-                    return `
-                    <div class="flex gap-6 relative transition-all duration-500 ${isPast ? 'opacity-100' : 'opacity-30'}">
-                        <div class="w-6 h-6 rounded-full border-2 z-10 flex items-center justify-center shrink-0
-                            ${isCurrent ? 'bg-blue-600 border-blue-400' : isPast ? 'bg-slate-800 border-slate-700' : 'bg-slate-950 border-slate-800'}">
-                            ${isPast ? '<i data-lucide="check" class="w-3 h-3 text-white"></i>' : '<div class="w-1.5 h-1.5 rounded-full bg-slate-700"></div>'}
-                        </div>
-                        <div class="flex-1">
-                            <div class="flex justify-between items-start">
-                                <p class="font-bold text-sm ${isCurrent ? 'text-blue-400' : 'text-slate-200'}">${m.label}</p>
-                                <p class="text-[10px] font-mono text-slate-500">${m.time.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}</p>
-                            </div>
-                            ${isCurrent ? `<p class="text-xs text-slate-400 mt-1 leading-relaxed">${m.desc}</p>` : ''}
-                        </div>
-                    </div>
-                    `;
-                }).join('')}`;
-            lucide.createIcons();
-        }
+    async function updateFeed() {
+      const feedList = document.getElementById('feedList');
+      const refreshBtn = document.getElementById('refreshBtn');
+      const syncTime = document.getElementById('syncTime');
+      
+      refreshBtn.innerHTML = `<span class="inline-block h-2.5 w-2.5 rounded-full border border-white/40 border-t-white animate-spin"></span> Actualizando`;
+      
+      const items = await fetchMissionFeed();
+      
+      if (items.length > 0) {
+        feedList.innerHTML = items.map((item, index) => `
+          <a href="${item.href}" target="_blank" rel="noreferrer" class="feed-item group block rounded-3xl border border-white/10 bg-white/[0.03] p-5 transition hover:border-white/25 hover:bg-white/[0.05]" style="animation-delay: ${index * 0.05}s">
+            <div class="mb-2 flex items-center justify-between gap-3">
+              <span class="text-[10px] uppercase tracking-[0.28em] text-white/35">${formatStamp(item.date)} UTC</span>
+              <span class="material-icons text-white/35 transition group-hover:text-white/80" style="font-size: 14px;">arrow_outward</span>
+            </div>
+            <h3 class="mb-2 text-base font-medium leading-snug text-white">${item.title}</h3>
+            <p class="line-clamp-3 text-sm leading-6 text-white/55">${item.excerpt}</p>
+          </a>
+        `).join('');
+        syncTime.innerHTML = `<div class="mb-5 text-[11px] uppercase tracking-[0.18em] text-white/28">Última sincronización ${formatStamp(new Date())} UTC</div>`;
+      }
+      refreshBtn.innerHTML = `<span class="inline-block h-2.5 w-2.5 rounded-full border border-white/40 border-t-white"></span> Actualizar`;
+    }
 
-        function renderLogs() {
-            const container = document.getElementById('log-container');
-            container.innerHTML = missionLogs.map(log => `
-                <div class="p-5 bg-slate-950/40 border border-slate-800/50 rounded-2xl hover:border-orange-500/30 transition-all">
-                    <div class="flex items-center gap-2 mb-2">
-                        <span class="w-1.5 h-1.5 rounded-full bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.8)]"></span>
-                        <p class="text-[10px] font-mono font-bold text-slate-500 uppercase">${log.date} UTC</p>
-                    </div>
-                    <p class="text-sm text-slate-300 leading-relaxed italic font-serif">"${log.text}"</p>
-                </div>
-            `).join('') + `
-                <div class="pt-4">
-                    <button class="w-full py-4 text-[10px] font-black text-slate-500 border-2 border-dashed border-slate-800 rounded-2xl hover:bg-slate-800/30 hover:text-slate-400 transition-all tracking-[0.3em] uppercase">
-                        Fetch Full Archive
-                    </button>
-                </div>
-            `;
-        }
-
-        // Iniciar
-        renderCrew();
-        renderLogs();
-        setInterval(updateDashboard, 1000);
-        updateDashboard();
-        lucide.createIcons();
-    </script>
+    document.addEventListener('DOMContentLoaded', () => {
+      renderCrew();            
+      updateApp();             
+      setInterval(updateApp, 1000); 
+      updateFeed();            
+      setInterval(updateFeed, 5 * 60 * 1000); 
+    });
+  </script>
 </body>
 </html>
