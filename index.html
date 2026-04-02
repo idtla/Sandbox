@@ -182,7 +182,7 @@
               <p id="phaseDesc" class="text-sm leading-7 text-white/75">--</p>
             </div>
 
-            <!-- NUEVA Barra horizontal responsiva de progreso de fase -->
+            <!-- Barra horizontal responsiva de progreso de fase -->
             <div class="mt-6 w-full">
               <div class="flex justify-between items-end mb-2">
                 <span class="text-[10px] uppercase tracking-[0.28em] text-white/40">Progreso de la fase</span>
@@ -210,7 +210,7 @@
               <div class="mt-3 text-center text-[10px] uppercase tracking-[0.28em] text-white/30">Tierra</div>
             </div>
 
-            <!-- Cohete con -translate-x-1/2 para centrar la coordenada exacta y evitar solapamientos -->
+            <!-- Cohete -->
             <div id="shipDot" class="absolute top-1/2 z-20 -translate-x-1/2 -translate-y-1/2 transition-all duration-1000 ease-out" style="left: 52px;">
               <div class="relative flex items-center justify-center">
                 <span id="rocketIcon" class="material-icons text-white transition-transform duration-1000 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]" style="font-size: 28px; transform: rotate(45deg); z-index: 10;">rocket</span>
@@ -267,25 +267,25 @@
             <span class="material-icons text-white/35" style="font-size: 20px;">photo_camera</span>
           </div>
           
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <!-- Primera Foto -->
-            <div class="group relative overflow-hidden rounded-2xl border border-white/10 bg-black/40 transition hover:border-white/20">
-              <img src="https://pbs.twimg.com/media/HE3UIoTWgAAiMl3?format=jpg&name=4096x4096" alt="Lanzamiento y Ascenso del SLS" class="aspect-video w-full object-cover transition duration-500 group-hover:scale-110" />
-              <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 transition group-hover:opacity-100 flex items-end p-4">
-                <span class="text-[10px] uppercase tracking-widest text-white/80">Lanzamiento y Ascenso del SLS</span>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Columna Izquierda (2 Fotos Horizontales) -->
+            <div class="md:col-span-2 flex flex-col gap-4">
+              <div class="group relative overflow-hidden rounded-2xl border border-white/10 bg-black/40 transition hover:border-white/20">
+                <img src="https://pbs.twimg.com/media/HE3UIoTWgAAiMl3?format=jpg&name=4096x4096" alt="Lanzamiento y Ascenso del SLS" class="aspect-video w-full object-cover transition duration-500 group-hover:scale-110" />
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 transition group-hover:opacity-100 flex items-end p-4">
+                  <span class="text-[10px] uppercase tracking-widest text-white/80">Lanzamiento y Ascenso del SLS</span>
+                </div>
+              </div>
+              <div class="group relative overflow-hidden rounded-2xl border border-white/10 bg-black/40 transition hover:border-white/20">
+                <img src="https://www.jammulinksnews.com/wp-content/uploads/2026/04/Capture-15.jpg" alt="Desacoplamiento de la etapa superior" class="aspect-video w-full object-cover transition duration-500 group-hover:scale-110" />
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 transition group-hover:opacity-100 flex items-end p-4">
+                  <span class="text-[10px] uppercase tracking-widest text-white/80">Desacoplamiento de la etapa superior</span>
+                </div>
               </div>
             </div>
-            
-            <!-- Segunda Foto -->
-            <div class="group relative overflow-hidden rounded-2xl border border-white/10 bg-black/40 transition hover:border-white/20">
-              <img src="https://www.jammulinksnews.com/wp-content/uploads/2026/04/Capture-15.jpg" alt="Desacoplamiento de la etapa superior" class="aspect-video w-full object-cover transition duration-500 group-hover:scale-110" />
-              <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 transition group-hover:opacity-100 flex items-end p-4">
-                <span class="text-[10px] uppercase tracking-widest text-white/80">Desacoplamiento de la etapa superior</span>
-              </div>
-            </div>
-            
-            <!-- Marcador de posición -->
-            <div class="aspect-video rounded-2xl border border-dashed border-white/10 bg-white/[0.02] flex flex-col items-center justify-center text-white/20 transition hover:bg-white/5 cursor-pointer">
+
+            <!-- Columna Derecha -->
+            <div class="aspect-video md:aspect-auto rounded-2xl border border-dashed border-white/10 bg-white/[0.02] flex flex-col items-center justify-center text-white/20 transition hover:bg-white/5 cursor-pointer min-h-[200px]">
               <span class="material-icons mb-2">add_photo_alternate</span>
               <span class="text-[10px] uppercase tracking-widest">Esperando señal...</span>
             </div>
@@ -356,9 +356,9 @@
         id: 2, 
         label: 'Verificación en órbita terrestre', 
         time: '2026-04-02T02:00:00Z', 
-        desc: 'Tras la inserción en órbita alta, la tripulación evalúa extensamente los sistemas de Orion durante unas 24 horas. Durante esta fase se validan el sistema de soporte vital, las comunicaciones y los paneles solares. Además, se ejecuta una demostración crítica de operaciones de proximidad (RPO) usando la etapa superior del cohete SLS como objetivo, asegurando que la nave es plenamente segura para abandonar la gravedad de la Tierra.' 
+        desc: 'Tras la inserción en órbita alta, la tripulación evalúa los sistemas de Orion durante unas 24 horas. La jornada comenzó a las 2:35 p.m. con el tema "Green Light" de John Legend. Han realizado ejercicios en el dispositivo flywheel y validan el sistema de soporte vital.' 
       },
-      { id: 3, label: 'Inyección translunar', time: '2026-04-03T00:10:00Z', desc: 'Encendido crítico para abandonar la órbita terrestre y poner rumbo a la Luna.' },
+      { id: 3, label: 'Inyección translunar', time: '2026-04-02T23:49:00Z', desc: 'Encendido de los motores por 5 min y 49 seg para poner rumbo a la Luna.' },
       { id: 4, label: 'Tránsito lunar', time: '2026-04-03T12:00:00Z', desc: 'Tramo de crucero hacia el entorno lunar.' },
       { id: 5, label: 'Sobrevuelo lunar', time: '2026-04-06T15:00:00Z', desc: 'Máxima aproximación y paso por la cara oculta.' },
       { id: 6, label: 'Retorno libre', time: '2026-04-08T10:00:00Z', desc: 'Trayectoria de regreso a la Tierra confirmada.' },
@@ -474,7 +474,7 @@
       document.getElementById('phaseBarText').innerText = phaseProgress.toFixed(1) + '%';
 
       // --- TRAYECTORIA Y DISTANCIA ---
-      const tliTime = new Date('2026-04-03T00:10:00Z').getTime();
+      const tliTime = new Date('2026-04-02T23:49:00Z').getTime(); // 7:49 p.m. EDT
       const flybyTime = new Date('2026-04-06T15:00:00Z').getTime();
       const splashdownTime = new Date('2026-04-11T00:21:00Z').getTime();
       const currentTime = now.getTime();
@@ -566,31 +566,31 @@
       return [
         {
           id: 'news-0',
-          date: new Date('2026-04-02T21:50:00Z'),
-          href: 'https://www.nasa.gov/artemis-ii-news-and-updates/',
-          title: 'Reajuste del TLI confirmado (02:10 CEST)',
-          excerpt: 'La NASA ha confirmado un ligero reajuste orbital. El encendido de Inyección Translunar (TLI) se ejecutará finalmente a las 02:10 hora de Madrid (00:10 UTC).'
+          date: new Date('2026-04-02T20:24:00Z'),
+          href: 'https://www.nasa.gov/blogs/missions/',
+          title: 'Artemis II Flight Day 2: Crew, Houston Poll \'Go\' for TLI Burn',
+          excerpt: 'El equipo de gestión de la misión ha dado el "GO" oficial. El motor de Orion se encenderá durante 5 min 49 seg a las 7:49 p.m. EDT (23:49 UTC) para enviar a la tripulación hacia la Luna.'
         },
         {
           id: 'news-1',
-          date: new Date('2026-04-02T19:30:00Z'),
-          href: 'https://www.nasa.gov/artemis-ii-news-and-updates/',
-          title: 'Control de Misión da el "GO" para la Inyección Translunar (TLI)',
-          excerpt: 'El director de vuelo en Houston ha confirmado el estado "Go" para la crítica maniobra TLI.'
+          date: new Date('2026-04-02T13:15:00Z'),
+          href: 'https://www.nasa.gov/blogs/missions/',
+          title: 'Artemis II Flight Update: Perigee Raise Burn Complete',
+          excerpt: 'Maniobra de elevación de perigeo finalizada con éxito. La tripulación comenzó su día a las 2:35 p.m. con el tema "Green Light" de John Legend.'
         },
         {
           id: 'news-2',
-          date: new Date('2026-04-02T17:45:00Z'),
-          href: 'https://www.nasa.gov/artemis-ii-news-and-updates/',
-          title: 'Preparativos finales: La tripulación asegura la cabina',
-          excerpt: 'Como medida de seguridad estándar previa a maniobras dinámicas, los astronautas han asegurado los objetos sueltos en la cabina y monitorizan los sistemas de propulsión a la espera del gran encendido.'
+          date: new Date('2026-04-02T04:06:00Z'),
+          href: 'https://www.nasa.gov/blogs/missions/',
+          title: 'Sistemas de la Nave Orion Operando al 100%',
+          excerpt: 'La tripulación realiza sus primeras sesiones de ejercicio en el dispositivo flywheel y monitoriza el soporte vital tras solucionar un contratiempo menor en el sistema de residuos.'
         },
         {
           id: 'news-3',
-          date: new Date('2026-04-02T13:45:00Z'),
-          href: 'https://www.nasa.gov/artemis-ii-news-and-updates/',
-          title: 'Sistemas de soporte vital operando al 100%',
-          excerpt: 'La tripulación ha completado la segunda ronda de verificaciones del sistema ECLSS de la cápsula Orion. Todos los parámetros son nominales en esta fase.'
+          date: new Date('2026-04-01T23:37:00Z'),
+          href: 'https://www.nasa.gov/blogs/missions/',
+          title: 'Proximity Operations Complete',
+          excerpt: 'Demostración de operaciones de proximidad (RPO) terminada. Orion ha demostrado un control manual excepcional alrededor de la etapa superior del SLS.'
         }
       ];
     }
