@@ -1,18 +1,15 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Artemis II Tracker</title>
+  <title>Artemis II Mission Tracker</title>
   
-  <!-- Tailwind CSS para los estilos de la interfaz general -->
   <script src="https://cdn.tailwindcss.com"></script>
-  
-  <!-- Material Icons para la iconografía -->
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
   <style>
-    /* Asegurar centrado de los iconos de Material */
     .material-icons {
       display: inline-flex;
       align-items: center;
@@ -20,7 +17,6 @@
       vertical-align: middle;
     }
 
-    /* Efecto de fade in para el feed */
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(8px); }
       to { opacity: 1; transform: translateY(0); }
@@ -29,7 +25,6 @@
       animation: fadeIn 0.4s ease-out both;
     }
 
-    /* === ESTILOS DEL CREW === */
     .crew-item {
       display: flex;
       gap: 16px;
@@ -46,9 +41,7 @@
       object-fit: cover;
       border: 1px solid rgba(255, 255, 255, 0.1);
     }
-    .crew-body {
-      flex: 1;
-    }
+    .crew-body { flex: 1; }
     .crew-top {
       display: flex;
       justify-content: space-between;
@@ -73,7 +66,6 @@
       font-size: 0.875rem;
       color: rgba(255, 255, 255, 0.45);
     }
-    
     .crew-detail {
       margin-top: 8px;
       font-size: 0.9rem;
@@ -81,13 +73,11 @@
       color: rgba(255,255,255,0.46);
     }
 
-    /* Brillo Neón Mejorado */
     .neon-icon-blue {
       color: #22d3ee;
       text-shadow: 0 0 10px rgba(34, 211, 238, 0.8), 0 0 20px rgba(34, 211, 238, 0.3);
     }
 
-    /* Marcador de Pulso Radar para la fase actual */
     .radar-pulse {
       position: relative;
       display: flex;
@@ -120,9 +110,7 @@
   </style>
 </head>
 <body class="bg-black text-white antialiased min-h-screen relative">
-  <!-- Fondos y texturas -->
   <div class="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08),transparent_38%),linear-gradient(to_bottom,rgba(255,255,255,0.04),transparent_22%),linear-gradient(to_bottom,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[length:auto,auto,100%_6px] opacity-60"></div>
-  <div class="pointer-events-none fixed inset-0 bg-[linear-gradient(to_bottom,transparent,rgba(255,255,255,0.03),transparent)] opacity-20"></div>
 
   <main class="relative mx-auto max-w-7xl px-4 py-6 md:px-8 md:py-8">
     <!-- Header -->
@@ -135,10 +123,10 @@
           </div>
           <h1 class="max-w-3xl text-3xl font-semibold tracking-[-0.04em] text-white md:text-5xl">
             ARTEMIS II /
-            <span class="ml-2 text-white/45">seguimiento de misión</span>
+            <span class="ml-2 text-white/45">estado de misión</span>
           </h1>
           <p class="mt-4 max-w-2xl text-sm leading-7 text-white/52 md:text-base">
-            Seguimiento 24 horas de la misión Artemis II que llevará al ser humano a la Luna 50 años después.
+            Seguimiento en tiempo real de la cápsula Orion "Integrity" en su viaje histórico hacia la Luna.
           </p>
         </div>
 
@@ -149,7 +137,7 @@
               <span>Hora local</span>
             </div>
             <div id="clockVal" class="text-xl font-medium tracking-tight text-white">--:--:--</div>
-            <div class="mt-1 text-sm text-white/45">Europa / Madrid</div>
+            <div class="mt-1 text-sm text-white/45">España / Madrid</div>
           </div>
           <div id="statusCard" class="rounded-3xl border p-5 backdrop-blur-sm border-white/10 bg-white/[0.03]">
             <div class="mb-4 flex items-center gap-2 text-[11px] uppercase tracking-[0.24em] text-white/45">
@@ -163,17 +151,14 @@
       </div>
     </section>
 
-    <!-- Content Grid -->
+    <!-- Main Content -->
     <section class="grid grid-cols-1 gap-6 xl:grid-cols-[1.3fr_0.7fr]">
-      <!-- Left Column -->
-      <div>
+      <div class="space-y-6">
         <div class="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 backdrop-blur-xl md:p-8">
-          <!-- Phase and Progress -->
           <div class="mb-8">
             <div class="mb-2 text-[10px] uppercase tracking-[0.28em] text-white/35">Fase actual</div>
             <h2 id="phaseLabel" class="text-2xl font-medium tracking-[-0.04em] text-white md:text-3xl">--</h2>
             
-            <!-- Bloque explicativo con icono Explore en Neón -->
             <div class="mt-4 rounded-xl border border-white/10 bg-white/5 p-5">
               <div class="mb-2 flex items-center gap-2 text-[10px] uppercase tracking-[0.28em] text-white/35">
                 <span class="material-icons neon-icon-blue" style="font-size: 15px;">explore</span>
@@ -182,7 +167,6 @@
               <p id="phaseDesc" class="text-sm leading-7 text-white/75">--</p>
             </div>
 
-            <!-- Barra horizontal responsiva de progreso de fase -->
             <div class="mt-6 w-full">
               <div class="flex justify-between items-end mb-2">
                 <span class="text-[10px] uppercase tracking-[0.28em] text-white/40">Progreso de la fase</span>
@@ -194,11 +178,9 @@
             </div>
           </div>
 
-          <!-- Ship Tracker -->
+          <!-- Spacecraft Position Map -->
           <div class="relative mb-8 h-36 overflow-hidden rounded-[1.75rem] border border-white/10 bg-black/60">
-            <!-- Línea de fondo -->
             <div class="absolute top-1/2 h-px -translate-y-1/2 bg-white/10 z-0" style="left: 52px; right: 48px;"></div>
-            <!-- Línea de estela -->
             <div id="shipTrack" class="absolute top-1/2 h-px -translate-y-1/2 bg-white/80 transition-all duration-1000 ease-out z-0" style="left: 52px; width: 0%"></div>
 
             <div class="absolute left-5 top-1/2 -translate-y-1/2 z-10">
@@ -210,7 +192,6 @@
               <div class="mt-3 text-center text-[10px] uppercase tracking-[0.28em] text-white/30">Tierra</div>
             </div>
 
-            <!-- Cohete -->
             <div id="shipDot" class="absolute top-1/2 z-20 -translate-x-1/2 -translate-y-1/2 transition-all duration-1000 ease-out" style="left: 52px;">
               <div class="relative flex items-center justify-center">
                 <span id="rocketIcon" class="material-icons text-white transition-transform duration-1000 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]" style="font-size: 28px; transform: rotate(45deg); z-index: 10;">rocket</span>
@@ -228,66 +209,57 @@
             </div>
           </div>
 
-          <!-- Extra Stats -->
           <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
-            <div class="rounded-3xl border border-white/10 bg-white/[0.03] p-5 backdrop-blur-sm">
+            <div class="rounded-3xl border border-white/10 bg-white/[0.03] p-5">
               <div class="mb-4 flex items-center gap-2 text-[11px] uppercase tracking-[0.24em] text-white/45">
                 <span class="material-icons" style="font-size: 16px;">rocket_launch</span>
-                <span>Progreso global</span>
+                <span>Misión global</span>
               </div>
               <div id="statProgress" class="text-xl font-medium tracking-tight text-white">--%</div>
-              <div class="mt-1 text-sm text-white/45">Misión total completada</div>
+              <div class="mt-1 text-sm text-white/45">Total completado</div>
             </div>
-            <div class="rounded-3xl border border-white/10 bg-white/[0.03] p-5 backdrop-blur-sm">
+            <div class="rounded-3xl border border-white/10 bg-white/[0.03] p-5">
               <div class="mb-4 flex items-center gap-2 text-[11px] uppercase tracking-[0.24em] text-white/45">
                 <span class="material-icons" style="font-size: 16px;">track_changes</span>
-                <span>Siguiente objetivo</span>
+                <span>Objetivo</span>
               </div>
               <div id="statNext" class="text-xl font-medium tracking-tight text-white">--</div>
               <div id="statNextSub" class="mt-1 text-sm text-white/45">--</div>
             </div>
-            <div id="daysCard" class="rounded-3xl border border-white/10 bg-white/[0.03] p-5 backdrop-blur-sm">
+            <div id="daysCard" class="rounded-3xl border border-white/10 bg-white/[0.03] p-5">
               <div class="mb-4 flex items-center gap-2 text-[11px] uppercase tracking-[0.24em] text-white/45">
-                <span class="material-icons" style="font-size: 16px;">warning</span>
-                <span>Días restantes</span>
+                <span class="material-icons" style="font-size: 16px;">history</span>
+                <span>Restante</span>
               </div>
               <div id="statDays" class="text-xl font-medium tracking-tight text-white">--</div>
-              <div class="mt-1 text-sm text-white/45">Días aproximados restantes</div>
+              <div id="statDaysSub" class="mt-1 text-sm text-white/45">Hacia el marco</div>
             </div>
           </div>
         </div>
 
-        <!-- Galería de fotos -->
+        <!-- Gallery -->
         <div class="mt-6 mb-6 rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 backdrop-blur-xl md:p-8">
           <div class="mb-6 flex items-center justify-between">
-            <div>
-              <div class="mb-2 text-[10px] uppercase tracking-[0.28em] text-white/35">Multimedia</div>
-              <h2 class="text-2xl font-medium tracking-[-0.04em]">Imágenes de la misión</h2>
-            </div>
-            <span class="material-icons text-white/35" style="font-size: 20px;">photo_camera</span>
+            <h2 class="text-2xl font-medium tracking-[-0.04em]">Imágenes de la misión</h2>
+            <span class="material-icons text-white/35">photo_camera</span>
           </div>
-          
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <!-- Columna Izquierda (2 Fotos Horizontales) -->
             <div class="md:col-span-2 flex flex-col gap-4">
-              <div class="group relative overflow-hidden rounded-2xl border border-white/10 bg-black/40 transition hover:border-white/20">
-                <img src="https://pbs.twimg.com/media/HE3UIoTWgAAiMl3?format=jpg&name=4096x4096" alt="Lanzamiento y Ascenso del SLS" class="aspect-video w-full object-cover transition duration-500 group-hover:scale-110" />
-                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 transition group-hover:opacity-100 flex items-end p-4">
-                  <span class="text-[10px] uppercase tracking-widest text-white/80">Lanzamiento y Ascenso del SLS</span>
+              <div class="group relative overflow-hidden rounded-2xl border border-white/10 bg-black/40">
+                <img src="https://pbs.twimg.com/media/HE3UIoTWgAAiMl3?format=jpg&name=4096x4096" class="aspect-video w-full object-cover" />
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 flex items-end p-4 opacity-0 transition group-hover:opacity-100">
+                  <span class="text-[10px] uppercase tracking-widest text-white">Lanzamiento Artemis II</span>
                 </div>
               </div>
-              <div class="group relative overflow-hidden rounded-2xl border border-white/10 bg-black/40 transition hover:border-white/20">
-                <img src="https://www.jammulinksnews.com/wp-content/uploads/2026/04/Capture-15.jpg" alt="Desacoplamiento de la etapa superior" class="aspect-video w-full object-cover transition duration-500 group-hover:scale-110" />
-                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 transition group-hover:opacity-100 flex items-end p-4">
-                  <span class="text-[10px] uppercase tracking-widest text-white/80">Desacoplamiento de la etapa superior</span>
+              <div class="group relative overflow-hidden rounded-2xl border border-white/10 bg-black/40">
+                <img src="https://www.jammulinksnews.com/wp-content/uploads/2026/04/Capture-15.jpg" class="aspect-video w-full object-cover" />
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 flex items-end p-4 opacity-0 transition group-hover:opacity-100">
+                  <span class="text-[10px] uppercase tracking-widest text-white">Separación de la etapa superior</span>
                 </div>
               </div>
             </div>
-
-            <!-- Columna Derecha -->
-            <div class="aspect-video md:aspect-auto rounded-2xl border border-dashed border-white/10 bg-white/[0.02] flex flex-col items-center justify-center text-white/20 transition hover:bg-white/5 cursor-pointer min-h-[200px]">
+            <div class="aspect-video md:aspect-auto rounded-2xl border border-dashed border-white/10 flex items-center justify-center text-white/20 min-h-[200px]">
               <span class="material-icons mb-2">add_photo_alternate</span>
-              <span class="text-[10px] uppercase tracking-widest">Esperando señal...</span>
             </div>
           </div>
         </div>
@@ -295,11 +267,8 @@
         <!-- Timeline -->
         <div class="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 backdrop-blur-xl md:p-8">
           <div class="mb-8 flex items-center justify-between gap-4">
-            <div>
-              <div class="mb-2 text-[10px] uppercase tracking-[0.28em] text-white/35">Secuencia de vuelo</div>
-              <h2 class="text-2xl font-medium tracking-[-0.04em]">Cronología de la misión</h2>
-            </div>
-            <a href="https://www.nasa.gov/missions/artemis-ii/arow/" target="_blank" rel="noreferrer" class="inline-flex items-center gap-2 rounded-full border border-white/10 px-3 py-2 text-[11px] uppercase tracking-[0.22em] text-white/50 transition hover:border-white/25 hover:text-white">
+            <h2 class="text-2xl font-medium tracking-[-0.04em]">Cronología de la misión</h2>
+            <a href="https://www.nasa.gov/missions/artemis-ii/arow/" target="_blank" class="inline-flex items-center gap-2 rounded-full border border-white/10 px-3 py-2 text-[11px] uppercase tracking-[0.22em] text-white/50 transition hover:text-white">
               <span class="material-icons" style="font-size: 13px;">open_in_new</span> AROW
             </a>
           </div>
@@ -312,214 +281,145 @@
 
       <!-- Right Column -->
       <aside class="space-y-6">
-        <!-- Crew -->
         <div class="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 backdrop-blur-xl md:p-7">
-          <div class="mb-6 flex items-center justify-between gap-4">
-            <div>
-              <div class="mb-2 text-[10px] uppercase tracking-[0.28em] text-white/35">Tripulación</div>
-              <h2 class="text-2xl font-medium tracking-[-0.04em]">Equipo de vuelo</h2>
-            </div>
-            <span class="material-icons text-white/35" style="font-size: 20px;">group</span>
-          </div>
+          <h2 class="text-2xl font-medium tracking-[-0.04em] mb-6">Equipo de vuelo</h2>
           <div id="crewListEl"></div>
         </div>
 
-        <!-- Mission Feed -->
         <div class="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 backdrop-blur-xl md:p-7">
           <div class="mb-6 flex items-start justify-between gap-4">
-            <div>
-              <div class="mb-2 text-[10px] uppercase tracking-[0.28em] text-white/35">Seguimiento en directo</div>
-              <h2 class="text-2xl font-medium tracking-[-0.04em]">Actualizaciones de la misión</h2>
-            </div>
-            <button id="refreshBtn" onclick="updateFeed()" class="inline-flex items-center gap-2 rounded-full border border-white/10 px-3 py-2 text-[11px] uppercase tracking-[0.22em] text-white/50 transition hover:border-white/25 hover:text-white">
+            <h2 class="text-2xl font-medium tracking-[-0.04em]">Actualizaciones</h2>
+            <button id="refreshBtn" onclick="updateFeed()" class="inline-flex items-center gap-2 rounded-full border border-white/10 px-3 py-2 text-[11px] uppercase tracking-[0.22em] text-white/50 transition hover:text-white">
               <span class="inline-block h-2.5 w-2.5 rounded-full border border-white/40 border-t-white"></span>
               Actualizar
             </button>
           </div>
-
           <div id="syncTime"></div>
           <div id="feedList"></div>
         </div>
-
       </aside>
     </section>
   </main>
 
   <script>
-    // --- VARIABLES GLOBALES ---
     const MISSION_START = new Date('2026-04-01T22:35:00Z');
     const MISSION_END = new Date('2026-04-11T00:21:00Z');
 
     const FALLBACK_MILESTONES = [
       { id: 1, label: 'Lanzamiento / Ascenso', time: '2026-04-01T22:35:00Z', desc: 'Despegue del SLS e inserción nominal de Orion.' },
       { 
-        id: 2, 
-        label: 'Verificación en órbita terrestre', 
-        time: '2026-04-02T02:00:00Z', 
-        desc: 'Tras la inserción en órbita alta, la tripulación evalúa los sistemas de Orion durante unas 24 horas. La jornada comenzó a las 2:35 p.m. con el tema "Green Light" de John Legend. Han realizado ejercicios en el dispositivo flywheel y validan el sistema de soporte vital.' 
+        id: 2, label: 'Órbita Terrestre Alta', time: '2026-04-02T02:00:00Z', 
+        desc: 'Orion (cápsula "Integrity") completó 24h de chequeos a 74.000km de altitud. Se validaron CubeSats y pilotaje manual.' 
       },
-      { id: 3, label: 'Inyección translunar', time: '2026-04-02T23:49:00Z', desc: 'Encendido de los motores por 5 min y 49 seg para poner rumbo a la Luna.' },
-      { id: 4, label: 'Tránsito lunar', time: '2026-04-03T12:00:00Z', desc: 'Tramo de crucero hacia el entorno lunar.' },
-      { id: 5, label: 'Sobrevuelo lunar', time: '2026-04-06T15:00:00Z', desc: 'Máxima aproximación y paso por la cara oculta.' },
-      { id: 6, label: 'Retorno libre', time: '2026-04-08T10:00:00Z', desc: 'Trayectoria de regreso a la Tierra confirmada.' },
-      { id: 7, label: 'Amerizaje', time: '2026-04-11T00:21:00Z', desc: 'Reentrada, amerizaje y recuperación en el Pacífico.' },
+      { 
+        id: 3, label: 'Inyección Translunar (TLI)', time: '2026-04-02T23:49:00Z', 
+        desc: 'ÉXITO: Encendido de 5 min 49 seg. Los humanos abandonan la órbita terrestre por primera vez desde 1972.' 
+      },
+      { 
+        id: 4, label: 'Tránsito Lunar', time: '2026-04-03T01:00:00Z', 
+        desc: 'Fase de crucero. La tripulación realiza ejercicios en el flywheel y se aclimata al espacio profundo.' 
+      },
+      { 
+        id: 5, label: 'Sobrevuelo Lunar', time: '2026-04-06T23:59:00Z', 
+        desc: 'Fotografía de alta resolución y observación de relieves en la cara oculta bajo iluminación parcial.' 
+      },
+      { id: 6, label: 'Retorno Libre', time: '2026-04-08T10:00:00Z', desc: 'Regreso asistido por gravedad hacia la Tierra.' },
+      { id: 7, label: 'Amerizaje', time: '2026-04-11T00:21:00Z', desc: 'Recuperación en el Pacífico, frente a San Diego.' },
     ];
 
     const CREW = [
       {
-        name: 'Reid Wiseman',
-        role: 'Comandante',
-        tag: 'CDR',
+        name: 'Reid Wiseman', role: 'Comandante', tag: 'CDR',
         image: 'https://www.nasa.gov/wp-content/uploads/2023/06/jsc2023e0016434-alt.jpg?w=768',
-        detail: 'Lidera la misión, supervisa las operaciones generales y toma las decisiones críticas durante las fases más delicadas del vuelo.'
+        detail: 'Lidera la misión y supervisa las operaciones de "Integrity" en su salida de órbita.'
       },
       {
-        name: 'Victor Glover',
-        role: 'Piloto',
-        tag: 'PLT',
+        name: 'Victor Glover', role: 'Piloto', tag: 'PLT',
         image: 'https://www.nasa.gov/wp-content/uploads/2023/06/jsc2023e0016433-alt.jpg?w=768',
-        detail: 'Se encarga del control operativo de la nave, del seguimiento de sistemas clave y de apoyar la ejecución de maniobras y procedimientos.'
+        detail: 'Ejecutó las maniobras manuales de pilotaje usando la etapa ICPS como objetivo.'
       },
       {
-        name: 'Christina Koch',
-        role: 'Especialista de misión',
-        tag: 'MS1',
+        name: 'Christina Koch', role: 'Especialista', tag: 'MS1',
         image: 'https://www.nasa.gov/wp-content/uploads/2023/06/jsc2023e0016435-alt.jpg?w=768',
-        detail: 'Asume tareas técnicas y de validación a bordo, apoyando las comprobaciones de sistemas, los procedimientos y la actividad operativa de misión.'
+        detail: 'Coordina la ciencia a bordo y el despliegue de los CubeSats de investigación.'
       },
       {
-        name: 'Jeremy Hansen',
-        role: 'Especialista de misión',
-        tag: 'MS2',
+        name: 'Jeremy Hansen', role: 'Especialista', tag: 'MS2',
         image: 'https://www.nasa.gov/wp-content/uploads/2023/06/jsc2023e0016436-alt.jpg?w=768',
-        detail: 'Comparte la carga operativa de misión, colabora en navegación, procedimientos y evaluación del desempeño de Orion durante el vuelo lunar.'
+        detail: 'Monitorea el rendimiento de Orion durante esta trayectoria de retorno libre.'
       }
     ];
 
-    function formatClock(date) {
-      return new Intl.DateTimeFormat('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false, timeZone: 'Europe/Madrid' }).format(date);
-    }
-
-    function formatStamp(date) {
-      return new Intl.DateTimeFormat('es-ES', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'UTC' }).format(date);
-    }
-
+    function formatClock(date) { return new Intl.DateTimeFormat('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false, timeZone: 'Europe/Madrid' }).format(date); }
+    function formatStamp(date) { return new Intl.DateTimeFormat('es-ES', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'UTC' }).format(date); }
     function getCountdown(target, now) {
       const diff = target.getTime() - now.getTime();
       if (diff <= 0) return '00:00:00';
-      const totalSeconds = Math.floor(diff / 1000);
-      const hours = Math.floor(totalSeconds / 3600);
-      const minutes = Math.floor((totalSeconds % 3600) / 60);
-      const seconds = totalSeconds % 60;
+      const hours = Math.floor(diff / 3600000);
+      const minutes = Math.floor((diff % 3600000) / 60000);
+      const seconds = Math.floor((diff % 60000) / 1000);
       return [hours, minutes, seconds].map(val => String(val).padStart(2, '0')).join(':');
     }
 
     function renderCrew() {
       document.getElementById('crewListEl').innerHTML = CREW.map(member => `
         <div class="crew-item">
-          <img class="crew-avatar" src="${member.image}" alt="${member.name}" loading="eager" crossorigin="anonymous" referrerpolicy="no-referrer" />
+          <img class="crew-avatar" src="${member.image}" alt="${member.name}" />
           <div class="crew-body">
-            <div class="crew-top">
-              <div class="crew-name">${member.name}</div>
-              <div class="pill">${member.tag}</div>
-            </div>
+            <div class="crew-top"><div class="crew-name">${member.name}</div><div class="pill">${member.tag}</div></div>
             <div class="muted">${member.role}</div>
             <div class="crew-detail">${member.detail}</div>
           </div>
-        </div>
-      `).join('');
+        </div>`).join('');
     }
 
     function updateApp() {
       const now = new Date();
-      const total = MISSION_END.getTime() - MISSION_START.getTime();
-      const elapsed = now.getTime() - MISSION_START.getTime();
-      const globalProgress = Math.min(Math.max((elapsed / total) * 100, 0), 100);
-
+      const globalProgress = Math.min(Math.max(((now - MISSION_START) / (MISSION_END - MISSION_START)) * 100, 0), 100);
       const milestones = FALLBACK_MILESTONES.map(m => ({ ...m, at: new Date(m.time) }));
       const currentMilestone = [...milestones].reverse().find(m => now >= m.at) || milestones[0];
       const nextMilestone = milestones.find(m => now < m.at) || null;
       
       let phaseProgress = 100;
       if (nextMilestone) {
-        const phaseTotal = nextMilestone.at.getTime() - currentMilestone.at.getTime();
-        const phaseElapsed = now.getTime() - currentMilestone.at.getTime();
-        phaseProgress = Math.min(Math.max((phaseElapsed / phaseTotal) * 100, 0), 100);
+        phaseProgress = Math.min(Math.max(((now - currentMilestone.at) / (nextMilestone.at - currentMilestone.at)) * 100, 0), 100);
       }
 
-      const daysRemaining = Math.max(0, Math.ceil((MISSION_END.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)));
-
       document.getElementById('clockVal').innerText = formatClock(now);
-      
-      const statusCard = document.getElementById('statusCard');
       if (nextMilestone) {
         document.getElementById('statusLabel').innerText = 'Cuenta atrás';
-        document.getElementById('statusIcon').innerText = 'track_changes';
         document.getElementById('statusVal').innerText = getCountdown(nextMilestone.at, now);
         document.getElementById('statusSub').innerText = nextMilestone.label;
-        statusCard.className = 'rounded-3xl border p-5 backdrop-blur-sm border-white/10 bg-white/[0.03]';
       } else {
         document.getElementById('statusLabel').innerText = 'Estado';
-        document.getElementById('statusIcon').innerText = 'check_circle';
-        document.getElementById('statusVal').innerText = 'COMPLETADA';
-        document.getElementById('statusSub').innerText = 'Amerizaje confirmado';
-        statusCard.className = 'rounded-3xl border p-5 backdrop-blur-sm border-white/20 bg-white/[0.06]';
+        document.getElementById('statusVal').innerText = 'EN CURSO';
+        document.getElementById('statusSub').innerText = 'Misión nominal';
       }
 
       document.getElementById('phaseLabel').innerText = currentMilestone.label;
       document.getElementById('phaseDesc').innerText = currentMilestone.desc;
-
-      // ACTUALIZACIÓN BARRA HORIZONTAL
       document.getElementById('phaseBarFill').style.width = phaseProgress.toFixed(1) + '%';
       document.getElementById('phaseBarText').innerText = phaseProgress.toFixed(1) + '%';
 
-      // --- TRAYECTORIA Y DISTANCIA ---
-      const tliTime = new Date('2026-04-02T23:49:00Z').getTime(); // 7:49 p.m. EDT
-      const flybyTime = new Date('2026-04-06T15:00:00Z').getTime();
-      const splashdownTime = new Date('2026-04-11T00:21:00Z').getTime();
-      const currentTime = now.getTime();
+      const tliTime = new Date('2026-04-02T23:49:00Z').getTime();
+      const flybyTime = new Date('2026-04-06T23:59:00Z').getTime();
+      const splashTime = new Date('2026-04-11T00:21:00Z').getTime();
+      let travelDist = 0; let isReturning = false;
 
-      let travelDist = 0;
-      let isReturning = false;
+      if (now < tliTime) travelDist = 0;
+      else if (now < flybyTime) travelDist = (now - tliTime) / (flybyTime - tliTime);
+      else if (now < splashTime) { travelDist = 1 - ((now - flybyTime) / (splashTime - flybyTime)); isReturning = true; }
 
-      if (currentTime < tliTime) {
-        travelDist = 0; 
-      } else if (currentTime < flybyTime) {
-        const transitProgress = (currentTime - tliTime) / (flybyTime - tliTime);
-        travelDist = transitProgress;
-      } else if (currentTime < splashdownTime) {
-        const returnProgress = (currentTime - flybyTime) / (splashdownTime - flybyTime);
-        travelDist = 1 - returnProgress;
-        isReturning = true;
-      } else {
-        travelDist = 0;
-      }
-      
-      const rocketPosCSS = 'calc(52px + (100% - 100px) * ' + travelDist + ')';
-      
-      document.getElementById('shipDot').style.left = rocketPosCSS;
-      document.getElementById('shipTrack').style.width = 'calc((100% - 100px) * ' + travelDist + ')';
-
-      const rocketIcon = document.getElementById('rocketIcon');
-      const rocketTail = document.getElementById('rocketTail');
-      
-      if (isReturning) {
-        if (rocketIcon) rocketIcon.style.transform = 'rotate(-135deg)';
-        if (rocketTail) rocketTail.className = 'absolute top-1/2 left-full h-px w-8 -translate-y-1/2 bg-gradient-to-l from-transparent to-white/80 ml-1';
-      } else {
-        if (rocketIcon) rocketIcon.style.transform = 'rotate(45deg)';
-        if (rocketTail) rocketTail.className = 'absolute top-1/2 right-full h-px w-8 -translate-y-1/2 bg-gradient-to-r from-transparent to-white/80 mr-1';
-      }
+      document.getElementById('shipDot').style.left = `calc(52px + (100% - 100px) * ${travelDist})`;
+      document.getElementById('shipTrack').style.width = `calc((100% - 100px) * ${travelDist})`;
+      document.getElementById('rocketIcon').style.transform = isReturning ? 'rotate(-135deg)' : 'rotate(45deg)';
 
       document.getElementById('statProgress').innerText = `${globalProgress.toFixed(2)}%`;
-      document.getElementById('statNext').innerText = nextMilestone ? nextMilestone.label : 'Recuperación';
-      document.getElementById('statNextSub').innerText = nextMilestone ? formatStamp(nextMilestone.at) + ' UTC' : 'Secuencia de misión finalizada';
-      document.getElementById('statDays').innerText = String(daysRemaining);
-      
-      const daysCard = document.getElementById('daysCard');
-      daysCard.className = daysRemaining <= 2 
-        ? 'rounded-3xl border p-5 backdrop-blur-sm border-amber-200/20 bg-amber-50/[0.04]'
-        : 'rounded-3xl border p-5 backdrop-blur-sm border-white/10 bg-white/[0.03]';
+      document.getElementById('statNext').innerText = nextMilestone ? nextMilestone.label : 'Finalización';
+      if (nextMilestone) {
+        const diff = nextMilestone.at - now;
+        document.getElementById('statDays').innerText = `${Math.floor(diff / 86400000)}d ${Math.floor((diff % 86400000) / 3600000)}h`;
+      }
 
       const tlContainer = document.getElementById('timeline');
       if (tlContainer.children.length === 0) {
@@ -533,25 +433,15 @@
               </div>
               <div class="text-sm leading-6 text-white/48">${item.desc}</div>
             </div>
-          </div>
-        `).join('');
+          </div>`).join('');
       }
 
       milestones.forEach(item => {
-        const isPast = now >= item.at;
-        const isCurrent = currentMilestone.id === item.id;
-        const tlEl = document.getElementById(`tl-${item.id}`);
+        const isPast = now >= item.at; const isCurrent = currentMilestone.id === item.id;
         const iconEl = document.getElementById(`tl-icon-${item.id}`);
-        
-        tlEl.className = `relative flex gap-5 transition-opacity ${isPast ? 'opacity-100' : 'opacity-40'}`;
-        
-        if (isCurrent) {
-          iconEl.innerHTML = `
-            <div class="radar-pulse">
-              <div class="radar-dot"></div>
-            </div>
-          `;
-        } else if (isPast) {
+        document.getElementById(`tl-${item.id}`).className = `relative flex gap-5 transition-opacity ${isPast ? 'opacity-100' : 'opacity-40'}`;
+        if (isCurrent) iconEl.innerHTML = `<div class="radar-pulse"><div class="radar-dot"></div></div>`;
+        else if (isPast) {
           iconEl.className = 'z-10 mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white';
           iconEl.innerHTML = '<span class="material-icons" style="font-size: 16px;">check_circle</span>';
         } else {
@@ -562,93 +452,43 @@
     }
 
     async function fetchMissionFeed() {
-      await new Promise(resolve => setTimeout(resolve, 800));
       return [
         {
-          id: 'news-0',
-          date: new Date('2026-04-02T20:24:00Z'),
-          href: 'https://www.nasa.gov/blogs/missions/',
-          title: 'Artemis II Flight Day 2: Crew, Houston Poll \'Go\' for TLI Burn',
-          excerpt: 'El equipo de gestión de la misión ha dado el "GO" oficial. El motor de Orion se encenderá durante 5 min 49 seg a las 7:49 p.m. EDT (23:49 UTC) para enviar a la tripulación hacia la Luna.'
+          id: 'n1', date: new Date('2026-04-03T02:00:00Z'),
+          title: 'Humanos abandonan la órbita terrestre',
+          excerpt: 'Por primera vez desde el Apolo 17 en 1972, una misión tripulada ha escapado de la gravedad de la Tierra. El motor de Orion generó 6.000 lbs de empuje durante 5m 49s.'
         },
         {
-          id: 'news-1',
-          date: new Date('2026-04-02T13:15:00Z'),
-          href: 'https://www.nasa.gov/blogs/missions/',
-          title: 'Artemis II Flight Update: Perigee Raise Burn Complete',
-          excerpt: 'Maniobra de elevación de perigeo finalizada con éxito. La tripulación comenzó su día a las 2:35 p.m. con el tema "Green Light" de John Legend.'
+          id: 'n2', date: new Date('2026-04-02T22:00:00Z'),
+          title: 'Transición a la Red de Espacio Profundo',
+          excerpt: 'La cápsula Integrity ha pasado sus comunicaciones a la Deep Space Network. La tripulación ya realiza sus primeros ejercicios físicos para la fase de crucero.'
         },
         {
-          id: 'news-2',
-          date: new Date('2026-04-02T04:06:00Z'),
-          href: 'https://www.nasa.gov/blogs/missions/',
-          title: 'Sistemas de la Nave Orion Operando al 100%',
-          excerpt: 'La tripulación realiza sus primeras sesiones de ejercicio en el dispositivo flywheel y monitoriza el soporte vital tras solucionar un contratiempo menor en el sistema de residuos.'
-        },
-        {
-          id: 'news-3',
-          date: new Date('2026-04-01T23:37:00Z'),
-          href: 'https://www.nasa.gov/blogs/missions/',
-          title: 'Proximity Operations Complete',
-          excerpt: 'Demostración de operaciones de proximidad (RPO) terminada. Orion ha demostrado un control manual excepcional alrededor de la etapa superior del SLS.'
+          id: 'n3', date: new Date('2026-04-02T12:00:00Z'),
+          title: 'Hito: Órbita terrestre alta superada',
+          excerpt: 'Tras 24h a 46.000 millas de altitud, se validaron CubeSats y el sistema de soporte vital. Houston dio el "GO" definitivo para el viaje lunar.'
         }
       ];
     }
 
     async function updateFeed() {
       const feedList = document.getElementById('feedList');
-      const refreshBtn = document.getElementById('refreshBtn');
-      const syncTime = document.getElementById('syncTime');
-      
-      refreshBtn.innerHTML = `<span class="inline-block h-2.5 w-2.5 rounded-full border border-white/40 border-t-white animate-spin"></span> Actualizando`;
-      
-      feedList.innerHTML = `
-        <div class="relative mt-4">
-          <div class="absolute left-[5px] top-2 bottom-2 w-px bg-white/10"></div>
-          ${Array.from({ length: 3 }).map(() => `
-            <div class="relative pl-6 pb-6">
-              <div class="absolute left-0 top-1.5 h-3 w-3 rounded-full border-2 border-black bg-white/10"></div>
-              <div class="mb-2 h-2.5 w-24 animate-pulse rounded bg-white/10"></div>
-              <div class="mb-2 h-3.5 w-4/5 animate-pulse rounded bg-white/10"></div>
-              <div class="h-2.5 w-full animate-pulse rounded bg-white/10"></div>
-            </div>
-          `).join('')}
-        </div>
-      `;
-      
       const items = await fetchMissionFeed();
-      
-      if (items.length > 0) {
-        feedList.innerHTML = `
-          <div class="relative mt-4">
-            <div class="absolute left-[5px] top-2 bottom-2 w-px bg-white/10"></div>
-            ${items.map((item, index) => `
-              <div class="relative pl-6 pb-6 feed-item group" style="animation-delay: ${index * 0.05}s">
-                <div class="absolute left-0 top-1.5 h-3 w-3 rounded-full border-2 border-black bg-white/20 transition duration-300 group-hover:bg-cyan-400 group-hover:shadow-[0_0_8px_rgba(34,211,238,0.6)]"></div>
-                <a href="${item.href}" target="_blank" rel="noreferrer" class="block">
-                  <div class="mb-1 flex items-center justify-between gap-3">
-                    <span class="text-[10px] uppercase tracking-[0.28em] text-white/40">${formatStamp(item.date)} UTC</span>
-                    <span class="material-icons text-white/20 transition group-hover:text-cyan-400" style="font-size: 14px;">arrow_outward</span>
-                  </div>
-                  <h3 class="mb-1.5 text-sm font-medium leading-snug text-white transition group-hover:text-cyan-300">${item.title}</h3>
-                  <p class="line-clamp-2 text-xs leading-relaxed text-white/50">${item.excerpt}</p>
-                </a>
-              </div>
-            `).join('')}
-          </div>
-        `;
-        syncTime.innerHTML = `<div class="mb-2 text-[11px] uppercase tracking-[0.18em] text-white/28">Última sincronización ${formatStamp(new Date())} UTC</div>`;
-      }
-      refreshBtn.innerHTML = `<span class="inline-block h-2.5 w-2.5 rounded-full border border-white/40 border-t-white"></span> Actualizar`;
+      feedList.innerHTML = `<div class="relative mt-4"><div class="absolute left-[5px] top-2 bottom-2 w-px bg-white/10"></div>` + 
+        items.map((item, index) => `
+          <div class="relative pl-6 pb-6 feed-item group">
+            <div class="absolute left-0 top-1.5 h-3 w-3 rounded-full border-2 border-black bg-white/20 transition group-hover:bg-cyan-400 group-hover:shadow-[0_0_8px_rgba(34,211,238,0.6)]"></div>
+            <div class="mb-1 flex items-center justify-between gap-3">
+              <span class="text-[10px] uppercase tracking-[0.28em] text-white/40">${formatStamp(item.date)} UTC</span>
+              <span class="material-icons text-white/20 transition group-hover:text-cyan-400" style="font-size: 14px;">arrow_outward</span>
+            </div>
+            <h3 class="mb-1.5 text-sm font-medium leading-snug text-white transition group-hover:text-cyan-300">${item.title}</h3>
+            <p class="line-clamp-2 text-xs leading-relaxed text-white/50">${item.excerpt}</p>
+          </div>`).join('') + `</div>`;
+      document.getElementById('syncTime').innerHTML = `<div class="mb-2 text-[11px] uppercase tracking-[0.18em] text-white/28">Última sincronización ${formatStamp(new Date())} UTC</div>`;
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
-      renderCrew();            
-      updateApp();             
-      setInterval(updateApp, 1000); 
-      updateFeed();            
-      setInterval(updateFeed, 5 * 60 * 1000); 
-    });
+    document.addEventListener('DOMContentLoaded', () => { renderCrew(); updateApp(); setInterval(updateApp, 1000); updateFeed(); setInterval(updateFeed, 5 * 60 * 1000); });
   </script>
 </body>
 </html>
