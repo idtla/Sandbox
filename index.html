@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Artemis II Mission Tracker</title>
   
-  <!-- Tailwind CSS -->
+  <!-- Tailwind CSS para diseño moderno y responsivo -->
   <script src="https://cdn.tailwindcss.com"></script>
   
-  <!-- Material Icons -->
+  <!-- Material Icons para iconografía consistente -->
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
   <style>
@@ -27,7 +27,7 @@
       animation: fadeIn 0.4s ease-out both;
     }
 
-    /* Estilos de la tripulación */
+    /* Estilos del Crew List */
     .crew-item {
       display: flex;
       gap: 16px;
@@ -76,13 +76,13 @@
       color: rgba(255,255,255,0.46);
     }
 
-    /* Efectos Neón */
+    /* Estilos Neon */
     .neon-icon-blue {
       color: #22d3ee;
       text-shadow: 0 0 10px rgba(34, 211, 238, 0.8), 0 0 20px rgba(34, 211, 238, 0.3);
     }
 
-    /* Pulso Radar */
+    /* Marcador de Pulso Radar */
     .radar-pulse {
       position: relative;
       display: flex;
@@ -115,7 +115,7 @@
   </style>
 </head>
 <body class="bg-black text-white antialiased min-h-screen relative">
-  <!-- Fondos dinámicos -->
+  <!-- Fondo con degradados y texturas espaciales -->
   <div class="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08),transparent_38%),linear-gradient(to_bottom,rgba(255,255,255,0.04),transparent_22%),linear-gradient(to_bottom,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[length:auto,auto,100%_6px] opacity-60"></div>
 
   <main class="relative mx-auto max-w-7xl px-4 py-6 md:px-8 md:py-8">
@@ -129,10 +129,10 @@
           </div>
           <h1 class="max-w-3xl text-3xl font-semibold tracking-[-0.04em] text-white md:text-5xl">
             ARTEMIS II /
-            <span class="ml-2 text-white/45">fase de retorno</span>
+            <span class="ml-2 text-white/45">fase de regreso</span>
           </h1>
           <p class="mt-4 max-w-2xl text-sm leading-7 text-white/52 md:text-base">
-            La cápsula Orion "Integrity" ha completado su sobrevuelo lunar y regresa a casa.
+            La nave Orion "Integrity" se encuentra en su fase final de aproximación a la Tierra tras superar el récord de distancia de 406.756 km.
           </p>
         </div>
 
@@ -148,7 +148,7 @@
           <div id="statusCard" class="rounded-3xl border p-5 backdrop-blur-sm border-white/10 bg-white/[0.03]">
             <div class="mb-4 flex items-center gap-2 text-[11px] uppercase tracking-[0.24em] text-white/45">
               <span id="statusIcon" class="material-icons" style="font-size: 16px;">track_changes</span>
-              <span id="statusLabel">Estado</span>
+              <span id="statusLabel">Amerizaje</span>
             </div>
             <div id="statusVal" class="text-xl font-medium tracking-tight text-white">--:--:--</div>
             <div id="statusSub" class="mt-1 text-sm text-white/45">--</div>
@@ -157,11 +157,10 @@
       </div>
     </section>
 
-    <!-- Content Grid -->
+    <!-- Main Content -->
     <section class="grid grid-cols-1 gap-6 xl:grid-cols-[1.3fr_0.7fr]">
       <div class="space-y-6">
         <div class="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 backdrop-blur-xl md:p-8">
-          <!-- Phase Info -->
           <div class="mb-8">
             <div class="mb-2 text-[10px] uppercase tracking-[0.28em] text-white/35">Fase actual</div>
             <h2 id="phaseLabel" class="text-2xl font-medium tracking-[-0.04em] text-white md:text-3xl">--</h2>
@@ -174,10 +173,9 @@
               <p id="phaseDesc" class="text-sm leading-7 text-white/75">--</p>
             </div>
 
-            <!-- Horizontal Progress Bar -->
             <div class="mt-6 w-full">
               <div class="flex justify-between items-end mb-2">
-                <span class="text-[10px] uppercase tracking-[0.28em] text-white/40">Progreso de la fase</span>
+                <span class="text-[10px] uppercase tracking-[0.28em] text-white/40">Progreso del retorno</span>
                 <span id="phaseBarText" class="font-mono text-xl font-semibold tracking-tight text-cyan-400">0.0%</span>
               </div>
               <div class="h-2 w-full bg-white/10 rounded-full overflow-hidden relative">
@@ -186,7 +184,7 @@
             </div>
           </div>
 
-          <!-- Spacecraft Path -->
+          <!-- Progress Map Tracking -->
           <div class="relative mb-8 h-36 overflow-hidden rounded-[1.75rem] border border-white/10 bg-black/60">
             <div class="absolute top-1/2 h-px -translate-y-1/2 bg-white/10 z-0" style="left: 52px; right: 48px;"></div>
             <div id="shipTrack" class="absolute top-1/2 h-px -translate-y-1/2 bg-white/80 transition-all duration-1000 ease-out z-0" style="left: 52px; width: 0%"></div>
@@ -202,8 +200,8 @@
 
             <div id="shipDot" class="absolute top-1/2 z-20 -translate-x-1/2 -translate-y-1/2 transition-all duration-1000 ease-out" style="left: 52px;">
               <div class="relative flex items-center justify-center">
-                <span id="rocketIcon" class="material-icons text-white transition-transform duration-1000 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]" style="font-size: 28px; transform: rotate(45deg); z-index: 10;">rocket</span>
-                <div id="rocketTail" class="absolute top-1/2 right-full h-px w-8 -translate-y-1/2 bg-gradient-to-r from-transparent to-white/80 mr-1"></div>
+                <span id="rocketIcon" class="material-icons text-white transition-transform duration-1000 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]" style="font-size: 28px; transform: rotate(-135deg); z-index: 10;">rocket</span>
+                <div id="rocketTail" class="absolute top-1/2 left-full h-px w-8 -translate-y-1/2 bg-gradient-to-l from-transparent to-white/80 ml-1"></div>
               </div>
             </div>
 
@@ -217,62 +215,82 @@
             </div>
           </div>
 
+          <!-- Statistics Cards -->
           <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
             <div class="rounded-3xl border border-white/10 bg-white/[0.03] p-5">
               <div class="mb-4 flex items-center gap-2 text-[11px] uppercase tracking-[0.24em] text-white/45">
-                <span class="material-icons" style="font-size: 16px;">rocket_launch</span>
-                <span>Misión global</span>
+                <span class="material-icons" style="font-size: 16px;">speed</span>
+                <span>Velocidad actual</span>
               </div>
-              <div id="statProgress" class="text-xl font-medium tracking-tight text-white">--%</div>
-              <div class="mt-1 text-sm text-white/45">Total completado</div>
+              <div class="text-xl font-medium tracking-tight text-white">~38.367 km/h</div>
+              <div class="mt-1 text-sm text-white/45">Atracción gravitatoria</div>
             </div>
             <div class="rounded-3xl border border-white/10 bg-white/[0.03] p-5">
               <div class="mb-4 flex items-center gap-2 text-[11px] uppercase tracking-[0.24em] text-white/45">
-                <span class="material-icons" style="font-size: 16px;">track_changes</span>
-                <span>Objetivo</span>
+                <span class="material-icons" style="font-size: 16px;">straighten</span>
+                <span>Récord de misión</span>
               </div>
-              <div id="statNext" class="text-xl font-medium tracking-tight text-white">--</div>
-              <div id="statNextSub" class="mt-1 text-sm text-white/45">--</div>
+              <div class="text-xl font-medium tracking-tight text-white">406.756 km</div>
+              <div class="mt-1 text-sm text-white/45">Distancia máx. de Tierra</div>
             </div>
             <div id="daysCard" class="rounded-3xl border border-white/10 bg-white/[0.03] p-5">
               <div class="mb-4 flex items-center gap-2 text-[11px] uppercase tracking-[0.24em] text-white/45">
                 <span class="material-icons" style="font-size: 16px;">history</span>
-                <span>Regreso</span>
+                <span>Restante</span>
               </div>
               <div id="statDays" class="text-xl font-medium tracking-tight text-white">--</div>
-              <div id="statDaysSub" class="mt-1 text-sm text-white/45">Hasta el amerizaje</div>
+              <div id="statDaysSub" class="mt-1 text-sm text-white/45">Hacia el amerizaje</div>
             </div>
           </div>
         </div>
 
-        <!-- Gallery -->
+        <!-- Galería de Imágenes Actualizada -->
         <div class="mt-6 mb-6 rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 backdrop-blur-xl md:p-8">
           <div class="mb-6 flex items-center justify-between">
             <h2 class="text-2xl font-medium tracking-[-0.04em]">Imágenes de la misión</h2>
             <span class="material-icons text-white/35">photo_camera</span>
           </div>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="md:col-span-2 flex flex-col gap-4">
-              <div class="group relative overflow-hidden rounded-2xl border border-white/10 bg-black/40">
-                <img src="https://pbs.twimg.com/media/HE3UIoTWgAAiMl3?format=jpg&name=4096x4096" class="aspect-video w-full object-cover" />
-                <div class="absolute inset-0 bg-gradient-to-t from-black/80 flex items-end p-4 opacity-0 transition group-hover:opacity-100">
-                  <span class="text-[10px] uppercase tracking-widest text-white">Lanzamiento Artemis II</span>
-                </div>
-              </div>
-              <div class="group relative overflow-hidden rounded-2xl border border-white/10 bg-black/40">
-                <img src="https://www.jammulinksnews.com/wp-content/uploads/2026/04/Capture-15.jpg" class="aspect-video w-full object-cover" />
-                <div class="absolute inset-0 bg-gradient-to-t from-black/80 flex items-end p-4 opacity-0 transition group-hover:opacity-100">
-                  <span class="text-[10px] uppercase tracking-widest text-white">Separación de la etapa superior</span>
-                </div>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <!-- SLS Launch -->
+            <div class="group relative overflow-hidden rounded-2xl border border-white/10 bg-black/40 aspect-square">
+              <img src="https://www.nasa.gov/wp-content/uploads/2022/11/NHQ202211160001.jpg" 
+                   onerror="this.src='https://images.unsplash.com/photo-1517976487492-5750f3195933?q=80&w=400&auto=format&fit=crop'"
+                   class="w-full h-full object-cover transition duration-500 group-hover:scale-110" />
+              <div class="absolute inset-0 bg-gradient-to-t from-black/80 flex items-end p-3 opacity-0 transition group-hover:opacity-100">
+                <span class="text-[8px] uppercase tracking-widest text-white font-medium">Lanzamiento SLS</span>
               </div>
             </div>
-            <div class="aspect-video md:aspect-auto rounded-2xl border border-dashed border-white/10 flex items-center justify-center text-white/20 min-h-[200px]">
-              <span class="material-icons mb-2">add_photo_alternate</span>
+            <!-- Relieve Lunar (Actualizada) -->
+            <div class="group relative overflow-hidden rounded-2xl border border-white/10 bg-black/40 aspect-square">
+              <img src="https://www.infobae.com/resizer/v2/3G3T64EPEVAPLOLEDHGV4UIMYA.JPG?auth=63993d366288a89ca22e5644d64ba909679cee316bde3d85f90e8ba5fc7bf206&smart=true&width=992&height=661&quality=85" 
+                   onerror="this.src='https://images.unsplash.com/photo-1522030239044-12f311fccb90?q=80&w=400&auto=format&fit=crop'"
+                   class="w-full h-full object-cover transition duration-500 group-hover:scale-110" />
+              <div class="absolute inset-0 bg-gradient-to-t from-black/80 flex items-end p-3 opacity-0 transition group-hover:opacity-100">
+                <span class="text-[8px] uppercase tracking-widest text-white font-medium">Relieve Lunar</span>
+              </div>
+            </div>
+            <!-- Christina Koch viendo la Tierra (Nueva) -->
+            <div class="group relative overflow-hidden rounded-2xl border border-white/10 bg-black/40 aspect-square">
+              <img src="https://images-assets.nasa.gov/image/art002e008487/art002e008487~large.jpg?w=1920&h=1440&fit=clip&crop=faces%2Cfocalpoint" 
+                   onerror="this.src='https://images.unsplash.com/photo-1454789548928-9efd52dc4031?q=80&w=400&auto=format&fit=crop'"
+                   class="w-full h-full object-cover transition duration-500 group-hover:scale-110" />
+              <div class="absolute inset-0 bg-gradient-to-t from-black/80 flex items-end p-3 opacity-0 transition group-hover:opacity-100">
+                <span class="text-[8px] uppercase tracking-widest text-white font-medium">Christina Koch (Integrity)</span>
+              </div>
+            </div>
+            <!-- Tierra en fase creciente -->
+            <div class="group relative overflow-hidden rounded-2xl border border-white/10 bg-black/40 aspect-square">
+              <img src="https://www.nasa.gov/wp-content/uploads/2022/11/artemis-i-orion-earth-crescent.jpg" 
+                   onerror="this.src='https://images.unsplash.com/photo-1614730321146-b6fa6a46bcb4?q=80&w=400&auto=format&fit=crop'"
+                   class="w-full h-full object-cover transition duration-500 group-hover:scale-110" />
+              <div class="absolute inset-0 bg-gradient-to-t from-black/80 flex items-end p-3 opacity-0 transition group-hover:opacity-100">
+                <span class="text-[8px] uppercase tracking-widest text-white font-medium">Vista de la Tierra</span>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- Timeline -->
+        <!-- Timeline Section -->
         <div class="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 backdrop-blur-xl md:p-8">
           <div class="mb-8 flex items-center justify-between gap-4">
             <h2 class="text-2xl font-medium tracking-[-0.04em]">Cronología de la misión</h2>
@@ -287,7 +305,7 @@
         </div>
       </div>
 
-      <!-- Right Column (Sidecar) -->
+      <!-- Right Column -->
       <aside class="space-y-6">
         <div class="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 backdrop-blur-xl md:p-7">
           <h2 class="text-2xl font-medium tracking-[-0.04em] mb-6">Equipo de vuelo</h2>
@@ -310,42 +328,31 @@
   </main>
 
   <script>
-    // --- VARIABLES ---
+    // --- CONFIGURACIÓN ---
     const MISSION_START = new Date('2026-04-01T22:35:00Z');
-    const MISSION_END = new Date('2026-04-11T00:21:00Z');
+    const MISSION_END = new Date('2026-04-11T00:07:00Z');
 
     const FALLBACK_MILESTONES = [
       { id: 1, label: 'Lanzamiento / Ascenso', time: '2026-04-01T22:35:00Z', desc: 'Despegue del SLS e inserción nominal de Orion.' },
+      { id: 2, label: 'Órbita Terrestre Alta', time: '2026-04-02T02:00:00Z', desc: 'Orion completó 24h de chequeos a 74.000km.' },
+      { id: 3, label: 'Inyección Translunar (TLI)', time: '2026-04-02T23:49:00Z', desc: 'ÉXITO: Encendido de 5 min 49 seg.' },
+      { id: 4, label: 'Tránsito Lunar', time: '2026-04-03T01:00:00Z', desc: 'Crucero profundo y habitabilidad.' },
+      { id: 5, label: 'Sobrevuelo Lunar', time: '2026-04-07T02:00:00Z', desc: 'Máxima aproximación y cara oculta.' },
       { 
-        id: 2, label: 'Órbita Terrestre Alta', time: '2026-04-02T02:00:00Z', 
-        desc: 'Orion (cápsula "Integrity") completó 24h de chequeos a 74.000km. Se validaron CubeSats y pilotaje manual.' 
+        id: 6, label: 'Camino a la Reentrada', time: '2026-04-09T08:00:00Z', 
+        desc: 'Fase actual. La tripulación prepara la cabina, asegura carga y realiza pruebas de trajes OCSS.' 
       },
-      { 
-        id: 3, label: 'Inyección Translunar (TLI)', time: '2026-04-02T23:49:00Z', 
-        desc: 'ÉXITO: Encendido de 5 min 49 seg. Los humanos abandonan la órbita terrestre por primera vez desde 1972.' 
-      },
-      { 
-        id: 4, label: 'Tránsito Lunar', time: '2026-04-03T01:00:00Z', 
-        desc: 'Fase de crucero terminada. La tripulación realizó ejercicios en el flywheel y se aclimató al espacio profundo.' 
-      },
-      { 
-        id: 5, label: 'Sobrevuelo Lunar', time: '2026-04-07T02:00:00Z', 
-        desc: 'ÉXITO: Máxima aproximación a la Luna. Fotografía de alta resolución y observación de relieves en la cara oculta.' 
-      },
-      { 
-        id: 6, label: 'Retorno Libre', time: '2026-04-07T04:30:00Z', 
-        desc: 'Trayectoria actual. La gravedad lunar ha catapultado a Orion de vuelta hacia la Tierra. Comienza el viaje de regreso.' 
-      },
-      { id: 7, label: 'Amerizaje', time: '2026-04-11T00:21:00Z', desc: 'Recuperación prevista en el Pacífico, frente a San Diego.' },
+      { id: 7, label: 'Amerizaje (Splashdown)', time: '2026-04-11T00:07:00Z', desc: 'Impacto previsto en el Pacífico frente a San Diego.' },
     ];
 
     const CREW = [
-      { name: 'Reid Wiseman', role: 'Comandante', tag: 'CDR', image: 'https://www.nasa.gov/wp-content/uploads/2023/06/jsc2023e0016434-alt.jpg?w=768', detail: 'Lidera el regreso de "Integrity" tras un sobrevuelo lunar histórico.' },
-      { name: 'Victor Glover', role: 'Piloto', tag: 'PLT', image: 'https://www.nasa.gov/wp-content/uploads/2023/06/jsc2023e0016433-alt.jpg?w=768', detail: 'Monitoriza los sistemas de navegación y propulsión en la ruta de regreso.' },
-      { name: 'Christina Koch', role: 'Especialista', tag: 'MS1', image: 'https://www.nasa.gov/wp-content/uploads/2023/06/jsc2023e0016435-alt.jpg?w=768', detail: 'Analiza los datos científicos capturados durante el sobrevuelo.' },
-      { name: 'Jeremy Hansen', role: 'Especialista', tag: 'MS2', image: 'https://www.nasa.gov/wp-content/uploads/2023/06/jsc2023e0016436-alt.jpg?w=768', detail: 'Supervisa el soporte vital de Orion para el tramo final de la misión.' }
+      { name: 'Reid Wiseman', role: 'Comandante', tag: 'CDR', image: 'https://www.nasa.gov/wp-content/uploads/2023/06/jsc2023e0016434-alt.jpg?w=768', detail: 'Supervisa la configuración automática de reentrada.' },
+      { name: 'Victor Glover', role: 'Piloto', tag: 'PLT', image: 'https://www.nasa.gov/wp-content/uploads/2023/06/jsc2023e0016433-alt.jpg?w=768', detail: 'Monitoriza los sistemas de navegación final.' },
+      { name: 'Christina Koch', role: 'Especialista', tag: 'MS1', image: 'https://www.nasa.gov/wp-content/uploads/2023/06/jsc2023e0016435-alt.jpg?w=768', detail: 'Nombrada "fontanera espacial" tras reparar el sistema de residuos.' },
+      { name: 'Jeremy Hansen', role: 'Especialista', tag: 'MS2', image: 'https://www.nasa.gov/wp-content/uploads/2023/06/jsc2023e0016436-alt.jpg?w=768', detail: 'Supervisa el soporte vital para el descenso.' }
     ];
 
+    // --- FORMATEO ---
     function formatClock(date) { return new Intl.DateTimeFormat('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false, timeZone: 'Europe/Madrid' }).format(date); }
     function formatStamp(date) { return new Intl.DateTimeFormat('es-ES', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'UTC' }).format(date); }
     
@@ -358,10 +365,11 @@
       return [hours, minutes, seconds].map(val => String(val).padStart(2, '0')).join(':');
     }
 
+    // --- LÓGICA DE APLICACIÓN ---
     function renderCrew() {
       document.getElementById('crewListEl').innerHTML = CREW.map(member => `
         <div class="crew-item">
-          <img class="crew-avatar" src="${member.image}" alt="${member.name}" />
+          <img class="crew-avatar" src="${member.image}" alt="${member.name}" onerror="this.src='https://www.nasa.gov/wp-content/uploads/2019/05/nasa-logo.png'"/>
           <div class="crew-body">
             <div class="crew-top"><div class="crew-name">${member.name}</div><div class="pill">${member.tag}</div></div>
             <div class="muted">${member.role}</div>
@@ -384,7 +392,6 @@
 
       document.getElementById('clockVal').innerText = formatClock(now);
       if (nextMilestone) {
-        document.getElementById('statusLabel').innerText = 'Cuenta atrás';
         document.getElementById('statusVal').innerText = getCountdown(nextMilestone.at, now);
         document.getElementById('statusSub').innerText = nextMilestone.label;
       }
@@ -394,34 +401,20 @@
       document.getElementById('phaseBarFill').style.width = phaseProgress.toFixed(1) + '%';
       document.getElementById('phaseBarText').innerText = phaseProgress.toFixed(1) + '%';
 
-      const tliTime = new Date('2026-04-02T23:49:00Z').getTime();
-      const flybyTime = new Date('2026-04-07T02:00:00Z').getTime(); // Ajustado FD6
-      const splashTime = new Date('2026-04-11T00:21:00Z').getTime();
-      let travelDist = 0; let isReturning = false;
+      // Posicionamiento visual del cohete (Día 9)
+      const flybyTime = new Date('2026-04-07T02:00:00Z').getTime();
+      const splashTime = new Date('2026-04-11T00:07:00Z').getTime();
+      let travelDist = 0;
 
-      if (now < tliTime) travelDist = 0;
-      else if (now < flybyTime) travelDist = (now - tliTime) / (flybyTime - tliTime);
-      else if (now < splashTime) { travelDist = 1 - ((now - flybyTime) / (splashTime - flybyTime)); isReturning = true; }
+      if (now < flybyTime) travelDist = (now - MISSION_START.getTime()) / (flybyTime - MISSION_START.getTime());
+      else travelDist = 1 - ((now - flybyTime) / (splashTime - flybyTime));
 
       document.getElementById('shipDot').style.left = `calc(52px + (100% - 100px) * ${travelDist})`;
       document.getElementById('shipTrack').style.width = `calc((100% - 100px) * ${travelDist})`;
       
-      const rocketIcon = document.getElementById('rocketIcon');
-      const rocketTail = document.getElementById('rocketTail');
-      if (isReturning) {
-        rocketIcon.style.transform = 'rotate(-135deg)';
-        rocketTail.className = 'absolute top-1/2 left-full h-px w-8 -translate-y-1/2 bg-gradient-to-l from-transparent to-white/80 ml-1';
-      } else {
-        rocketIcon.style.transform = 'rotate(45deg)';
-        rocketTail.className = 'absolute top-1/2 right-full h-px w-8 -translate-y-1/2 bg-gradient-to-r from-transparent to-white/80 mr-1';
-      }
-
-      document.getElementById('statProgress').innerText = `${globalProgress.toFixed(2)}%`;
-      document.getElementById('statNext').innerText = nextMilestone ? nextMilestone.label : 'Misión finalizada';
-      
       if (nextMilestone) {
         const diff = nextMilestone.at - now;
-        document.getElementById('statDays').innerText = `${Math.floor(diff / 86400000)}d ${Math.floor((diff % 86400000) / 3600000)}h`;
+        document.getElementById('statDays').innerText = `${Math.floor(diff / 3600000)}h`;
       }
 
       const tlContainer = document.getElementById('timeline');
@@ -455,32 +448,21 @@
     }
 
     async function fetchMissionFeed() {
-      // Sincronización FD6 (Día de Vuelo 6)
       return [
         {
-          id: 'fd6-wrap', date: new Date('2026-04-07T04:38:00Z'),
-          title: 'Día de Vuelo 6: La tripulación completa el sobrevuelo lunar histórico',
-          excerpt: 'Orion ha salido de la cara oculta de la Luna. Se confirma que el sobrevuelo fue nominal y que la nave está ahora en una trayectoria perfecta de retorno libre a la Tierra.'
+          id: 'fd9-cabin', date: new Date('2026-04-09T08:00:00Z'),
+          title: 'Día de Vuelo 9: Preparación para la reentrada automática',
+          excerpt: 'La tripulación asegura la carga y configura los ordenadores de vuelo. Todo está listo para el amerizaje histórico de mañana.'
         },
         {
-          id: 'fd6-updates', date: new Date('2026-04-06T17:38:00Z'),
-          title: 'Día de Vuelo 6: Actualizaciones del sobrevuelo lunar',
-          excerpt: 'La tripulación informa de observaciones visuales impresionantes de la superficie lunar. Se están capturando imágenes de alta resolución de cráteres en la zona de relieve.'
+          id: 'fd8-distance', date: new Date('2026-04-08T18:00:00Z'),
+          title: 'Récord Oficial: 406.756 km de la Tierra',
+          excerpt: 'La NASA confirma la distancia máxima alcanzada por Integrity. "Paralizados por la belleza de la Tierra", comentó el comandante Wiseman.'
         },
         {
-          id: 'fd6-ready', date: new Date('2026-04-06T15:38:00Z'),
-          title: 'Día de Vuelo 6: Tripulación lista para el sobrevuelo',
-          excerpt: 'Todos los sistemas de Orion "Integrity" están configurados. Los astronautas Wiseman, Glover, Koch y Hansen se preparan para la máxima aproximación.'
-        },
-        {
-          id: 'fd5-otc', date: new Date('2026-04-06T08:38:00Z'),
-          title: 'Día de Vuelo 5: Encendido de corrección completado',
-          excerpt: 'Finalizado el segundo encendido de corrección de trayectoria. Orion se encuentra en el corredor exacto para el encuentro lunar de hoy.'
-        },
-        {
-          id: 'fd5-suits', date: new Date('2026-04-05T20:38:00Z'),
-          title: 'Día de Vuelo 5: Demostración de trajes y preparativos',
-          excerpt: 'La tripulación ha realizado una comprobación de los trajes de presión y prepara la cabina para la intensa actividad científica del Día 6.'
+          id: 'fd8-rescue', date: new Date('2026-04-08T12:00:00Z'),
+          title: 'USS John P. Murtha en posición en el Pacífico',
+          excerpt: 'El buque de recuperación de la Marina de EE. UU. ha llegado a la zona de amerizaje. Equipos de rescate listos para la extracción.'
         }
       ];
     }
