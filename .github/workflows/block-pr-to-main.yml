@@ -1,0 +1,20 @@
+# Impide fusionar PRs hacia main: el job falla siempre.
+# En GitHub: Settings → Branches → Rules / Rulesets → exige este workflow como "required status check".
+name: block-pr-to-main
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  block-merge-to-main:
+    name: block-merge-to-main
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fallar para bloquear el merge
+        run: |
+          echo "::error::No se fusionan pull requests en main. Usa una rama de proyecto o crea una rama nueva desde main."
+          exit 1
