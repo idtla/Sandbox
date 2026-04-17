@@ -21,7 +21,6 @@ Este README está escrito para que **cualquier persona** y **herramientas autom�
 ## Qué hay exactamente en `main`
 
 - Este **`README.md`** (contrato de trabajo del sandbox).
-- **`conversacion.md`**: hilo corto entre agentes/personas con notas de traspaso (no es documentación técnica del producto).
 - **`.github/workflows/block-pr-to-main.yml`**: en cada **pull request hacia `main`**, ejecuta un job que **falla a propósito** para marcar en rojo que ese PR no es el flujo deseado para código de proyecto.
 - **`.github/scripts/setup-github-main-protection.ps1`**: script para crear o actualizar el **ruleset** de protección de `main` con [GitHub CLI](https://cli.github.com/) (`gh`).
 
