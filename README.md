@@ -14,7 +14,7 @@ La rama `main` **no contiene código de aplicación**. Solo esta documentación.
 
 `main` debe permanecer como **plantilla vacía**. El trabajo vive en ramas (`pomodoro`, `miniapp`, `Artemis`, etc.). Las integraciones y PRs deberían ir **entre ramas de proyecto** o hacia una rama dedicada, **no** hacia `main`.
 
-En GitHub, la rama `main` está protegida mediante **comprobaciones obligatorias** (workflow) para que los PRs hacia `main` no se puedan fusionar. Para ajustes puntuales del README en `main`, usa **push directo** con permisos de administrador o el flujo que definas en el equipo.
+En GitHub hay un **ruleset** en `main` que impide **force-push** y **borrar la rama**. Además, el workflow **block-pr-to-main** se ejecuta en cada PR hacia `main` y **falla a propósito** (avisando de que no debes fusionar ahí). Los pushes **normales** a `main` siguen permitidos para poder actualizar esta plantilla.
 
 ## Cómo empezar un proyecto nuevo
 
@@ -34,12 +34,10 @@ Las demás ramas del remoto **no se tocan desde esta limpieza de `main`**: sigue
 ## Protección de `main` en GitHub
 
 1. Activa **Actions** en el repositorio si estaban desactivadas.
-2. Tras el primer PR hacia `main`, el workflow `block-pr-to-main` registra el check `block-pr-to-main / block-merge-to-main` (siempre falla: **no** se puede fusionar el PR).
-3. Opcional por terminal (requiere [GitHub CLI](https://cli.github.com/)): `winget install GitHub.cli`, luego `gh auth login`, y ejecuta:
+2. El workflow **block-pr-to-main** corre en PRs hacia `main` y deja el check en rojo (`block-pr-to-main / block-merge-to-main`). No fusiones ese PR si quieres respetar el modelo del sandbox.
+3. El **ruleset** `sandbox-main-readonly` (Settings → Rules) aplica a `refs/heads/main`: **sin force-push** y **sin borrar la rama**. No incluye checks obligatorios en el ruleset, porque GitHub los aplicaría también a los **pushes directos** y bloquearía actualizar `main` por `git push`.
 
-   `.\.github\scripts\setup-github-main-protection.ps1`
-
-   Eso crea un **ruleset** que exige ese check y bloquea force-push y borrado de `main`. Si la API rechaza el nombre del check, añádelo en **Settings → Rules → Branch rules** cuando el check ya haya aparecido en un PR.
+Recrear el ruleset en otro clon: [GitHub CLI](https://cli.github.com/) (`gh auth login`) y `.\.github\scripts\setup-github-main-protection.ps1`.
 
 ### Si `git push` rechaza el workflow
 

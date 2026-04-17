@@ -1,7 +1,7 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-  Crea un ruleset en GitHub que exige el check del workflow block-pr-to-main (y bloquea force-push / borrado de main).
+  Crea o actualiza el ruleset sandbox-main-readonly: bloquea force-push y borrado de main (sin checks obligatorios, para no bloquear git push normal).
 
 .PREREQUISITES
   winget install GitHub.cli
@@ -10,10 +10,6 @@
 .USAGE
   .\.github\scripts\setup-github-main-protection.ps1
   .\.github\scripts\setup-github-main-protection.ps1 -Owner idtla -Repo Sandbox
-
-NOTA
-  Tras el primer PR a main, GitHub registra el check "block-pr-to-main / block-merge-to-main".
-  Si el POST del ruleset falla por contexto desconocido, añade el check manualmente en Settings → Rules.
 #>
 param(
   [string] $Owner = "idtla",
@@ -28,16 +24,13 @@ if (-not (Get-Command gh -ErrorAction SilentlyContinue)) {
 
 $rulesetName = "sandbox-main-readonly"
 
-$existing = gh api "repos/$Owner/$Repo/rulesets" 2>$null | ConvertFrom-Json
-if ($existing) {
-  $dup = $existing | Where-Object { $_.name -eq $rulesetName }
-  if ($dup) {
-    Write-Host "Ya existe ruleset '$rulesetName' (id $($dup.id)). Elimínalo en la UI o con gh api si quieres recrearlo."
-    exit 0
-  }
+$rulesets = gh api "repos/$Owner/$Repo/rulesets" 2>$null | ConvertFrom-Json
+$existing = $null
+if ($rulesets) {
+  $existing = $rulesets | Where-Object { $_.name -eq $rulesetName } | Select-Object -First 1
 }
 
-$body = @{
+$bodyObj = @{
   name = $rulesetName
   target = "branch"
   enforcement = "active"
@@ -50,24 +43,21 @@ $body = @{
   rules = @(
     @{ type = "non_fast_forward" }
     @{ type = "deletion" }
-    @{
-      type = "required_status_checks"
-      parameters = @{
-        strict_required_status_checks_policy = $true
-        required_status_checks = @(
-          @{ context = "block-pr-to-main / block-merge-to-main" }
-        )
-      }
-    }
   )
-} | ConvertTo-Json -Depth 10
+}
 
+$json = $bodyObj | ConvertTo-Json -Depth 10
 $tmp = [System.IO.Path]::GetTempFileName()
-Set-Content -Path $tmp -Value $body -Encoding UTF8
+[System.IO.File]::WriteAllText($tmp, $json, [System.Text.UTF8Encoding]::new($false))
 
 try {
-  gh api --method POST "repos/$Owner/$Repo/rulesets" --input $tmp
-  Write-Host "Ruleset creado. Si falla por el nombre del check, fusiona primero un PR de prueba o configura el check en la UI."
+  if ($existing) {
+    gh api --method PUT "repos/$Owner/$Repo/rulesets/$($existing.id)" --input $tmp
+    Write-Host "Ruleset actualizado (id $($existing.id))."
+  } else {
+    gh api --method POST "repos/$Owner/$Repo/rulesets" --input $tmp
+    Write-Host "Ruleset creado."
+  }
 } finally {
   Remove-Item -Force $tmp -ErrorAction SilentlyContinue
 }
