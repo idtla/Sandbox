@@ -1,0 +1,8 @@
+name = "sleep-tracker-pwa"
+compatibility_date = "2026-04-17"
+pages_build_output_dir = "."
+
+[[d1_databases]]
+binding = "DB"
+database_name = "sleep-tracker"
+database_id = "REEMPLAZAR_CON_TU_DATABASE_ID"

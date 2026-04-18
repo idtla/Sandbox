@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#4f46e5" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="stylesheet" href="/styles.css" />
+    <title>Sleep Tracker PWA</title>
+  </head>
+  <body>
+    <main class="app">
+      <header class="header">
+        <h1>🍼 Sleep Tracker</h1>
+        <p>Mide latencia y sueño efectivo desde Cloudflare Pages + D1</p>
+      </header>
+
+      <section id="tab-registro" class="tab-content active">
+        <form id="registro-form" class="card">
+          <h2>Registro</h2>
+
+          <label>User ID
+            <input id="userId" type="text" placeholder="Ej: mama_001" required />
+          </label>
+
+          <label>Estado
+            <select id="estado">
+              <option value="PENDIENTE_DORMIR">PENDIENTE_DORMIR</option>
+              <option value="DURMIENDO">DURMIENDO</option>
+              <option value="FINALIZADO" selected>FINALIZADO</option>
+            </select>
+          </label>
+
+          <label>Hora intento
+            <input id="horaIntento" type="datetime-local" required />
+          </label>
+
+          <label>Hora sueño efectivo
+            <input id="horaDormido" type="datetime-local" />
+          </label>
+
+          <label>Hora despertar
+            <input id="horaDespertar" type="datetime-local" />
+          </label>
+
+          <label>Método
+            <select id="metodo">
+              <option value="">(sin método)</option>
+              <option value="brazos">brazos</option>
+              <option value="cuna">cuna</option>
+              <option value="acunada">acunada</option>
+            </select>
+          </label>
+
+          <button type="submit">Guardar registro</button>
+          <p id="form-msg"></p>
+        </form>
+
+        <section class="card">
+          <h2>Últimos registros</h2>
+          <button id="reload-registros" type="button">Recargar</button>
+          <div id="registros-lista" class="list"></div>
+        </section>
+      </section>
+
+      <section id="tab-analiticas" class="tab-content">
+        <div class="card">
+          <h2>Analíticas de hoy</h2>
+          <p>Zona horaria: <strong id="tz-text"></strong></p>
+          <button id="reload-analiticas" type="button">Actualizar analíticas</button>
+          <div class="stats">
+            <article>
+              <h3>Registros</h3>
+              <p id="stat-registros">0</p>
+            </article>
+            <article>
+              <h3>Latencia media</h3>
+              <p id="stat-latencia">0 min</p>
+            </article>
+            <article>
+              <h3>Sueño total</h3>
+              <p id="stat-sueno">0 min</p>
+            </article>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <nav class="bottom-nav">
+      <button id="tab-btn-registro" class="active">Registro</button>
+      <button id="tab-btn-analiticas">Analíticas</button>
+    </nav>
+
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>
