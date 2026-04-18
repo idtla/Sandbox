@@ -1,127 +1,164 @@
-# Sandbox
+# Baby Sleep Tracker Bot
 
-Este repositorio es un **sandbox personal**: aquí conviven **varios experimentos y mini-proyectos**. Cada proyecto vive en **su propia rama**. La rama **`main` no es la aplicación**: es solo la **plantilla** y la documentación de cómo trabajamos.
+Bot de Telegram para registrar el sueño de un bebé sobre **Cloudflare Workers + D1**, con foco en **latencia de sueño**, cierres rápidos desde teclado dinámico y una **vista web responsive** para móvil.
 
-Este README está escrito para que **cualquier persona** y **herramientas automáticas** (p. ej. **Codex**, copilotos, agentes) entiendan el modelo sin interpretarlo a la ligera.
+## Qué incluye
 
----
+- Webhook de Telegram con `fetch` nativo.
+- Teclado dinámico por estado:
+  - **En espera**: `🚀 Iniciar Intento`, `📝 Manual/Editar`, `📊 Resumen hoy`
+  - **Intentando dormir**: `💤 ¡Ya se durmió!`, `❌ Cancelar Intento`
+  - **Durmiendo**: `☀️ ¡Se despertó!`, `📝 Corregir hora inicio`
+- Persistencia en **Cloudflare D1**.
+- Cálculo de:
+  - minutos que tarda en dormirse
+  - duración total de sueño efectivo
+- Flujo manual guiado paso a paso si falta un registro abierto.
+- Mini interfaz web responsive para móviles tipo Pixel 9 con temporizador y resumen del día.
 
-## Modelo mental (léelo antes de tocar Git)
+## Estructura
 
-| Rama | Rol |
-|------|-----|
-| **`main`** | Plantilla mínima: documentación del sandbox, automatización en `.github/`, y poco más. **No** es donde se desarrolla un producto. |
-| **Rama de proyecto** (p. ej. `pomodoro`, `miniapp`) | Aquí está el **código y el historial** de ese experimento. Los PRs de trabajo del proyecto van **entre ramas que cuelgan de esta línea**, no hacia `main`. |
-| **Ramas de feature** (p. ej. `pomodoro/login-oauth`) | Ramas **hijas de la rama de proyecto**. Sirven para features, fixes o refactors sin ensuciar la línea principal del proyecto hasta fusionar. |
+- `worker.js`: Worker principal, webhook de Telegram y vista web.
+- `wrangler.jsonc`: configuración de Cloudflare Worker y binding a D1.
+- `sql/create_registros_sueno.sql`: SQL para crear la tabla `registros_sueno`.
+- `conversacion.md`: hilo de trabajo entre agentes.
+- `.cursor/plans/plan-baby-sleep-bot.md`: plan único con prompts y tablón.
 
-**Regla de oro:** el trabajo “real” **nunca** tiene que terminar fusionándose en `main`. `main` solo sirve para **arrancar proyectos nuevos** y para **mantener esta guía** y los workflows del repo.
+## Base de datos D1
 
----
+La base ya existente queda enlazada así en `wrangler.jsonc`:
 
-## Qué hay exactamente en `main`
+- `database_name = "suenolytics"`
+- `database_id = "1c847099-1450-4ea0-a511-0085defcb24f"`
 
-- Este **`README.md`** (contrato de trabajo del sandbox).
-- **`.github/workflows/block-pr-to-main.yml`**: en cada **pull request hacia `main`**, ejecuta un job que **falla a propósito** para marcar en rojo que ese PR no es el flujo deseado para código de proyecto.
-- **`.github/scripts/setup-github-main-protection.ps1`**: script para crear o actualizar el **ruleset** de protección de `main` con [GitHub CLI](https://cli.github.com/) (`gh`).
+Binding usado en el código:
 
-No esperes en `main` el código fuente de los proyectos; eso está en **ramas de proyecto** en el remoto.
+- `env.DB`
 
----
+## Secretos necesarios
 
-## Crear un **proyecto nuevo** (rama nueva desde `main`)
-
-Siempre desde **`main` actualizado**, para no arrastrar commits de otro experimento salvo que quieras algo derivado a posta.
-
-```bash
-git fetch origin
-git checkout main
-git pull origin main
-git checkout -b nombre-del-proyecto
-# … desarrollo …
-git push -u origin nombre-del-proyecto
-```
-
-El nombre de rama puede ser `kebab-case` o el estilo que prefieras; lo importante es que **identifique un proyecto** o línea de trabajo clara.
-
----
-
-## **Features** y trabajo iterativo (rama hija de la rama de proyecto)
-
-Para no mezclar todo en la punta de la rama de proyecto hasta que esté listo:
+No están versionados. Hay que cargarlos antes de desplegar:
 
 ```bash
-git fetch origin
-git checkout nombre-del-proyecto
-git pull origin nombre-del-proyecto
-git checkout -b nombre-del-proyecto/short-desc-de-la-feature
-# … commits …
-git push -u origin nombre-del-proyecto/short-desc-de-la-feature
+npx wrangler secret put TELEGRAM_BOT_TOKEN
+npx wrangler secret put TELEGRAM_WEBHOOK_SECRET
 ```
 
-**Integración:**
+### Para qué sirve cada secreto
 
-- Abre un **pull request** en GitHub con **base = `nombre-del-proyecto`** y **compare = tu rama de feature**.
-- **No** abras PRs de código de proyecto con **base `main`**, salvo cambios que sean **solo** de esta plantilla (README, workflows, scripts de repo).
+- `TELEGRAM_BOT_TOKEN`: token del bot de BotFather.
+- `TELEGRAM_WEBHOOK_SECRET`: valor que Telegram enviará en la cabecera definida por `WEBHOOK_SECRET_HEADER`.
 
-Si fusionas por línea de comandos en local:
+## Configuración de zona horaria
+
+El proyecto usa por defecto:
+
+- `Europe/Madrid`
+
+Se configura en `wrangler.jsonc` mediante `APP_TIMEZONE`.
+
+## Crear la tabla en D1
 
 ```bash
-git checkout nombre-del-proyecto
-git merge nombre-del-proyecto/short-desc-de-la-feature
-git push origin nombre-del-proyecto
+npm run d1:apply:remote
 ```
 
----
+Si prefieres ejecutar el SQL manualmente:
 
-## Qué **no** hacer (importante para humanos e IA)
+```bash
+npx wrangler d1 execute suenolytics --remote --file=./sql/create_registros_sueno.sql
+```
 
-1. **No** tratar `main` como rama de despliegue “oficial” del sandbox: no lo es.
-2. **No** fusionar en `main` el código de un proyecto (timer, miniapp, etc.). Mantén ese trabajo en la **rama del proyecto** (y sus features).
-3. **No** abrir PRs de implementación de producto con **base `main`**; la base debe ser la **rama de proyecto** correspondiente.
-4. Los PRs hacia `main` están pensados solo para **mantenimiento del repo** (documentación, workflows). El workflow **block-pr-to-main** fallará igualmente: revísalo y no fusiones por costumbre sin leer.
+## Validar el proyecto
 
----
+```bash
+npm run syntax
+npm run check
+```
 
-## Instrucciones explícitas para **Codex, GPT y agentes**
+## Desplegar
 
-Cuando trabajes en este repositorio en modo asistente o batch:
+```bash
+npm run deploy
+```
 
-1. **Pregunta o infiere la rama de proyecto** en la que debe vivir el cambio. Si es un proyecto nuevo, la rama debe **crearse desde `main`** y nombrarse de forma clara.
-2. **No** propongas fusionar código de aplicación hacia **`main`**.
-3. Si generas un **pull request**, la **rama base** debe ser la **rama de proyecto** (o la rama de feature padre acordada), **no `main`**, salvo que el cambio sea estrictamente de plantilla (README, `.github`, etc.).
-4. Respeta que **`main`** debe seguir siendo **ligera**: evita añadir ahí dependencias pesadas, builds o árboles de código de un solo proyecto salvo que el mantenedor lo pida para la plantilla misma.
-5. Para despliegues (Pages, Cloudflare, etc.), asume que el **origen del build** será la **rama del proyecto**, no `main`, salvo configuración explícita.
+## Configurar el webhook de Telegram
 
----
+Tras desplegar, registra el webhook contra la URL pública del Worker:
 
-## Despliegue (GitHub Pages, Cloudflare Pages, etc.)
+```bash
+curl -X POST "https://api.telegram.org/bot<TELEGRAM_BOT_TOKEN>/setWebhook" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "url": "https://TU-WORKER.workers.dev/telegram/webhook",
+    "secret_token": "TU_TELEGRAM_WEBHOOK_SECRET"
+  }'
+```
 
-Cada proyecto puede tener su **rama** como fuente de despliegue. Configura el proveedor para que construya desde **`nombre-del-proyecto`** (o desde la subcarpeta que uses en esa rama). No asumas que `main` sirve como preview del sandbox completo.
+## Rutas del Worker
 
----
+- `GET /` -> vista web responsive del tracker.
+- `GET /api/status?user_id=<id>` -> estado actual y métricas del día.
+- `POST /api/action` -> acciones simples desde la UI web.
+- `POST /telegram/webhook` -> webhook de Telegram.
 
-## Protección de `main` en GitHub
+## Cómo funciona el flujo principal
 
-1. **Actions** debe poder ejecutarse (para el workflow de bloqueo en PRs a `main`).
-2. **Workflow `block-pr-to-main`:** en PRs hacia `main`, el check `block-pr-to-main / block-merge-to-main` **falla a propósito**. Es una señal; no indica un bug del código.
-3. **Ruleset `sandbox-main-readonly`:** aplica a `refs/heads/main` y evita **force-push** y **borrar la rama**. No incluye “checks obligatorios” en el ruleset para no bloquear los **pushes normales** a `main` al actualizar esta plantilla (GitHub aplicaría esos checks también al push directo).
+### 1. Bebé despierto
 
-Para recrear o actualizar el ruleset en Windows, con `gh` autenticado:
+El usuario pulsa `🚀 Iniciar Intento`.
 
-`.\.github\scripts\setup-github-main-protection.ps1`
+Se crea un registro con:
 
-### Token sin permiso para workflows
+- `estado = PENDIENTE_DORMIR`
+- `hora_intento = ahora`
 
-Si `git push` dice que no puedes crear o actualizar `.github/workflows/` sin el scope **`workflow`**, usa un token con ese permiso o **`gh auth login`** con los scopes adecuados, y vuelve a hacer push. Alternativa: crear el YAML desde la web del repo y luego `git pull`.
+### 2. Intentando dormir
 
----
+El usuario pulsa `💤 ¡Ya se durmió!`.
 
-## Ramas existentes en el remoto
+El sistema:
 
-Pueden existir muchas ramas de proyecto a la vez (p. ej. prototipos viejos). **No** se borran automáticamente al limpiar `main`: cada una sigue apuntando a su historial. Lista las ramas con `git branch -r` o mira el remoto en GitHub.
+- guarda `hora_sueno_efectivo`
+- cambia a `DURMIENDO`
+- calcula la latencia en minutos desde `hora_intento`
 
----
+### 3. Durmiendo
 
-## Resumen en una frase
+El usuario pulsa `☀️ ¡Se despertó!`.
 
-**`main` = plantilla y reglas del sandbox; cada rama de proyecto = un mundo aparte; las features = ramas que nacen del proyecto y vuelven al proyecto, no a `main`.**
+El sistema:
+
+- guarda `hora_despertar`
+- cambia a `FINALIZADO`
+- calcula la duración total de sueño efectivo
+
+### 4. Validación de ausencia de registro abierto
+
+Si el usuario pulsa `☀️ ¡Se despertó!` y no hay un registro abierto, el bot entra en flujo manual guiado:
+
+1. pide hora de inicio del sueño efectivo
+2. pide hora de despertar
+3. pide método
+4. guarda el registro ya finalizado
+
+## Métodos soportados
+
+- `brazos`
+- `cuna`
+- `acunada`
+
+## Extensibilidad prevista
+
+La lógica se ha separado para poder añadir en el futuro:
+
+- tomas de leche
+- cambio de pañal
+- notas
+- clasificaciones por siesta/nocturno
+
+sin rehacer el flujo principal del sueño.
+
+## Nota sobre UX responsive
+
+Telegram ya ofrece una interfaz móvil responsive por defecto para el teclado dinámico, que es el canal principal de uso rápido. Además, este proyecto expone una vista web ligera, táctil y adaptada a pantallas móviles modernas, con tarjetas grandes, temporizador visible y acciones directas.

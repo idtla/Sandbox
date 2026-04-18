@@ -1,0 +1,31 @@
+{
+  "name": "baby-sleep-tracker-bot",
+  "version": "1.0.0",
+  "description": "Bot de Telegram para seguimiento del sueno del bebe sobre Cloudflare Workers y D1.",
+  "main": "worker.js",
+  "scripts": {
+    "deploy": "npx wrangler deploy",
+    "check": "npx wrangler deploy --dry-run",
+    "syntax": "node --check worker.js",
+    "d1:apply:remote": "npx wrangler d1 execute suenolytics --remote --file=./sql/create_registros_sueno.sql"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/idtla/Sandbox.git"
+  },
+  "keywords": [
+    "cloudflare-workers",
+    "telegram-bot",
+    "d1",
+    "baby-sleep"
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/idtla/Sandbox/issues"
+  },
+  "homepage": "https://github.com/idtla/Sandbox#readme",
+  "devDependencies": {
+    "wrangler": "^4.83.0"
+  }
+}
