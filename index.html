@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#101828" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="stylesheet" href="/styles.css" />
+    <title>Sleep Flow</title>
+  </head>
+  <body>
+    <div id="welcome-overlay" class="overlay hidden">
+      <div class="sheet">
+        <h1>Bienvenidos a Sleep Flow</h1>
+        <p>Minimal, rápido y privado. Configurad papá, mamá, bebé y un PIN familiar.</p>
+        <form id="setup-form">
+          <label>Nombre de papá<input id="setup-father" required /></label>
+          <label>Nombre de mamá<input id="setup-mother" required /></label>
+          <label>Nombre del bebé<input id="setup-baby" required /></label>
+          <label>Zona horaria<input id="setup-timezone" value="Europe/Madrid" required /></label>
+          <label>PIN familiar<input id="setup-pin" type="password" minlength="4" required /></label>
+          <button type="submit">Crear hogar</button>
+        </form>
+      </div>
+    </div>
+
+    <div id="login-overlay" class="overlay hidden">
+      <div class="sheet">
+        <h2>Entrar</h2>
+        <p id="family-summary"></p>
+        <form id="login-form">
+          <label>PIN familiar<input id="login-pin" type="password" required /></label>
+          <button type="submit">Desbloquear</button>
+        </form>
+        <p id="login-msg"></p>
+      </div>
+    </div>
+
+    <main class="app">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Sleep Flow</p>
+          <h2 id="baby-title">Bebé</h2>
+        </div>
+        <button id="logout-btn" class="ghost">Salir</button>
+      </header>
+
+      <section id="tab-registro" class="tab active">
+        <article class="glass card quick-card">
+          <div class="caregiver-switch">
+            <button data-user="PAPA" id="btn-papa" class="active">Papá</button>
+            <button data-user="MAMA" id="btn-mama">Mamá</button>
+          </div>
+
+          <h3>Registro rápido</h3>
+          <p id="estado-text">Estado: en espera</p>
+          <p id="timer-text">00:00</p>
+
+          <div class="quick-actions">
+            <button id="act-iniciar">🚀 Empezar intento</button>
+            <button id="act-dormido">💤 Se durmió</button>
+            <button id="act-despertar">☀️ Se despertó</button>
+            <button id="act-cancelar" class="danger">❌ Cancelar</button>
+          </div>
+          <p id="accion-msg"></p>
+        </article>
+
+        <details class="glass card">
+          <summary>Entrada manual</summary>
+          <form id="manual-form" class="manual-grid">
+            <label>Estado
+              <select id="manual-estado">
+                <option value="PENDIENTE_DORMIR">PENDIENTE_DORMIR</option>
+                <option value="DURMIENDO">DURMIENDO</option>
+                <option value="FINALIZADO" selected>FINALIZADO</option>
+              </select>
+            </label>
+            <label>Hora intento<input id="manual-intento" type="datetime-local" required /></label>
+            <label>Hora dormido<input id="manual-dormido" type="datetime-local" /></label>
+            <label>Hora despertar<input id="manual-despertar" type="datetime-local" /></label>
+            <label>Método
+              <select id="manual-metodo">
+                <option value="">(sin método)</option>
+                <option value="brazos">brazos</option>
+                <option value="cuna">cuna</option>
+                <option value="acunada">acunada</option>
+              </select>
+            </label>
+            <button type="submit">Guardar entrada manual</button>
+          </form>
+        </details>
+
+        <article class="glass card">
+          <div class="title-row">
+            <h3>Últimos eventos</h3>
+            <button id="reload-historial" class="ghost">Actualizar</button>
+          </div>
+          <div id="historial" class="timeline"></div>
+        </article>
+      </section>
+
+      <section id="tab-analiticas" class="tab">
+        <article class="glass card">
+          <div class="title-row">
+            <h3>Analíticas de hoy</h3>
+            <button id="reload-analytics" class="ghost">Actualizar</button>
+          </div>
+          <p id="tz-label"></p>
+          <div class="metrics">
+            <div><span>Total</span><strong id="m-total">0</strong></div>
+            <div><span>Latencia media</span><strong id="m-lat">0 min</strong></div>
+            <div><span>Sueño total</span><strong id="m-sleep">0 min</strong></div>
+          </div>
+          <div class="split">
+            <p>👨 Papá: <span id="m-papa">0</span></p>
+            <p>👩 Mamá: <span id="m-mama">0</span></p>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <nav class="bottom-nav">
+      <button id="nav-registro" class="active">Registro</button>
+      <button id="nav-analiticas">Analíticas</button>
+    </nav>
+
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>

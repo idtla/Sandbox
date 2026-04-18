@@ -1,0 +1,11 @@
+{
+  "name": "Sleep Flow",
+  "short_name": "SleepFlow",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f5f7fb",
+  "theme_color": "#101828",
+  "lang": "es",
+  "description": "Registro rápido de sueño con flujo papá/mamá y analíticas.",
+  "icons": []
+}
