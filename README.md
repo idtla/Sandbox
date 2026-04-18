@@ -125,3 +125,9 @@ Pueden existir muchas ramas de proyecto a la vez (p. ej. prototipos viejos). **N
 ## Resumen en una frase
 
 **`main` = plantilla y reglas del sandbox; cada rama de proyecto = un mundo aparte; las features = ramas que nacen del proyecto y vuelven al proyecto, no a `main`.**
+
+
+### Nota sobre `wrangler.toml` y D1 en Pages
+
+Para este sandbox, evita versionar un `wrangler.toml` con `database_id` de ejemplo o de otro entorno.
+La vinculación de D1 para Pages debe configurarse en el proyecto/entorno correcto en Cloudflare.
