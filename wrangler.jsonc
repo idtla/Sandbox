@@ -1,7 +1,7 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
-  "name": "baby-sleep-tracker-bot",
-  "main": "worker.js",
+  "name": "baby-sleep-tracker-pwa",
+  "pages_build_output_dir": "./public",
   "compatibility_date": "2026-04-18",
   "compatibility_flags": ["nodejs_compat"],
   "observability": {
@@ -9,14 +9,15 @@
     "head_sampling_rate": 1
   },
   "vars": {
-    "APP_TIMEZONE": "Europe/Madrid",
-    "WEBHOOK_SECRET_HEADER": "x-telegram-bot-api-secret-token"
+    "APP_NAME": "Suenolytics",
+    "APP_TIMEZONE": "Europe/Madrid"
   },
   "d1_databases": [
     {
       "binding": "DB",
       "database_name": "suenolytics",
-      "database_id": "1c847099-1450-4ea0-a511-0085defcb24f"
+      "database_id": "1c847099-1450-4ea0-a511-0085defcb24f",
+      "preview_database_id": "DB"
     }
   ]
 }

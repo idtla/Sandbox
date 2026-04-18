@@ -34,14 +34,14 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_registro_abierto_por_usuario
     CASE WHEN estado != 'FINALIZADO' THEN 1 ELSE NULL END
   );
 
-CREATE TABLE IF NOT EXISTS bot_contexto_usuario (
-  user_id INTEGER PRIMARY KEY,
-  flow TEXT NOT NULL,
-  step TEXT NOT NULL,
-  data_json TEXT NOT NULL DEFAULT '{}',
+CREATE TABLE IF NOT EXISTS perfiles_dispositivo (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL UNIQUE,
+  caregiver_name TEXT NOT NULL,
+  baby_name TEXT NOT NULL,
   created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
   updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
 );
 
-CREATE INDEX IF NOT EXISTS idx_bot_contexto_usuario_flow_step
-  ON bot_contexto_usuario (flow, step);
+CREATE INDEX IF NOT EXISTS idx_perfiles_dispositivo_user_id
+  ON perfiles_dispositivo (user_id);

@@ -1,61 +1,65 @@
-# Baby Sleep Tracker Bot
+# Suenolytics PWA
 
-Bot de Telegram para registrar el sueño de un bebé sobre **Cloudflare Workers + D1**, con foco en **latencia de sueño**, cierres rápidos desde teclado dinámico y una **vista web responsive** para móvil.
+Aplicación **PWA independiente** para registrar el sueño de un bebé en **Cloudflare Pages + Pages Functions + D1**, diseñada para **uso móvil** y pensada para instalarse en pantalla de inicio como si fuera una app nativa.
 
 ## Qué incluye
 
-- Webhook de Telegram con `fetch` nativo.
-- Teclado dinámico por estado:
-  - **En espera**: `🚀 Iniciar Intento`, `📝 Manual/Editar`, `📊 Resumen hoy`
-  - **Intentando dormir**: `💤 ¡Ya se durmió!`, `❌ Cancelar Intento`
-  - **Durmiendo**: `☀️ ¡Se despertó!`, `📝 Corregir hora inicio`
+- Interfaz táctil responsive optimizada para móvil vertical.
+- Instalación PWA con:
+  - `manifest.webmanifest`
+  - `service worker`
+  - modo standalone
 - Persistencia en **Cloudflare D1**.
-- Cálculo de:
-  - minutos que tarda en dormirse
-  - duración total de sueño efectivo
-- Flujo manual guiado paso a paso si falta un registro abierto.
-- Mini interfaz web responsive para móviles tipo Pixel 9 con temporizador y resumen del día.
+- Seguimiento de:
+  - intento de sueño
+  - latencia para dormirse
+  - sueño efectivo
+  - despertar
+- Registro manual dentro de la propia app.
+- Perfil local en el dispositivo para funcionar de forma autónoma, sin Telegram y sin chat.
+- Resumen del día y lista de registros recientes.
 
-## Estructura
+## Arquitectura
 
-- `worker.js`: Worker principal, webhook de Telegram y vista web.
-- `wrangler.jsonc`: configuración de Cloudflare Worker y binding a D1.
-- `sql/create_registros_sueno.sql`: SQL para crear la tabla `registros_sueno`.
-- `conversacion.md`: hilo de trabajo entre agentes.
-- `.cursor/plans/plan-baby-sleep-bot.md`: plan único con prompts y tablón.
+- `public/`
+  - `index.html`
+  - `styles.css`
+  - `app.js`
+  - `manifest.webmanifest`
+  - `sw.js`
+  - `icons/icon.svg`
+- `functions/api/`
+  - `profile.js`
+  - `status.js`
+  - `action.js`
+- `functions/_shared/sleep-core.js`
+- `sql/create_registros_sueno.sql`
+- `wrangler.jsonc`
+- `conversacion.md`
+- `.cursor/plans/plan-baby-sleep-bot.md`
 
 ## Base de datos D1
 
-La base ya existente queda enlazada así en `wrangler.jsonc`:
+La app queda conectada a la base existente:
 
 - `database_name = "suenolytics"`
 - `database_id = "1c847099-1450-4ea0-a511-0085defcb24f"`
 
-Binding usado en el código:
+Binding usado en Pages Functions:
 
-- `env.DB`
+- `context.env.DB`
 
-## Secretos necesarios
+## Configuración de Cloudflare Pages
 
-No están versionados. Hay que cargarlos antes de desplegar:
+El proyecto usa `wrangler.jsonc` con:
 
-```bash
-npx wrangler secret put TELEGRAM_BOT_TOKEN
-npx wrangler secret put TELEGRAM_WEBHOOK_SECRET
-```
+- `pages_build_output_dir = "./public"`
+- `compatibility_date = "2026-04-18"`
+- `APP_TIMEZONE = "Europe/Madrid"`
 
-### Para qué sirve cada secreto
+Para desarrollo local con Pages y D1, se incluye:
 
-- `TELEGRAM_BOT_TOKEN`: token del bot de BotFather.
-- `TELEGRAM_WEBHOOK_SECRET`: valor que Telegram enviará en la cabecera definida por `WEBHOOK_SECRET_HEADER`.
-
-## Configuración de zona horaria
-
-El proyecto usa por defecto:
-
-- `Europe/Madrid`
-
-Se configura en `wrangler.jsonc` mediante `APP_TIMEZONE`.
+- `preview_database_id = "DB"`
 
 ## Crear la tabla en D1
 
@@ -63,7 +67,7 @@ Se configura en `wrangler.jsonc` mediante `APP_TIMEZONE`.
 npm run d1:apply:remote
 ```
 
-Si prefieres ejecutar el SQL manualmente:
+O manualmente:
 
 ```bash
 npx wrangler d1 execute suenolytics --remote --file=./sql/create_registros_sueno.sql
@@ -72,75 +76,87 @@ npx wrangler d1 execute suenolytics --remote --file=./sql/create_registros_sueno
 ## Validar el proyecto
 
 ```bash
-npm run syntax
+npm run pages:build:functions
 npm run check
 ```
 
-## Desplegar
+## Desplegar en Pages
+
+Si ya existe el proyecto en Cloudflare Pages:
 
 ```bash
 npm run deploy
 ```
 
-## Configurar el webhook de Telegram
+Si no existe todavía, crea primero el proyecto en Cloudflare Pages y usa como salida estática la carpeta:
 
-Tras desplegar, registra el webhook contra la URL pública del Worker:
+- `public`
 
-```bash
-curl -X POST "https://api.telegram.org/bot<TELEGRAM_BOT_TOKEN>/setWebhook" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "url": "https://TU-WORKER.workers.dev/telegram/webhook",
-    "secret_token": "TU_TELEGRAM_WEBHOOK_SECRET"
-  }'
-```
+## Rutas principales
 
-## Rutas del Worker
+- `GET /` -> interfaz PWA principal.
+- `POST /api/profile` -> crea o recupera perfil.
+- `GET /api/status?user_id=<id>` -> estado actual, métricas y registros recientes.
+- `POST /api/action` -> acciones de sueño y registro manual.
+- `GET /app.webmanifest` -> manifest dinámico servido por Pages Functions.
 
-- `GET /` -> vista web responsive del tracker.
-- `GET /api/status?user_id=<id>` -> estado actual y métricas del día.
-- `POST /api/action` -> acciones simples desde la UI web.
-- `POST /telegram/webhook` -> webhook de Telegram.
+## Flujo principal
 
-## Cómo funciona el flujo principal
+### 1. Perfil local
 
-### 1. Bebé despierto
+La primera vez, la app pide:
 
-El usuario pulsa `🚀 Iniciar Intento`.
+- nombre del bebé
+- nombre del cuidador
 
-Se crea un registro con:
+Ese perfil se guarda:
+
+- en D1
+- en `localStorage` del dispositivo
+
+### 2. Bebé despierto
+
+Pulsa:
+
+- `Iniciar intento`
+
+La app crea un registro con:
 
 - `estado = PENDIENTE_DORMIR`
 - `hora_intento = ahora`
 
-### 2. Intentando dormir
+### 3. Intentando dormir
 
-El usuario pulsa `💤 ¡Ya se durmió!`.
+Pulsa:
 
-El sistema:
+- `Ya se ha dormido`
+
+La app:
 
 - guarda `hora_sueno_efectivo`
 - cambia a `DURMIENDO`
-- calcula la latencia en minutos desde `hora_intento`
+- calcula la latencia
 
-### 3. Durmiendo
+### 4. Durmiendo
 
-El usuario pulsa `☀️ ¡Se despertó!`.
+Pulsa:
 
-El sistema:
+- `Se ha despertado`
+
+La app:
 
 - guarda `hora_despertar`
 - cambia a `FINALIZADO`
-- calcula la duración total de sueño efectivo
+- calcula la duración del sueño efectivo
 
-### 4. Validación de ausencia de registro abierto
+### 5. Registro manual
 
-Si el usuario pulsa `☀️ ¡Se despertó!` y no hay un registro abierto, el bot entra en flujo manual guiado:
+Desde la propia interfaz se puede crear un registro cerrado manualmente indicando:
 
-1. pide hora de inicio del sueño efectivo
-2. pide hora de despertar
-3. pide método
-4. guarda el registro ya finalizado
+- hora de intento
+- hora de sueño
+- hora de despertar
+- método
 
 ## Métodos soportados
 
@@ -148,17 +164,23 @@ Si el usuario pulsa `☀️ ¡Se despertó!` y no hay un registro abierto, el bo
 - `cuna`
 - `acunada`
 
+## Nota de UX móvil
+
+La app está pensada para móvil desde el principio:
+
+- layout centrado de una sola columna
+- botones grandes
+- tarjetas con contraste alto
+- barra fija inferior con acciones principales
+- timer visible en tiempo real
+- instalación como app en pantalla de inicio
+
 ## Extensibilidad prevista
 
-La lógica se ha separado para poder añadir en el futuro:
+La lógica compartida está separada para permitir añadir más eventos sin rehacer la base:
 
-- tomas de leche
-- cambio de pañal
+- tomas
+- pañales
+- medicación
 - notas
-- clasificaciones por siesta/nocturno
-
-sin rehacer el flujo principal del sueño.
-
-## Nota sobre UX responsive
-
-Telegram ya ofrece una interfaz móvil responsive por defecto para el teclado dinámico, que es el canal principal de uso rápido. Además, este proyecto expone una vista web ligera, táctil y adaptada a pantallas móviles modernas, con tarjetas grandes, temporizador visible y acciones directas.
+- etiquetas de siesta/nocturno
