@@ -1,127 +1,186 @@
-# Sandbox
+# Suenolytics PWA
 
-Este repositorio es un **sandbox personal**: aquí conviven **varios experimentos y mini-proyectos**. Cada proyecto vive en **su propia rama**. La rama **`main` no es la aplicación**: es solo la **plantilla** y la documentación de cómo trabajamos.
+Aplicación **PWA independiente** para registrar el sueño de un bebé en **Cloudflare Pages + Pages Functions + D1**, diseñada para **uso móvil** y pensada para instalarse en pantalla de inicio como si fuera una app nativa.
 
-Este README está escrito para que **cualquier persona** y **herramientas automáticas** (p. ej. **Codex**, copilotos, agentes) entiendan el modelo sin interpretarlo a la ligera.
+## Qué incluye
 
----
+- Interfaz táctil responsive optimizada para móvil vertical.
+- Instalación PWA con:
+  - `manifest.webmanifest`
+  - `service worker`
+  - modo standalone
+- Persistencia en **Cloudflare D1**.
+- Seguimiento de:
+  - intento de sueño
+  - latencia para dormirse
+  - sueño efectivo
+  - despertar
+- Registro manual dentro de la propia app.
+- Perfil local en el dispositivo para funcionar de forma autónoma, sin Telegram y sin chat.
+- Resumen del día y lista de registros recientes.
 
-## Modelo mental (léelo antes de tocar Git)
+## Arquitectura
 
-| Rama | Rol |
-|------|-----|
-| **`main`** | Plantilla mínima: documentación del sandbox, automatización en `.github/`, y poco más. **No** es donde se desarrolla un producto. |
-| **Rama de proyecto** (p. ej. `pomodoro`, `miniapp`) | Aquí está el **código y el historial** de ese experimento. Los PRs de trabajo del proyecto van **entre ramas que cuelgan de esta línea**, no hacia `main`. |
-| **Ramas de feature** (p. ej. `pomodoro/login-oauth`) | Ramas **hijas de la rama de proyecto**. Sirven para features, fixes o refactors sin ensuciar la línea principal del proyecto hasta fusionar. |
+- `public/`
+  - `index.html`
+  - `styles.css`
+  - `app.js`
+  - `manifest.webmanifest`
+  - `sw.js`
+  - `icons/icon.svg`
+- `functions/api/`
+  - `profile.js`
+  - `status.js`
+  - `action.js`
+- `functions/_shared/sleep-core.js`
+- `sql/create_registros_sueno.sql`
+- `wrangler.jsonc`
+- `conversacion.md`
+- `.cursor/plans/plan-baby-sleep-bot.md`
 
-**Regla de oro:** el trabajo “real” **nunca** tiene que terminar fusionándose en `main`. `main` solo sirve para **arrancar proyectos nuevos** y para **mantener esta guía** y los workflows del repo.
+## Base de datos D1
 
----
+La app queda conectada a la base existente:
 
-## Qué hay exactamente en `main`
+- `database_name = "suenolytics"`
+- `database_id = "1c847099-1450-4ea0-a511-0085defcb24f"`
 
-- Este **`README.md`** (contrato de trabajo del sandbox).
-- **`.github/workflows/block-pr-to-main.yml`**: en cada **pull request hacia `main`**, ejecuta un job que **falla a propósito** para marcar en rojo que ese PR no es el flujo deseado para código de proyecto.
-- **`.github/scripts/setup-github-main-protection.ps1`**: script para crear o actualizar el **ruleset** de protección de `main` con [GitHub CLI](https://cli.github.com/) (`gh`).
+Binding usado en Pages Functions:
 
-No esperes en `main` el código fuente de los proyectos; eso está en **ramas de proyecto** en el remoto.
+- `context.env.DB`
 
----
+## Configuración de Cloudflare Pages
 
-## Crear un **proyecto nuevo** (rama nueva desde `main`)
+El proyecto usa `wrangler.jsonc` con:
 
-Siempre desde **`main` actualizado**, para no arrastrar commits de otro experimento salvo que quieras algo derivado a posta.
+- `pages_build_output_dir = "./public"`
+- `compatibility_date = "2026-04-18"`
+- `APP_TIMEZONE = "Europe/Madrid"`
 
-```bash
-git fetch origin
-git checkout main
-git pull origin main
-git checkout -b nombre-del-proyecto
-# … desarrollo …
-git push -u origin nombre-del-proyecto
-```
+Para desarrollo local con Pages y D1, se incluye:
 
-El nombre de rama puede ser `kebab-case` o el estilo que prefieras; lo importante es que **identifique un proyecto** o línea de trabajo clara.
+- `preview_database_id = "DB"`
 
----
-
-## **Features** y trabajo iterativo (rama hija de la rama de proyecto)
-
-Para no mezclar todo en la punta de la rama de proyecto hasta que esté listo:
-
-```bash
-git fetch origin
-git checkout nombre-del-proyecto
-git pull origin nombre-del-proyecto
-git checkout -b nombre-del-proyecto/short-desc-de-la-feature
-# … commits …
-git push -u origin nombre-del-proyecto/short-desc-de-la-feature
-```
-
-**Integración:**
-
-- Abre un **pull request** en GitHub con **base = `nombre-del-proyecto`** y **compare = tu rama de feature**.
-- **No** abras PRs de código de proyecto con **base `main`**, salvo cambios que sean **solo** de esta plantilla (README, workflows, scripts de repo).
-
-Si fusionas por línea de comandos en local:
+## Crear la tabla en D1
 
 ```bash
-git checkout nombre-del-proyecto
-git merge nombre-del-proyecto/short-desc-de-la-feature
-git push origin nombre-del-proyecto
+npm run d1:apply:remote
 ```
 
----
+O manualmente:
 
-## Qué **no** hacer (importante para humanos e IA)
+```bash
+npx wrangler d1 execute suenolytics --remote --file=./sql/create_registros_sueno.sql
+```
 
-1. **No** tratar `main` como rama de despliegue “oficial” del sandbox: no lo es.
-2. **No** fusionar en `main` el código de un proyecto (timer, miniapp, etc.). Mantén ese trabajo en la **rama del proyecto** (y sus features).
-3. **No** abrir PRs de implementación de producto con **base `main`**; la base debe ser la **rama de proyecto** correspondiente.
-4. Los PRs hacia `main` están pensados solo para **mantenimiento del repo** (documentación, workflows). El workflow **block-pr-to-main** fallará igualmente: revísalo y no fusiones por costumbre sin leer.
+## Validar el proyecto
 
----
+```bash
+npm run pages:build:functions
+npm run check
+```
 
-## Instrucciones explícitas para **Codex, GPT y agentes**
+## Desplegar en Pages
 
-Cuando trabajes en este repositorio en modo asistente o batch:
+Si ya existe el proyecto en Cloudflare Pages:
 
-1. **Pregunta o infiere la rama de proyecto** en la que debe vivir el cambio. Si es un proyecto nuevo, la rama debe **crearse desde `main`** y nombrarse de forma clara.
-2. **No** propongas fusionar código de aplicación hacia **`main`**.
-3. Si generas un **pull request**, la **rama base** debe ser la **rama de proyecto** (o la rama de feature padre acordada), **no `main`**, salvo que el cambio sea estrictamente de plantilla (README, `.github`, etc.).
-4. Respeta que **`main`** debe seguir siendo **ligera**: evita añadir ahí dependencias pesadas, builds o árboles de código de un solo proyecto salvo que el mantenedor lo pida para la plantilla misma.
-5. Para despliegues (Pages, Cloudflare, etc.), asume que el **origen del build** será la **rama del proyecto**, no `main`, salvo configuración explícita.
+```bash
+npm run deploy
+```
 
----
+Si no existe todavía, crea primero el proyecto en Cloudflare Pages y usa como salida estática la carpeta:
 
-## Despliegue (GitHub Pages, Cloudflare Pages, etc.)
+- `public`
 
-Cada proyecto puede tener su **rama** como fuente de despliegue. Configura el proveedor para que construya desde **`nombre-del-proyecto`** (o desde la subcarpeta que uses en esa rama). No asumas que `main` sirve como preview del sandbox completo.
+## Rutas principales
 
----
+- `GET /` -> interfaz PWA principal.
+- `POST /api/profile` -> crea o recupera perfil.
+- `GET /api/status?user_id=<id>` -> estado actual, métricas y registros recientes.
+- `POST /api/action` -> acciones de sueño y registro manual.
+- `GET /app.webmanifest` -> manifest dinámico servido por Pages Functions.
 
-## Protección de `main` en GitHub
+## Flujo principal
 
-1. **Actions** debe poder ejecutarse (para el workflow de bloqueo en PRs a `main`).
-2. **Workflow `block-pr-to-main`:** en PRs hacia `main`, el check `block-pr-to-main / block-merge-to-main` **falla a propósito**. Es una señal; no indica un bug del código.
-3. **Ruleset `sandbox-main-readonly`:** aplica a `refs/heads/main` y evita **force-push** y **borrar la rama**. No incluye “checks obligatorios” en el ruleset para no bloquear los **pushes normales** a `main` al actualizar esta plantilla (GitHub aplicaría esos checks también al push directo).
+### 1. Perfil local
 
-Para recrear o actualizar el ruleset en Windows, con `gh` autenticado:
+La primera vez, la app pide:
 
-`.\.github\scripts\setup-github-main-protection.ps1`
+- nombre del bebé
+- nombre del cuidador
 
-### Token sin permiso para workflows
+Ese perfil se guarda:
 
-Si `git push` dice que no puedes crear o actualizar `.github/workflows/` sin el scope **`workflow`**, usa un token con ese permiso o **`gh auth login`** con los scopes adecuados, y vuelve a hacer push. Alternativa: crear el YAML desde la web del repo y luego `git pull`.
+- en D1
+- en `localStorage` del dispositivo
 
----
+### 2. Bebé despierto
 
-## Ramas existentes en el remoto
+Pulsa:
 
-Pueden existir muchas ramas de proyecto a la vez (p. ej. prototipos viejos). **No** se borran automáticamente al limpiar `main`: cada una sigue apuntando a su historial. Lista las ramas con `git branch -r` o mira el remoto en GitHub.
+- `Iniciar intento`
 
----
+La app crea un registro con:
 
-## Resumen en una frase
+- `estado = PENDIENTE_DORMIR`
+- `hora_intento = ahora`
 
-**`main` = plantilla y reglas del sandbox; cada rama de proyecto = un mundo aparte; las features = ramas que nacen del proyecto y vuelven al proyecto, no a `main`.**
+### 3. Intentando dormir
+
+Pulsa:
+
+- `Ya se ha dormido`
+
+La app:
+
+- guarda `hora_sueno_efectivo`
+- cambia a `DURMIENDO`
+- calcula la latencia
+
+### 4. Durmiendo
+
+Pulsa:
+
+- `Se ha despertado`
+
+La app:
+
+- guarda `hora_despertar`
+- cambia a `FINALIZADO`
+- calcula la duración del sueño efectivo
+
+### 5. Registro manual
+
+Desde la propia interfaz se puede crear un registro cerrado manualmente indicando:
+
+- hora de intento
+- hora de sueño
+- hora de despertar
+- método
+
+## Métodos soportados
+
+- `brazos`
+- `cuna`
+- `acunada`
+
+## Nota de UX móvil
+
+La app está pensada para móvil desde el principio:
+
+- layout centrado de una sola columna
+- botones grandes
+- tarjetas con contraste alto
+- barra fija inferior con acciones principales
+- timer visible en tiempo real
+- instalación como app en pantalla de inicio
+
+## Extensibilidad prevista
+
+La lógica compartida está separada para permitir añadir más eventos sin rehacer la base:
+
+- tomas
+- pañales
+- medicación
+- notas
+- etiquetas de siesta/nocturno

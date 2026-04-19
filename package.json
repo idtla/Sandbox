@@ -1,0 +1,31 @@
+{
+  "name": "suenolytics-pwa",
+  "version": "1.0.0",
+  "description": "PWA responsive para seguimiento del sueno del bebe sobre Cloudflare Pages Functions y D1.",
+  "main": "functions/api/status.js",
+  "scripts": {
+    "deploy": "npx wrangler pages deploy public --project-name suenolytics-pwa",
+    "check": "npx wrangler pages functions build functions --project-directory . --outdir build/functions",
+    "syntax": "node --check public/app.js && node --check functions/_shared/sleep-core.js && node --check functions/api/profile.js && node --check functions/api/status.js && node --check functions/api/action.js && node --check functions/app.webmanifest.js",
+    "d1:apply:remote": "npx wrangler d1 execute suenolytics --remote --file=./sql/create_registros_sueno.sql"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/idtla/Sandbox.git"
+  },
+  "keywords": [
+    "cloudflare-pages",
+    "pwa",
+    "d1",
+    "baby-sleep"
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/idtla/Sandbox/issues"
+  },
+  "homepage": "https://github.com/idtla/Sandbox#readme",
+  "devDependencies": {
+    "wrangler": "^4.83.0"
+  }
+}

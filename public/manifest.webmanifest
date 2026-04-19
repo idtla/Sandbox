@@ -1,0 +1,20 @@
+{
+  "name": "Suenolytics PWA",
+  "short_name": "Suenolytics",
+  "description": "PWA para registrar el sueño de un bebé con enfoque en latencia de sueño.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#081120",
+  "theme_color": "#6d7cff",
+  "orientation": "portrait",
+  "lang": "es-ES",
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
