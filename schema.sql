@@ -1,6 +1,5 @@
--- Esquema app sueño bebé. Sustituye tablas anteriores si existían en la misma D1.
-
-DROP TABLE IF EXISTS sleep_episodes;
+-- Esquema inicial para una D1 vacía (sin migraciones versionadas en el repo).
+-- Aplica una sola vez con: wrangler d1 execute (ver DEPLOY.md).
 
 CREATE TABLE sleep_episodes (
   id TEXT PRIMARY KEY NOT NULL,

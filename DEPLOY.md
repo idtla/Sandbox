@@ -8,13 +8,13 @@
 ## Configuración en el repositorio
 
 1. **`wrangler.toml`**: sustituye `REPLACE_WITH_YOUR_D1_DATABASE_ID` por el ID real de tu D1 (campo `database_id`).
-2. **Migraciones**: aplica el esquema a tu D1 (local o remoto):
+2. **Esquema D1 (una vez)**: con una base vacía, crea las tablas ejecutando el SQL del repo:
 
    ```bash
-   npx wrangler d1 migrations apply bebe-sueno --remote
+   npx wrangler d1 execute bebe-sueno --remote --file=./schema.sql
    ```
 
-   Usa `--local` solo si pruebas con base local. El nombre `bebe-sueno` es el valor de `database_name` en `wrangler.toml`.
+   Para D1 local de pruebas, usa `--local` en lugar de `--remote`. El nombre `bebe-sueno` es el `database_name` de `wrangler.toml`.
 
 3. **Secreto API**: en el proyecto Pages (o con `wrangler secret put`), define la variable **`API_SECRET`** con un valor largo y aleatorio. La misma cadena se pega en la app en **Ajustes** como clave API.
 
@@ -34,10 +34,10 @@
    npm run dev:cf
    ```
 
-   Esto arranca Vite bajo `wrangler pages dev` para que `/api/*` resuelva a las Pages Functions. Aplica migraciones a la D1 local si la usas:
+   Esto arranca Vite bajo `wrangler pages dev` para que `/api/*` resuelva a las Pages Functions. Si usas D1 local y aún no has creado tablas:
 
    ```bash
-   npx wrangler d1 migrations apply bebe-sueno --local
+   npx wrangler d1 execute bebe-sueno --local --file=./schema.sql
    ```
 
 ## PWA

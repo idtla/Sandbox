@@ -5,5 +5,5 @@ compatibility_date = "2024-11-01"
 
 [[d1_databases]]
 binding = "DB"
-database_name = "bebe-sueno"
-database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+database_name = "sueno"
+database_id = "fd6c0aab-3ab0-496f-b636-3ab5e554eb89"
