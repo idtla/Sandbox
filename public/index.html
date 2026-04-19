@@ -9,247 +9,292 @@
     <title>Suenolytics</title>
     <meta
       name="description"
-      content="PWA para registrar el sueño del bebé con foco en latencia y uso táctil desde móvil."
+      content="PWA minimalista para registrar el sueño del bebé con una mano."
     />
-    <meta name="theme-color" content="#4f46e5" />
+    <meta name="theme-color" content="#0f1419" />
     <link rel="manifest" href="/app.webmanifest" />
     <link rel="icon" href="/icons/icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/icons/icon.svg" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0"
+    />
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
-    <main class="app-shell">
-      <section class="hero glass">
-        <div class="hero__pill">PWA · móvil first · D1</div>
-        <h1 class="hero__title">Seguimiento del sueño del bebé</h1>
-        <p class="hero__text">
-          App independiente para registrar intentos, latencia y sueño efectivo
-          desde el móvil, con acceso rápido y diseño táctil para pantallas como
-          Pixel 9.
-        </p>
-      </section>
+    <div class="app">
+      <header class="top-bar">
+        <p class="top-bar__brand" id="appTitle">Suenolytics</p>
+        <span id="onlineStatus" class="status-dot" title="Conexión"
+          >Comprobando…</span
+        >
+      </header>
 
-      <section class="glass card">
-        <div class="card__header">
-          <div>
-            <p class="eyebrow">Perfil local</p>
-            <h2>Configura la app una sola vez</h2>
+      <main class="views">
+        <!-- Vista principal: bienvenida + temporizador + acciones grandes -->
+        <section id="viewSleep" class="view view--active" aria-label="Sueño">
+          <div id="profileGate" class="gate hidden">
+            <p class="gate__text">
+              Indica el nombre del bebé y la persona cuidadora en
+              <strong>Ajustes</strong> para empezar.
+            </p>
           </div>
-          <button id="installPwa" class="btn btn--ghost hidden" type="button">
+
+          <div id="sleepContent" class="sleep-stack">
+            <article class="welcome-card" id="welcomeCard">
+              <p class="welcome-card__label">Última siesta</p>
+              <p id="lastSleepSummary" class="welcome-card__main">
+                Sin datos todavía
+              </p>
+              <p id="lastSleepSub" class="welcome-card__sub muted"></p>
+            </article>
+
+            <div class="timer-block">
+              <p id="timerPhaseLabel" class="timer-block__phase">Listo</p>
+              <p id="timerMetric" class="timer-block__clock" aria-live="polite">
+                00:00
+              </p>
+              <p id="timerHelper" class="timer-block__hint muted"></p>
+            </div>
+
+            <div class="action-panel" id="actionPanel">
+              <button
+                id="startAction"
+                type="button"
+                class="big-btn big-btn--primary"
+              >
+                <span
+                  class="material-symbols-outlined big-btn__icon"
+                  aria-hidden="true"
+                  >play_arrow</span
+                >
+                Empezar a dormir
+              </button>
+              <button
+                id="markAsleepAction"
+                type="button"
+                class="big-btn big-btn--sleep"
+              >
+                <span
+                  class="material-symbols-outlined big-btn__icon"
+                  aria-hidden="true"
+                  >bed</span
+                >
+                Se durmió
+              </button>
+              <button
+                id="markAwakeAction"
+                type="button"
+                class="big-btn big-btn--wake"
+              >
+                <span
+                  class="material-symbols-outlined big-btn__icon"
+                  aria-hidden="true"
+                  >wb_sunny</span
+                >
+                Despertar
+              </button>
+              <button
+                id="cancelAction"
+                type="button"
+                class="big-btn big-btn--ghost"
+              >
+                <span
+                  class="material-symbols-outlined big-btn__icon"
+                  aria-hidden="true"
+                  >close</span
+                >
+                Cancelar intento
+              </button>
+            </div>
+
+            <details class="method-details">
+              <summary>Método</summary>
+              <div class="method-row">
+                <label class="sr-only" for="quickMethod">Método</label>
+                <select id="quickMethod" class="select-minimal">
+                  <option value="cuna">Cuna</option>
+                  <option value="brazos">Brazos</option>
+                  <option value="acunada">Acunada</option>
+                </select>
+                <button
+                  id="updateMethodAction"
+                  type="button"
+                  class="btn-inline"
+                >
+                  Guardar
+                </button>
+              </div>
+            </details>
+          </div>
+
+          <div id="actionNotice" class="toast-inline hidden"></div>
+        </section>
+
+        <!-- Hoy: resumen + lista compacta -->
+        <section id="viewToday" class="view" aria-label="Hoy" hidden>
+          <article class="stat-row glass-soft">
+            <div>
+              <p class="stat-row__label">Sueño hoy</p>
+              <p id="sleepTodayMetric" class="stat-row__value">0 min</p>
+            </div>
+            <div>
+              <p class="stat-row__label">Latencia media</p>
+              <p id="latencyMetric" class="stat-row__value">—</p>
+            </div>
+          </article>
+          <p class="eyebrow-inline">Últimos registros</p>
+          <div id="recordsList" class="record-list record-list--compact"></div>
+        </section>
+
+        <!-- Ajustes: perfil, manual, instalar -->
+        <section id="viewMore" class="view" aria-label="Ajustes" hidden>
+          <button
+            id="installPwa"
+            type="button"
+            class="install-chip hidden"
+          >
+            <span class="material-symbols-outlined" aria-hidden="true"
+              >download</span
+            >
             Instalar app
           </button>
-        </div>
 
-        <form id="profileForm" class="stack">
-          <div class="field-grid">
-            <label class="field">
-              <span>Nombre del bebé</span>
-              <input
-                id="babyName"
-                name="babyName"
-                type="text"
-                maxlength="60"
-                placeholder="Ej. Leo"
-                required
-              />
-            </label>
-            <label class="field">
-              <span>Persona cuidadora</span>
-              <input
-                id="caregiverName"
-                name="caregiverName"
-                type="text"
-                maxlength="60"
-                placeholder="Ej. Mamá"
-                required
-              />
-            </label>
-          </div>
-
-          <div class="field-grid">
-            <label class="field">
-              <span>Método por defecto</span>
-              <select id="defaultMethod" name="defaultMethod">
-                <option value="cuna">cuna</option>
-                <option value="brazos">brazos</option>
-                <option value="acunada">acunada</option>
-              </select>
-            </label>
-
-            <label class="field">
-              <span>Zona horaria</span>
-              <input
-                id="timeZone"
-                name="timeZone"
-                type="text"
-                value="Europe/Madrid"
-                readonly
-              />
-            </label>
-          </div>
-
-          <div class="inline-actions">
-            <button class="btn" type="submit">Guardar perfil</button>
-            <button id="refreshData" class="btn btn--ghost" type="button">
-              Refrescar datos
-            </button>
-          </div>
-
-          <p class="helper">
-            El perfil se guarda en el dispositivo y se sincroniza con D1 usando
-            un identificador persistente de esta PWA.
-          </p>
-          <div id="profileNotice" class="notice hidden"></div>
-        </form>
-      </section>
-
-      <section class="dashboard">
-        <article class="glass metric-card metric-card--primary">
-          <p class="eyebrow">Estado actual</p>
-          <h2 id="stateMetric" class="metric">En espera</h2>
-          <p id="stateHelper" class="helper">
-            Guarda el perfil para empezar a registrar.
-          </p>
-        </article>
-
-        <article class="glass metric-card">
-          <p class="eyebrow">Timer activo</p>
-          <h2 id="timerMetric" class="metric">00:00:00</h2>
-          <p id="timerHelper" class="helper">
-            El contador irá mostrando el tiempo real del intento o del sueño.
-          </p>
-        </article>
-
-        <div class="split-grid">
-          <article class="glass metric-card">
-            <p class="eyebrow">Sueño total hoy</p>
-            <h2 id="sleepTodayMetric" class="metric">0 min</h2>
-            <p class="helper">Duración efectiva acumulada.</p>
-          </article>
-
-          <article class="glass metric-card">
-            <p class="eyebrow">Latencia media</p>
-            <h2 id="latencyMetric" class="metric">0 min</h2>
-            <p class="helper">Tiempo medio para dormirse hoy.</p>
-          </article>
-        </div>
-
-        <article class="glass card">
-          <div class="card__header">
-            <div>
-              <p class="eyebrow">Acciones rápidas</p>
-              <h2>Registro táctil</h2>
-            </div>
-            <span id="onlineStatus" class="badge">Comprobando...</span>
-          </div>
-
-          <div class="action-grid">
-            <button id="startAction" class="btn action-btn" type="button">
-              🚀 Iniciar intento
-            </button>
-            <button
-              id="markAsleepAction"
-              class="btn btn--ghost action-btn"
-              type="button"
-            >
-              💤 Ya se durmió
-            </button>
-            <button
-              id="markAwakeAction"
-              class="btn btn--ghost action-btn"
-              type="button"
-            >
-              ☀️ Se despertó
-            </button>
-            <button
-              id="cancelAction"
-              class="btn btn--danger action-btn"
-              type="button"
-            >
-              ❌ Cancelar intento
-            </button>
-          </div>
-
-          <div class="field-grid compact">
-            <label class="field">
-              <span>Método</span>
-              <select id="quickMethod">
-                <option value="cuna">cuna</option>
-                <option value="brazos">brazos</option>
-                <option value="acunada">acunada</option>
-              </select>
-            </label>
-            <div class="field field--button">
-              <span>Método actual</span>
-              <button id="updateMethodAction" class="btn btn--ghost" type="button">
-                Guardar método
-              </button>
-            </div>
-          </div>
-
-          <div id="actionNotice" class="notice hidden"></div>
-        </article>
-
-        <article class="glass card">
-          <div class="card__header">
-            <div>
-              <p class="eyebrow">Registro manual</p>
-              <h2>Completar o corregir una siesta</h2>
-            </div>
-          </div>
-
-          <form id="manualForm" class="stack">
-            <div class="field-grid">
-              <label class="field">
-                <span>Hora intento</span>
-                <input id="manualIntent" type="time" required />
+          <article class="card-minimal">
+            <h2 class="card-minimal__title">Perfil</h2>
+            <form id="profileForm" class="form-minimal">
+              <label class="field-minimal">
+                <span>Bebé</span>
+                <input
+                  id="babyName"
+                  name="babyName"
+                  type="text"
+                  maxlength="60"
+                  placeholder="Nombre"
+                  required
+                />
               </label>
-              <label class="field">
-                <span>Hora sueño efectivo</span>
-                <input id="manualSleep" type="time" required />
+              <label class="field-minimal">
+                <span>Cuidador/a</span>
+                <input
+                  id="caregiverName"
+                  name="caregiverName"
+                  type="text"
+                  maxlength="60"
+                  required
+                />
               </label>
-            </div>
-
-            <div class="field-grid">
-              <label class="field">
-                <span>Hora despertar</span>
-                <input id="manualWake" type="time" required />
-              </label>
-              <label class="field">
-                <span>Método</span>
-                <select id="manualMethod">
-                  <option value="cuna">cuna</option>
-                  <option value="brazos">brazos</option>
-                  <option value="acunada">acunada</option>
+              <label class="field-minimal">
+                <span>Método por defecto</span>
+                <select id="defaultMethod" name="defaultMethod">
+                  <option value="cuna">Cuna</option>
+                  <option value="brazos">Brazos</option>
+                  <option value="acunada">Acunada</option>
                 </select>
               </label>
-            </div>
+              <input id="timeZone" name="timeZone" type="hidden" />
+              <div class="form-actions">
+                <button type="submit" class="big-btn big-btn--primary">
+                  Guardar perfil
+                </button>
+                <button
+                  id="refreshData"
+                  type="button"
+                  class="big-btn big-btn--ghost"
+                >
+                  <span
+                    class="material-symbols-outlined big-btn__icon"
+                    aria-hidden="true"
+                    >refresh</span
+                  >
+                  Sincronizar
+                </button>
+              </div>
+              <div id="profileNotice" class="toast-inline hidden"></div>
+            </form>
+          </article>
 
-            <div class="inline-actions">
-              <button class="btn" type="submit">Guardar registro manual</button>
-              <button id="resetManualForm" class="btn btn--ghost" type="button">
-                Limpiar
-              </button>
-            </div>
-            <div id="manualNotice" class="notice hidden"></div>
-          </form>
-        </article>
+          <article class="card-minimal">
+            <h2 class="card-minimal__title">Registro manual</h2>
+            <form id="manualForm" class="form-minimal">
+              <div class="time-grid">
+                <label class="field-minimal">
+                  <span>Intento</span>
+                  <input id="manualIntent" type="time" required />
+                </label>
+                <label class="field-minimal">
+                  <span>Sueño</span>
+                  <input id="manualSleep" type="time" required />
+                </label>
+                <label class="field-minimal">
+                  <span>Despertar</span>
+                  <input id="manualWake" type="time" required />
+                </label>
+                <label class="field-minimal">
+                  <span>Método</span>
+                  <select id="manualMethod">
+                    <option value="cuna">Cuna</option>
+                    <option value="brazos">Brazos</option>
+                    <option value="acunada">Acunada</option>
+                  </select>
+                </label>
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="big-btn big-btn--primary">
+                  Guardar
+                </button>
+                <button
+                  id="resetManualForm"
+                  type="button"
+                  class="big-btn big-btn--ghost"
+                >
+                  Limpiar
+                </button>
+              </div>
+              <div id="manualNotice" class="toast-inline hidden"></div>
+            </form>
+          </article>
+        </section>
+      </main>
 
-        <article class="glass card">
-          <div class="card__header">
-            <div>
-              <p class="eyebrow">Hoy</p>
-              <h2>Últimos registros</h2>
-            </div>
-          </div>
-          <div id="recordsList" class="record-list">
-            <div class="record-item record-item--empty">
-              Aún no hay registros guardados hoy.
-            </div>
-          </div>
-        </article>
-      </section>
-    </main>
+      <nav class="bottom-nav" aria-label="Principal">
+        <button
+          type="button"
+          class="bottom-nav__item is-active"
+          data-view="sleep"
+          aria-current="page"
+        >
+          <span class="bottom-nav__icon-wrap" aria-hidden="true">
+            <span class="material-symbols-outlined bottom-nav__icon"
+              >dark_mode</span
+            >
+            <span class="bottom-nav__zz" aria-hidden="true">z</span>
+            <span class="bottom-nav__zz bottom-nav__zz--2" aria-hidden="true">z</span>
+          </span>
+          <span class="bottom-nav__label">Sueño</span>
+        </button>
+        <button type="button" class="bottom-nav__item" data-view="today">
+          <span
+            class="material-symbols-outlined bottom-nav__icon"
+            aria-hidden="true"
+            >calendar_today</span
+          >
+          <span class="bottom-nav__label">Hoy</span>
+        </button>
+        <button type="button" class="bottom-nav__item" data-view="more">
+          <span
+            class="material-symbols-outlined bottom-nav__icon"
+            aria-hidden="true"
+            >settings</span
+          >
+          <span class="bottom-nav__label">Ajustes</span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- Elementos legacy / métricas para compatibilidad con app.js (ocultos) -->
+    <span id="stateMetric" hidden></span>
+    <span id="stateHelper" hidden></span>
 
     <script type="module" src="/app.js"></script>
   </body>
