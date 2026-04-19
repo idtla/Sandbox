@@ -5,6 +5,7 @@ const state = {
   profile: null,
   status: null,
   noticeTimeouts: new Map(),
+  currentView: "sleep",
 };
 
 const refs = {
@@ -20,6 +21,7 @@ const refs = {
   stateHelper: document.getElementById("stateHelper"),
   timerMetric: document.getElementById("timerMetric"),
   timerHelper: document.getElementById("timerHelper"),
+  timerPhaseLabel: document.getElementById("timerPhaseLabel"),
   sleepTodayMetric: document.getElementById("sleepTodayMetric"),
   latencyMetric: document.getElementById("latencyMetric"),
   onlineStatus: document.getElementById("onlineStatus"),
@@ -38,6 +40,14 @@ const refs = {
   resetManualForm: document.getElementById("resetManualForm"),
   manualNotice: document.getElementById("manualNotice"),
   recordsList: document.getElementById("recordsList"),
+  lastSleepSummary: document.getElementById("lastSleepSummary"),
+  lastSleepSub: document.getElementById("lastSleepSub"),
+  appTitle: document.getElementById("appTitle"),
+  profileGate: document.getElementById("profileGate"),
+  sleepContent: document.getElementById("sleepContent"),
+  viewSleep: document.getElementById("viewSleep"),
+  viewToday: document.getElementById("viewToday"),
+  viewMore: document.getElementById("viewMore"),
 };
 
 boot().catch((error) => {
@@ -50,6 +60,7 @@ async function boot() {
   registerServiceWorker();
   bindInstallPrompt();
   bindEvents();
+  bindTabNav();
   hydrateStoredProfile();
   setOnlineStatus(navigator.onLine);
   window.addEventListener("online", () => {
@@ -58,14 +69,46 @@ async function boot() {
   });
   window.addEventListener("offline", () => {
     setOnlineStatus(false);
-    showNotice(refs.actionNotice, "Modo sin conexión: verás la última información disponible.", true);
+    showNotice(refs.actionNotice, "Sin conexión: se muestra lo último guardado.", true);
   });
   setInterval(renderLiveTimer, 1000);
+  updateProfileGate();
   if (state.profile) {
     await refreshStatus(false);
   } else {
     prefillManualForm();
   }
+}
+
+function bindTabNav() {
+  document.querySelectorAll(".bottom-nav__item").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const view = btn.dataset.view;
+      if (!view) return;
+      switchView(view);
+    });
+  });
+}
+
+function switchView(viewId) {
+  state.currentView = viewId;
+  const map = {
+    sleep: refs.viewSleep,
+    today: refs.viewToday,
+    more: refs.viewMore,
+  };
+
+  document.querySelectorAll(".bottom-nav__item").forEach((btn) => {
+    const active = btn.dataset.view === viewId;
+    btn.classList.toggle("is-active", active);
+    btn.setAttribute("aria-current", active ? "page" : "false");
+  });
+
+  Object.entries(map).forEach(([id, el]) => {
+    const active = id === viewId;
+    el.classList.toggle("view--active", active);
+    el.hidden = !active;
+  });
 }
 
 function registerServiceWorker() {
@@ -163,7 +206,7 @@ function bindEvents() {
         hora_despertar: refs.manualWake.value,
         method: refs.manualMethod.value,
       });
-      showNotice(refs.manualNotice, "Registro manual guardado.");
+      showNotice(refs.manualNotice, "Registro guardado.");
       prefillManualForm();
     } catch (error) {
       showNotice(refs.manualNotice, error.message, true);
@@ -188,7 +231,15 @@ function hydrateStoredProfile() {
   refs.defaultMethod.value = stored.defaultMethod || "cuna";
   refs.quickMethod.value = stored.defaultMethod || "cuna";
   refs.manualMethod.value = stored.defaultMethod || "cuna";
-  document.title = `${stored.babyName || "Suenolytics"} · Suenolytics`;
+  const name = stored.babyName || "Suenolytics";
+  document.title = `${name} · Sueño`;
+  refs.appTitle.textContent = name;
+}
+
+function updateProfileGate() {
+  const hasProfile = Boolean(state.profile?.userId);
+  refs.profileGate.classList.toggle("hidden", hasProfile);
+  refs.sleepContent.classList.toggle("hidden", !hasProfile);
 }
 
 async function saveProfile() {
@@ -211,7 +262,8 @@ async function saveProfile() {
   state.profile = data.profile;
   saveStoredProfile(data.profile);
   hydrateStoredProfile();
-  showNotice(refs.profileNotice, `Perfil guardado para ${data.profile.babyName}.`);
+  updateProfileGate();
+  showNotice(refs.profileNotice, "Perfil guardado.");
   await refreshStatus(false);
 }
 
@@ -238,6 +290,7 @@ async function refreshStatus(showMessage) {
   }
 
   renderStatus();
+  updateProfileGate();
   if (showMessage) {
     showNotice(refs.actionNotice, "Datos actualizados.");
   }
@@ -265,35 +318,58 @@ async function performAction(action, extraPayload = {}) {
 
   state.status = data.status;
   renderStatus();
-  showNotice(refs.actionNotice, data.result?.message || "Acción completada.");
+  showNotice(refs.actionNotice, data.result?.message || "Listo.");
+}
+
+function renderLastSleepWelcome() {
+  const last = state.status?.lastCompletedSleep;
+  if (!last?.fellAsleepLabel) {
+    refs.lastSleepSummary.textContent = "Sin datos todavía";
+    refs.lastSleepSub.textContent = "Cuando cierres una siesta, verás aquí la hora y la duración.";
+    return;
+  }
+
+  refs.lastSleepSummary.textContent = `Se durmió a las ${last.fellAsleepLabel}`;
+  refs.lastSleepSub.textContent = `Duración: ${last.durationLabel || "—"}`;
 }
 
 function renderStatus() {
   const status = state.status;
   if (!status) {
-    refs.stateMetric.textContent = "En espera";
-    refs.stateHelper.textContent = "Guarda el perfil para cargar el seguimiento.";
-    refs.timerMetric.textContent = "00:00:00";
-    refs.timerHelper.textContent = "Sin registro activo.";
+    if (refs.stateMetric) refs.stateMetric.textContent = "En espera";
+    if (refs.stateHelper) refs.stateHelper.textContent = "";
+    refs.timerPhaseLabel.textContent = "Listo";
+    refs.timerMetric.textContent = "00:00";
+    refs.timerHelper.textContent = "";
     refs.sleepTodayMetric.textContent = "0 min";
-    refs.latencyMetric.textContent = "0 min";
+    refs.latencyMetric.textContent = "—";
     refs.recordsList.innerHTML =
-      '<div class="record-item record-item--empty">Aún no hay registros guardados hoy.</div>';
+      '<div class="record-item record-item--empty">Aún no hay registros hoy.</div>';
+    renderLastSleepWelcome();
+    refs.startAction.classList.remove("hidden");
+    refs.markAsleepAction.classList.add("hidden");
+    refs.markAwakeAction.classList.add("hidden");
+    refs.cancelAction.classList.add("hidden");
+    refs.startAction.disabled = true;
+    refs.markAsleepAction.disabled = true;
+    refs.cancelAction.disabled = true;
+    refs.markAwakeAction.disabled = true;
     return;
   }
 
-  refs.stateMetric.textContent = status.stateLabel;
-  refs.stateHelper.textContent = status.stateDescription;
-  refs.timerHelper.textContent =
-    status.state === "TRYING"
-      ? "Tiempo desde que empezó el intento."
-      : status.state === "SLEEPING"
-        ? "Tiempo de sueño efectivo en curso."
-        : "No hay un temporizador activo.";
+  if (refs.stateMetric) refs.stateMetric.textContent = status.stateLabel;
+  if (refs.stateHelper) refs.stateHelper.textContent = status.stateDescription;
+
+  refs.timerHelper.textContent = status.stateDescription;
   refs.sleepTodayMetric.textContent = status.summary.sleepTodayLabel;
-  refs.latencyMetric.textContent = status.summary.averageLatencyLabel;
+  refs.latencyMetric.textContent =
+    status.summary.averageLatencyLabel === "0 min" && status.summary.attemptsToday === 0
+      ? "—"
+      : status.summary.averageLatencyLabel;
+
   refs.quickMethod.value = status.activeRecord?.metodo || state.profile?.defaultMethod || "cuna";
   refs.manualMethod.value = status.activeRecord?.metodo || state.profile?.defaultMethod || "cuna";
+  renderLastSleepWelcome();
   renderActionState(status.state);
   renderRecentRecords(status.recentRecords || []);
   renderLiveTimer();
@@ -303,16 +379,22 @@ function renderActionState(stateLabel) {
   const waiting = stateLabel === "WAITING";
   const trying = stateLabel === "TRYING";
   const sleeping = stateLabel === "SLEEPING";
+
   refs.startAction.disabled = !waiting;
   refs.markAsleepAction.disabled = !trying;
   refs.cancelAction.disabled = !trying;
   refs.markAwakeAction.disabled = !sleeping;
+
+  refs.startAction.classList.toggle("hidden", !waiting);
+  refs.markAsleepAction.classList.toggle("hidden", !trying);
+  refs.cancelAction.classList.toggle("hidden", !trying);
+  refs.markAwakeAction.classList.toggle("hidden", !sleeping);
 }
 
 function renderRecentRecords(records) {
   if (!records.length) {
     refs.recordsList.innerHTML =
-      '<div class="record-item record-item--empty">Aún no hay registros guardados hoy.</div>';
+      '<div class="record-item record-item--empty">Aún no hay registros hoy.</div>';
     return;
   }
 
@@ -322,11 +404,10 @@ function renderRecentRecords(records) {
         <article class="record-item">
           <div class="record-item__top">
             <strong>${escapeHtml(record.startLabel)}</strong>
-            <span class="badge">${escapeHtml(record.estado)}</span>
+            <span class="record-item__badge">${escapeHtml(record.estado)}</span>
           </div>
-          <p>Método: ${escapeHtml(record.metodo || "sin método")}</p>
-          <p>Latencia: ${escapeHtml(record.latencyMinutes == null ? "sin dato" : `${record.latencyMinutes} min`)}</p>
-          <p>Sueño: ${escapeHtml(record.sleepDurationLabel || "sin cierre")}</p>
+          <p>${escapeHtml(record.metodo || "sin método")} · latencia ${escapeHtml(record.latencyMinutes == null ? "—" : `${record.latencyMinutes} min`)}</p>
+          <p>${escapeHtml(record.sleepDurationLabel || "sin cierre")}</p>
         </article>
       `,
     )
@@ -336,22 +417,38 @@ function renderRecentRecords(records) {
 function renderLiveTimer() {
   const activeRecord = state.status?.activeRecord;
   if (!activeRecord) {
-    refs.timerMetric.textContent = "00:00:00";
+    refs.timerMetric.textContent = "00:00";
+    refs.timerPhaseLabel.textContent = "Listo";
     return;
   }
 
   const now = Date.now();
   if (state.status.state === "TRYING" && activeRecord.hora_intento) {
-    refs.timerMetric.textContent = formatClockDuration(now - Date.parse(activeRecord.hora_intento));
+    refs.timerPhaseLabel.textContent = "Intentando dormir";
+    refs.timerMetric.textContent = formatBigDuration(now - Date.parse(activeRecord.hora_intento));
     return;
   }
 
   if (state.status.state === "SLEEPING" && activeRecord.hora_sueno_efectivo) {
-    refs.timerMetric.textContent = formatClockDuration(now - Date.parse(activeRecord.hora_sueno_efectivo));
+    refs.timerPhaseLabel.textContent = "Durmiendo";
+    refs.timerMetric.textContent = formatBigDuration(now - Date.parse(activeRecord.hora_sueno_efectivo));
     return;
   }
 
-  refs.timerMetric.textContent = "00:00:00";
+  refs.timerMetric.textContent = "00:00";
+  refs.timerPhaseLabel.textContent = "Listo";
+}
+
+/** Reloj grande: MM:SS si &lt; 1 h, si no HH:MM:SS */
+function formatBigDuration(ms) {
+  const totalSeconds = Math.max(0, Math.floor(ms / 1000));
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  if (hours > 0) {
+    return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+  }
+  return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 }
 
 function prefillManualForm() {
@@ -370,14 +467,6 @@ function currentTimeSuggestion(minutesAgo) {
 function setOnlineStatus(isOnline) {
   refs.onlineStatus.textContent = isOnline ? "En línea" : "Sin conexión";
   refs.onlineStatus.dataset.offline = String(!isOnline);
-}
-
-function formatClockDuration(ms) {
-  const totalSeconds = Math.max(0, Math.floor(ms / 1000));
-  const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, "0");
-  const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, "0");
-  const seconds = String(totalSeconds % 60).padStart(2, "0");
-  return `${hours}:${minutes}:${seconds}`;
 }
 
 function showNotice(element, message, isError = false) {

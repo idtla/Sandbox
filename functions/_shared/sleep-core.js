@@ -60,6 +60,7 @@ export async function readJson(request) {
 
 export async function buildUserStatus(db, userId, timeZone) {
   const activeRecord = await getActiveRecord(db, userId);
+  const lastCompleted = await getLastCompletedRecord(db, userId);
   const recentRecords = await getRecentRecords(db, userId, 20);
   const todayKey = getLocalDateKey(new Date().toISOString(), timeZone);
   const todayRecords = recentRecords.filter((record) => getLocalDateKey(record.hora_intento, timeZone) === todayKey);
@@ -77,12 +78,26 @@ export async function buildUserStatus(db, userId, timeZone) {
   const averageLatencyMs =
     latencies.length > 0 ? Math.round(latencies.reduce((sum, value) => sum + value, 0) / latencies.length) : 0;
 
+  const lastSleepDurationMs =
+    lastCompleted?.hora_sueno_efectivo && lastCompleted?.hora_despertar
+      ? calculateMillisecondsBetween(lastCompleted.hora_sueno_efectivo, lastCompleted.hora_despertar)
+      : 0;
+
   return {
     userId,
     state,
     stateLabel: getStateLabel(state),
     stateDescription: getStateDescription(state, activeRecord, timeZone),
     activeRecord: activeRecord ? sanitizeRecordWithDerived(activeRecord, timeZone) : null,
+    lastCompletedSleep: lastCompleted
+      ? {
+          fellAsleepAt: lastCompleted.hora_sueno_efectivo,
+          wokeAt: lastCompleted.hora_despertar,
+          fellAsleepLabel: formatClock(lastCompleted.hora_sueno_efectivo, timeZone),
+          durationMs: lastSleepDurationMs,
+          durationLabel: formatDuration(lastSleepDurationMs),
+        }
+      : null,
     summary: {
       attemptsToday: todayRecords.length,
       sleepTodayMs,
@@ -268,6 +283,16 @@ export async function getLatestRecord(db, userId) {
       "SELECT id, estado, hora_intento, hora_sueno_efectivo, hora_despertar, metodo, user_id, creado_en, actualizado_en FROM registros_sueno WHERE user_id = ? ORDER BY id DESC LIMIT 1",
     )
     .bind(userId)
+    .first();
+}
+
+/** Última siesta cerrada (para pantalla de bienvenida). */
+export async function getLastCompletedRecord(db, userId) {
+  return db
+    .prepare(
+      "SELECT id, estado, hora_intento, hora_sueno_efectivo, hora_despertar, metodo, user_id, creado_en, actualizado_en FROM registros_sueno WHERE user_id = ? AND estado = ? AND hora_despertar IS NOT NULL ORDER BY hora_despertar DESC LIMIT 1",
+    )
+    .bind(userId, "FINALIZADO")
     .first();
 }
 
@@ -622,6 +647,7 @@ export function toStatusPayload(status, profile) {
     state_label: status.stateLabel,
     state_description: status.stateDescription,
     active_record: status.activeRecord,
+    last_completed_sleep: status.lastCompletedSleep,
     recent_records: status.recentRecords,
     summary: {
       ...status.summary,
