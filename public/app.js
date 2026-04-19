@@ -248,13 +248,16 @@ async function saveProfile() {
     baby_name: refs.babyName.value.trim(),
     default_method: refs.defaultMethod.value,
   };
+  if (state.profile?.userId) {
+    payload.user_id = state.profile.userId;
+  }
 
   const response = await fetch("/api/profile", {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify(payload),
   });
-  const data = await response.json();
+  const data = await parseJsonResponse(response);
   if (!response.ok || !data.ok) {
     throw new Error(data.error || "No se ha podido guardar el perfil.");
   }
@@ -273,7 +276,7 @@ async function refreshStatus(showMessage) {
   }
 
   const response = await fetch(`/api/status?user_id=${encodeURIComponent(state.profile.userId)}`);
-  const data = await response.json();
+  const data = await parseJsonResponse(response);
   if (!response.ok || !data.ok) {
     throw new Error(data.error || "No se ha podido cargar el estado.");
   }
@@ -311,7 +314,7 @@ async function performAction(action, extraPayload = {}) {
       ...extraPayload,
     }),
   });
-  const data = await response.json();
+  const data = await parseJsonResponse(response);
   if (!response.ok || !data.ok) {
     throw new Error(data.error || "No se ha podido ejecutar la acción.");
   }
@@ -319,6 +322,23 @@ async function performAction(action, extraPayload = {}) {
   state.status = data.status;
   renderStatus();
   showNotice(refs.actionNotice, data.result?.message || "Listo.");
+}
+
+async function parseJsonResponse(response) {
+  const text = await response.text();
+  const trimmed = text.trim();
+  if (!trimmed || (trimmed[0] !== "{" && trimmed[0] !== "[")) {
+    throw new Error(
+      response.ok
+        ? "El servidor no devolvió JSON válido."
+        : `Error del servidor (${response.status}). Prueba de nuevo o revisa el despliegue.`,
+    );
+  }
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw new Error("Respuesta del servidor ilegible (no es JSON).");
+  }
 }
 
 function renderLastSleepWelcome() {
