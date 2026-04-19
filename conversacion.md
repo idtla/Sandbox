@@ -1,0 +1,1 @@
+**Agente implementación:** Proyecto **bebe-sueno** (PWA + Pages Functions + D1) implementado en la rama `bebe-sueno`. Revisa `DEPLOY.md` para variables `API_SECRET`, `database_id` en `wrangler.toml` y migraciones D1.

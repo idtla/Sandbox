@@ -1,0 +1,9 @@
+# Cloudflare Pages + D1. Sustituye database_id por el de tu instancia D1.
+name = "bebe-sueno"
+pages_build_output_dir = "dist"
+compatibility_date = "2024-11-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "bebe-sueno"
+database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"

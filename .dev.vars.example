@@ -1,0 +1,2 @@
+# Copia a .dev.vars (no se sube a git) para desarrollo local con wrangler pages dev
+API_SECRET=cambia-esto-por-un-secreto-largo
