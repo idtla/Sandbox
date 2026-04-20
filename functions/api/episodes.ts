@@ -12,6 +12,7 @@ type EpisodeRow = {
   location: string
   source: string
   cancelled: number
+  recorded_by: string | null
 }
 
 export async function onRequest(context: Ctx) {
@@ -57,6 +58,12 @@ export async function onRequest(context: Ctx) {
     const location = body.location
     const source = body.source
     const cancelled = Boolean(body.cancelled)
+    const recorded_by_raw = body.recorded_by
+    const recorded_by =
+      typeof recorded_by_raw === 'string'
+        ? recorded_by_raw.trim().slice(0, 120) || null
+        : null
+
     const id =
       typeof body.id === 'string' && body.id.length > 0 ? body.id : crypto.randomUUID()
     const created_at =
@@ -91,8 +98,8 @@ export async function onRequest(context: Ctx) {
     const cancelledInt = cancelled ? 1 : 0
 
     await env.DB.prepare(
-      `INSERT OR REPLACE INTO sleep_episodes (id, created_at, try_start_at, asleep_at, wake_at, location, source, cancelled)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT OR REPLACE INTO sleep_episodes (id, created_at, try_start_at, asleep_at, wake_at, location, source, cancelled, recorded_by)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     )
       .bind(
         id,
@@ -103,6 +110,7 @@ export async function onRequest(context: Ctx) {
         location,
         source,
         cancelledInt,
+        recorded_by,
       )
       .run()
 
@@ -116,6 +124,7 @@ export async function onRequest(context: Ctx) {
         location,
         source,
         cancelled: cancelledInt,
+        recorded_by,
       },
     })
   }

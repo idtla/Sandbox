@@ -14,13 +14,25 @@ export function unauthorized(): Response {
   return json({ error: 'No autorizado' }, 401)
 }
 
+function normalizeSecret(value: string | null | undefined): string {
+  if (!value) return ''
+  const trimmed = value.trim()
+  if (
+    (trimmed.startsWith('"') && trimmed.endsWith('"')) ||
+    (trimmed.startsWith("'") && trimmed.endsWith("'"))
+  ) {
+    return trimmed.slice(1, -1).trim()
+  }
+  return trimmed
+}
+
 export function authorize(request: Request, env: PagesEnv): boolean {
-  const secret = env.API_SECRET
+  const secret = normalizeSecret(env.API_SECRET)
   if (!secret) return false
-  const auth = request.headers.get('Authorization')
-  const apiKey = request.headers.get('X-API-Key')
-  if (auth?.startsWith('Bearer ')) {
-    return auth.slice(7) === secret
+  const auth = normalizeSecret(request.headers.get('Authorization'))
+  const apiKey = normalizeSecret(request.headers.get('X-API-Key'))
+  if (auth.startsWith('Bearer ')) {
+    return normalizeSecret(auth.slice(7)) === secret
   }
   if (apiKey) return apiKey === secret
   return false

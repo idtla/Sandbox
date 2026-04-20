@@ -10,6 +10,8 @@ export interface SleepEpisode {
   location: SleepLocation
   source: SleepSource
   cancelled: number
+  /** Padre, madre u otro cuidador que registró el episodio */
+  recorded_by?: string | null
 }
 
 export interface CreateEpisodePayload {
@@ -21,4 +23,5 @@ export interface CreateEpisodePayload {
   location: SleepLocation
   source: SleepSource
   cancelled?: boolean
+  recorded_by?: string | null
 }

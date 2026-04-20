@@ -14,8 +14,8 @@ export default defineConfig({
         short_name: 'Sueño',
         description: 'Seguimiento de sueño del bebé',
         lang: 'es-ES',
-        theme_color: '#16161f',
-        background_color: '#16161f',
+        theme_color: '#e8f0ec',
+        background_color: '#f4faf7',
         display: 'standalone',
         orientation: 'portrait',
         icons: [

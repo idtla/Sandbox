@@ -1,6 +1,23 @@
 import type { CreateEpisodePayload, SleepEpisode } from '../types/episode'
 
 const STORAGE_KEY = 'bebe_sueno_api_key'
+const RECORDED_BY_DEFAULT_KEY = 'bebe_sueno_recorded_by_default'
+
+export function getDefaultRecordedBy(): string {
+  try {
+    return localStorage.getItem(RECORDED_BY_DEFAULT_KEY)?.trim() ?? ''
+  } catch {
+    return ''
+  }
+}
+
+export function setDefaultRecordedBy(value: string): void {
+  try {
+    localStorage.setItem(RECORDED_BY_DEFAULT_KEY, value.trim())
+  } catch {
+    /* ignore */
+  }
+}
 
 export function getApiKey(): string | null {
   try {
@@ -11,7 +28,7 @@ export function getApiKey(): string | null {
 }
 
 export function setApiKey(key: string): void {
-  localStorage.setItem(STORAGE_KEY, key)
+  localStorage.setItem(STORAGE_KEY, key.trim())
 }
 
 function authHeaders(): HeadersInit {

@@ -4,17 +4,21 @@ import {
   deleteAllEpisodes,
   fetchEpisodes,
   getApiKey,
+  getDefaultRecordedBy,
   setApiKey as persistApiKey,
+  setDefaultRecordedBy,
 } from '../api/client'
 import type { SleepEpisode } from '../types/episode'
 
 export function SettingsPage() {
   const [key, setKey] = useState('')
+  const [parent, setParent] = useState('')
   const [msg, setMsg] = useState<string | null>(null)
   const [err, setErr] = useState<string | null>(null)
 
   useEffect(() => {
     setKey(getApiKey() ?? '')
+    setParent(getDefaultRecordedBy())
   }, [])
 
   const saveKey = () => {
@@ -63,6 +67,7 @@ export function SettingsPage() {
             location: ep.location,
             source: ep.source,
             cancelled: Boolean(ep.cancelled),
+            recorded_by: ep.recorded_by ?? null,
           })
         }
         setMsg(`Importados ${list.length} episodios (INSERT OR REPLACE).`)
@@ -85,50 +90,72 @@ export function SettingsPage() {
     }
   }
 
+  const saveParent = () => {
+    setDefaultRecordedBy(parent)
+    setMsg('Nombre por defecto guardado en este dispositivo.')
+    setErr(null)
+  }
+
   return (
     <div className="page settings">
-      <header className="page-header">
-        <h1>Ajustes</h1>
-        <p className="page-sub">Clave API (mismo valor que API_SECRET en Cloudflare)</p>
+      <header className="measure-header">
+        <h1 className="measure-title">Ajustes</h1>
+        <p className="measure-tagline">Clave API y preferencias</p>
       </header>
 
       {msg ? (
-        <div className="banner banner--ok" role="status">
+        <div className="banner banner--ok measure-banner" role="status">
           {msg}
         </div>
       ) : null}
       {err ? (
-        <div className="banner banner--error" role="alert">
+        <div className="banner banner--error measure-banner" role="alert">
           {err}
         </div>
       ) : null}
 
-      <section className="card">
-        <label className="field">
-          <span>Clave API</span>
+      <section className="measure-panel">
+        <label className="measure-field">
+          <span className="measure-field__label">Clave API</span>
           <input
             type="password"
             autoComplete="off"
             value={key}
             onChange={(e) => setKey(e.target.value)}
-            placeholder="Pega el secreto"
+            placeholder="Mismo valor que API_SECRET en Cloudflare"
           />
         </label>
-        <button type="button" className="btn btn-primary" onClick={saveKey}>
+        <button type="button" className="btn-pill btn-pill--primary" onClick={saveKey}>
           Guardar clave
         </button>
       </section>
 
-      <section className="card">
-        <h2 className="card-title">Copia de seguridad</h2>
-        <p className="muted">
-          Exporta un JSON con todos los episodios o importa uno generado antes (usa la misma clave API).
+      <section className="measure-panel">
+        <label className="measure-field">
+          <span className="measure-field__label">Padre / cuidador por defecto</span>
+          <input
+            type="text"
+            value={parent}
+            onChange={(e) => setParent(e.target.value)}
+            placeholder="Se rellena en Medir automáticamente"
+            maxLength={120}
+          />
+        </label>
+        <button type="button" className="btn-pill btn-pill--secondary" onClick={saveParent}>
+          Guardar nombre
+        </button>
+      </section>
+
+      <section className="measure-panel">
+        <h2 className="measure-panel__label">Copia de seguridad</h2>
+        <p className="measure-hint">
+          Exporta o importa JSON (misma clave API). Incluye quién registró si estaba guardado.
         </p>
-        <div className="actions actions--row">
-          <button type="button" className="btn btn-secondary" onClick={() => void exportJson()}>
+        <div className="measure-actions measure-actions--row">
+          <button type="button" className="btn-pill btn-pill--outline" onClick={() => void exportJson()}>
             Exportar JSON
           </button>
-          <label className="btn btn-secondary file-btn">
+          <label className="btn-pill btn-pill--outline file-btn">
             Importar JSON
             <input
               type="file"
@@ -144,9 +171,9 @@ export function SettingsPage() {
         </div>
       </section>
 
-      <section className="card">
-        <h2 className="card-title">Peligro</h2>
-        <button type="button" className="btn btn-danger" onClick={() => void clearAll()}>
+      <section className="measure-panel measure-panel--danger">
+        <h2 className="measure-panel__label">Zona sensible</h2>
+        <button type="button" className="btn-pill btn-pill--danger" onClick={() => void clearAll()}>
           Borrar todos los episodios
         </button>
       </section>

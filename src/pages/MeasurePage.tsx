@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react'
-import { createEpisode, getApiKey } from '../api/client'
+import { createEpisode, getApiKey, getDefaultRecordedBy, setDefaultRecordedBy } from '../api/client'
 import { formatDuration, parseDatetimeLocal, toDatetimeLocalValue } from '../lib/time'
 import type { SleepLocation } from '../types/episode'
 
@@ -11,13 +11,16 @@ export function MeasurePage() {
   const [asleepAt, setAsleepAt] = useState<number | null>(null)
   const [now, setNow] = useState(() => Date.now())
   const [location, setLocation] = useState<SleepLocation>('cuna')
+  const [recordedBy, setRecordedBy] = useState(() => getDefaultRecordedBy())
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
+  const [showManual, setShowManual] = useState(false)
 
   const [manualTry, setManualTry] = useState(() => toDatetimeLocalValue(Date.now() - 3600000))
   const [manualAsleep, setManualAsleep] = useState(() => toDatetimeLocalValue(Date.now() - 1800000))
   const [manualWake, setManualWake] = useState(() => toDatetimeLocalValue(Date.now()))
   const [manualLocation, setManualLocation] = useState<SleepLocation>('cuna')
+  const [manualRecordedBy, setManualRecordedBy] = useState(() => getDefaultRecordedBy())
 
   useEffect(() => {
     if (phase === 'idle') return
@@ -35,6 +38,21 @@ export function MeasurePage() {
     if (asleepAt == null) return 0
     return Math.max(0, now - asleepAt)
   }, [asleepAt, now])
+
+  const ringMainLabel = phase === 'idle' ? 'Listo' : phase === 'trying' ? 'Intento' : 'Sueño'
+  const ringMainValue =
+    phase === 'idle' ? '—' : phase === 'trying' ? formatDuration(tryMs) : formatDuration(sleepMs)
+  const ringSub =
+    phase === 'sleeping' && tryStartAt != null && asleepAt != null
+      ? `Intento ${formatDuration(asleepAt - tryStartAt)}`
+      : phase === 'trying'
+        ? 'Hasta dormir'
+        : ' '
+
+  const persistRecordedBy = (v: string) => {
+    setRecordedBy(v)
+    setDefaultRecordedBy(v)
+  }
 
   const startTry = useCallback(() => {
     setError(null)
@@ -69,27 +87,35 @@ export function MeasurePage() {
       setError('Configura la clave API en Ajustes.')
       return
     }
+    const rb = recordedBy.trim()
     const wake = Date.now()
+    const currentTryStart = tryStartAt
+    const currentAsleepAt = asleepAt
+    const currentLocation = location
+    const currentRecordedBy = rb.length ? rb : null
+    // El estado del temporizador debe finalizar al pulsar "Despierta", aunque falle la API.
+    setPhase('idle')
+    setTryStartAt(null)
+    setAsleepAt(null)
+    setNow(wake)
     setSaving(true)
     setError(null)
     try {
       await createEpisode({
-        try_start_at: tryStartAt,
-        asleep_at: asleepAt,
+        try_start_at: currentTryStart,
+        asleep_at: currentAsleepAt,
         wake_at: wake,
-        location,
+        location: currentLocation,
         source: 'timer',
         cancelled: false,
+        recorded_by: currentRecordedBy,
       })
-      setPhase('idle')
-      setTryStartAt(null)
-      setAsleepAt(null)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Error al guardar')
     } finally {
       setSaving(false)
     }
-  }, [tryStartAt, asleepAt, location])
+  }, [tryStartAt, asleepAt, location, recordedBy])
 
   const submitManual = async (e: FormEvent) => {
     e.preventDefault()
@@ -107,6 +133,7 @@ export function MeasurePage() {
     setSaving(true)
     setError(null)
     try {
+      const rb = manualRecordedBy.trim()
       await createEpisode({
         try_start_at: ts,
         asleep_at: asl,
@@ -114,7 +141,10 @@ export function MeasurePage() {
         location: manualLocation,
         source: 'manual',
         cancelled: false,
+        recorded_by: rb.length ? rb : null,
       })
+      setDefaultRecordedBy(manualRecordedBy)
+      setShowManual(false)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al guardar')
     } finally {
@@ -124,32 +154,32 @@ export function MeasurePage() {
 
   return (
     <div className="page measure">
-      <header className="page-header">
-        <h1>Medir</h1>
-        <p className="page-sub">Cronómetros y registro manual</p>
+      <header className="measure-header">
+        <h1 className="measure-title">Medir</h1>
+        <p className="measure-tagline">Una sola cosa a la vez</p>
       </header>
 
       {error ? (
-        <div className="banner banner--error" role="alert">
+        <div className="banner banner--error measure-banner" role="alert">
           {error}
         </div>
       ) : null}
 
-      <section className="card" aria-labelledby="loc-label">
-        <h2 id="loc-label" className="card-title">
-          ¿Dónde está?
+      <section className="measure-panel" aria-labelledby="loc-label">
+        <h2 id="loc-label" className="measure-panel__label">
+          Dónde
         </h2>
-        <div className="segmented" role="group" aria-label="Ubicación">
+        <div className="chips" role="group" aria-label="Ubicación">
           <button
             type="button"
-            className={location === 'cuna' ? 'segmented__btn is-on' : 'segmented__btn'}
+            className={location === 'cuna' ? 'chip chip--on' : 'chip'}
             onClick={() => setLocation('cuna')}
           >
             Cuna
           </button>
           <button
             type="button"
-            className={location === 'acunada' ? 'segmented__btn is-on' : 'segmented__btn'}
+            className={location === 'acunada' ? 'chip chip--on' : 'chip'}
             onClick={() => setLocation('acunada')}
           >
             Acunada
@@ -157,99 +187,131 @@ export function MeasurePage() {
         </div>
       </section>
 
-      <section className="card" aria-labelledby="timer-label">
-        <h2 id="timer-label" className="card-title">
+      <section className="measure-timer-block" aria-labelledby="timer-label">
+        <h2 id="timer-label" className="sr-only">
           Temporizador
         </h2>
 
-        <div className="timers">
-          <div className="timer-block">
-            <span className="timer-label">Intento hasta dormir</span>
-            <span className="timer-value">{formatDuration(tryMs)}</span>
-          </div>
-          <div className="timer-block">
-            <span className="timer-label">Dormida</span>
-            <span className="timer-value">{phase === 'sleeping' ? formatDuration(sleepMs) : '—'}</span>
+        <div className="ring-wrap">
+          <div className="ring-outer" aria-hidden>
+            <div className="ring-inner">
+              <span className="ring-kicker">{ringMainLabel}</span>
+              <span className="ring-time">{ringMainValue}</span>
+              <span className="ring-sub">{ringSub.trim() || '\u00a0'}</span>
+            </div>
           </div>
         </div>
 
-        <div className="actions actions--stack">
+        <label className="measure-field">
+          <span className="measure-field__label">Padre / cuidador</span>
+          <input
+            type="text"
+            value={recordedBy}
+            onChange={(e) => persistRecordedBy(e.target.value)}
+            placeholder="Ej. Iñigo"
+            maxLength={120}
+            autoComplete="name"
+          />
+        </label>
+
+        <div className="measure-actions">
           {phase === 'idle' ? (
-            <button type="button" className="btn btn-primary" onClick={startTry}>
-              Comiendo / intento dormir
+            <button type="button" className="btn-pill btn-pill--primary" onClick={startTry}>
+              Comiendo · intento dormir
             </button>
           ) : null}
 
           {phase === 'trying' ? (
             <>
-              <button type="button" className="btn btn-primary" onClick={markAsleep}>
+              <button type="button" className="btn-pill btn-pill--primary" onClick={markAsleep}>
                 Dormida
               </button>
-              <button type="button" className="btn btn-ghost" onClick={cancelTry}>
+              <button type="button" className="btn-pill btn-pill--quiet" onClick={cancelTry}>
                 Cancelar intento
               </button>
             </>
           ) : null}
 
           {phase === 'sleeping' ? (
-            <button type="button" className="btn btn-primary" onClick={markAwake} disabled={saving}>
+            <button type="button" className="btn-pill btn-pill--primary" onClick={markAwake} disabled={saving}>
               {saving ? 'Guardando…' : 'Despierta'}
             </button>
           ) : null}
         </div>
       </section>
 
-      <section className="card">
-        <h2 className="card-title">Entrada manual</h2>
-        <form className="form" onSubmit={submitManual}>
-          <label className="field">
-            <span>Inicio del intento</span>
-            <input
-              type="datetime-local"
-              value={manualTry}
-              onChange={(e) => setManualTry(e.target.value)}
-              required
-            />
-          </label>
-          <label className="field">
-            <span>Se durmió</span>
-            <input
-              type="datetime-local"
-              value={manualAsleep}
-              onChange={(e) => setManualAsleep(e.target.value)}
-              required
-            />
-          </label>
-          <label className="field">
-            <span>Despertó</span>
-            <input
-              type="datetime-local"
-              value={manualWake}
-              onChange={(e) => setManualWake(e.target.value)}
-              required
-            />
-          </label>
-          <div className="segmented" role="group" aria-label="Ubicación manual">
-            <button
-              type="button"
-              className={manualLocation === 'cuna' ? 'segmented__btn is-on' : 'segmented__btn'}
-              onClick={() => setManualLocation('cuna')}
-            >
-              Cuna
+      <div className="measure-manual-toggle">
+        <button
+          type="button"
+          className="btn-pill btn-pill--outline"
+          onClick={() => setShowManual((v) => !v)}
+          aria-expanded={showManual}
+        >
+          {showManual ? 'Cerrar entrada manual' : 'Entrada manual'}
+        </button>
+      </div>
+
+      {showManual ? (
+        <section className="measure-panel measure-panel--manual">
+          <form className="measure-form" onSubmit={submitManual}>
+            <label className="measure-field">
+              <span className="measure-field__label">Padre / cuidador</span>
+              <input
+                type="text"
+                value={manualRecordedBy}
+                onChange={(e) => setManualRecordedBy(e.target.value)}
+                maxLength={120}
+              />
+            </label>
+            <label className="measure-field">
+              <span className="measure-field__label">Inicio del intento</span>
+              <input
+                type="datetime-local"
+                value={manualTry}
+                onChange={(e) => setManualTry(e.target.value)}
+                required
+              />
+            </label>
+            <label className="measure-field">
+              <span className="measure-field__label">Se durmió</span>
+              <input
+                type="datetime-local"
+                value={manualAsleep}
+                onChange={(e) => setManualAsleep(e.target.value)}
+                required
+              />
+            </label>
+            <label className="measure-field">
+              <span className="measure-field__label">Despertó</span>
+              <input
+                type="datetime-local"
+                value={manualWake}
+                onChange={(e) => setManualWake(e.target.value)}
+                required
+              />
+            </label>
+            <div className="chips" role="group" aria-label="Ubicación manual">
+              <button
+                type="button"
+                className={manualLocation === 'cuna' ? 'chip chip--on' : 'chip'}
+                onClick={() => setManualLocation('cuna')}
+              >
+                Cuna
+              </button>
+              <button
+                type="button"
+                className={manualLocation === 'acunada' ? 'chip chip--on' : 'chip'}
+                onClick={() => setManualLocation('acunada')}
+              >
+                Acunada
+              </button>
+            </div>
+            <button type="submit" className="btn-pill btn-pill--secondary" disabled={saving}>
+              Guardar
             </button>
-            <button
-              type="button"
-              className={manualLocation === 'acunada' ? 'segmented__btn is-on' : 'segmented__btn'}
-              onClick={() => setManualLocation('acunada')}
-            >
-              Acunada
-            </button>
-          </div>
-          <button type="submit" className="btn btn-secondary" disabled={saving}>
-            Guardar manual
-          </button>
-        </form>
-      </section>
+          </form>
+        </section>
+      ) : null}
     </div>
   )
 }

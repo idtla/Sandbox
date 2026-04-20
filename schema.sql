@@ -9,7 +9,8 @@ CREATE TABLE sleep_episodes (
   wake_at INTEGER,
   location TEXT NOT NULL CHECK (location IN ('cuna', 'acunada')),
   source TEXT NOT NULL CHECK (source IN ('timer', 'manual')),
-  cancelled INTEGER NOT NULL DEFAULT 0 CHECK (cancelled IN (0, 1))
+  cancelled INTEGER NOT NULL DEFAULT 0 CHECK (cancelled IN (0, 1)),
+  recorded_by TEXT
 );
 
 CREATE INDEX idx_sleep_episodes_try_start ON sleep_episodes(try_start_at);
