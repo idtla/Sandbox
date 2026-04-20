@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Activity, Baby, BarChart2, Check, Clock, Home, MinusCircle, Moon, Play, PlusCircle, Sun } from 'lucide-react'
-import { createEpisode, fetchEpisodes, getApiKey } from './api/client'
+import { Activity, Baby, BarChart2, Check, Clock, Home, MinusCircle, Moon, Play, PlusCircle, Settings, Sun } from 'lucide-react'
+import { createEpisode, fetchEpisodes, getApiKey, setApiKey } from './api/client'
 import type { SleepLocation, SleepEpisode } from './types/episode'
 
 type AppState = 'idle' | 'trying' | 'sleeping'
-type Tab = 'dashboard' | 'timer' | 'stats' | 'manual'
+type Tab = 'dashboard' | 'timer' | 'stats' | 'manual' | 'settings'
 type Method = 'Acunada' | 'En cuna'
 
 type HistorySession = {
@@ -115,6 +115,8 @@ export default function App() {
   const [now, setNow] = useState(Date.now())
   const [history, setHistory] = useState<HistorySession[]>([])
   const [error, setError] = useState<string | null>(null)
+  const [notice, setNotice] = useState<string | null>(null)
+  const [apiKeyInput, setApiKeyInput] = useState(() => getApiKey() ?? '')
 
   const [manualTTS, setManualTTS] = useState(15)
   const [manualDuration, setManualDuration] = useState(120)
@@ -179,6 +181,7 @@ export default function App() {
   }
 
   const handleStartTrying = () => {
+    setNotice(null)
     setError(null)
     if (!getApiKey()) {
       setError('No autorizado: revisa la clave en Ajustes')
@@ -264,6 +267,12 @@ export default function App() {
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Error guardando sesión')
     }
+  }
+
+  const handleSaveApiKey = () => {
+    setApiKey(apiKeyInput)
+    setError(null)
+    setNotice('Clave API guardada en este dispositivo.')
   }
 
   const todaySleepSeconds = useMemo(
@@ -387,6 +396,11 @@ export default function App() {
       {error ? (
         <div className="z-20 mx-6 mt-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
           {error}
+        </div>
+      ) : null}
+      {notice ? (
+        <div className="z-20 mx-6 mt-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+          {notice}
         </div>
       ) : null}
 
@@ -759,7 +773,35 @@ export default function App() {
         </div>
       )}
 
-      <div className="fixed bottom-0 left-0 right-0 z-50 mx-auto flex h-24 max-w-md items-start justify-around border-t border-slate-100 bg-white/80 px-4 pb-6 pt-4 backdrop-blur-xl">
+      {activeTab === 'settings' && (
+        <div className="animate-in fade-in z-10 flex min-h-[calc(100vh-6rem)] w-full flex-col space-y-6 p-6 pt-8 duration-300">
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight text-slate-800">Ajustes</h1>
+            <p className="mt-1 text-xs text-slate-500">Configuración local de la aplicación</p>
+          </div>
+          <section className="space-y-4 rounded-3xl bg-white p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+            <label className="flex flex-col gap-2">
+              <span className="text-xs font-semibold tracking-wide text-slate-500">Clave API</span>
+              <input
+                type="password"
+                value={apiKeyInput}
+                onChange={(e) => setApiKeyInput(e.target.value)}
+                placeholder="Pega aquí API_SECRET"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm text-slate-800 outline-none ring-blue-300 focus:ring-2"
+              />
+            </label>
+            <button
+              type="button"
+              onClick={handleSaveApiKey}
+              className="w-full rounded-2xl bg-blue-600 py-4 text-sm font-semibold tracking-wide text-white shadow-[0_10px_25px_rgba(37,99,235,0.3)] transition-all active:scale-[0.98]"
+            >
+              GUARDAR CLAVE
+            </button>
+          </section>
+        </div>
+      )}
+
+      <div className="fixed bottom-0 left-0 right-0 z-50 mx-auto flex h-24 max-w-md items-start justify-around border-t border-slate-100 bg-white/80 px-3 pb-6 pt-4 backdrop-blur-xl">
         <button
           onClick={() => setActiveTab('dashboard')}
           className={`flex flex-1 flex-col items-center gap-1.5 transition-colors ${activeTab === 'dashboard' ? 'text-blue-600' : 'text-slate-400 hover:text-slate-600'}`}
@@ -795,6 +837,15 @@ export default function App() {
             <PlusCircle size={22} strokeWidth={activeTab === 'manual' ? 2.5 : 2} />
           </div>
           <span className="text-[10px] font-bold tracking-wide">Añadir</span>
+        </button>
+        <button
+          onClick={() => setActiveTab('settings')}
+          className={`flex flex-1 flex-col items-center gap-1.5 transition-colors ${activeTab === 'settings' ? 'text-blue-600' : 'text-slate-400 hover:text-slate-600'}`}
+        >
+          <div className={activeTab === 'settings' ? 'rounded-xl bg-blue-50 p-1.5' : 'p-1.5'}>
+            <Settings size={22} strokeWidth={activeTab === 'settings' ? 2.5 : 2} />
+          </div>
+          <span className="text-[10px] font-bold tracking-wide">Ajustes</span>
         </button>
       </div>
     </div>
