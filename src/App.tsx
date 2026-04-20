@@ -19,6 +19,35 @@ type HistorySession = {
 
 const targetWindowMins = 150
 const targetDailySleepSeconds = 14 * 3600
+const SPAIN_TIMEZONE = 'Europe/Madrid'
+
+function getMadridYmd(date: Date): string {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: SPAIN_TIMEZONE,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(date)
+}
+
+function formatSpainDate(ts: number): string {
+  return new Intl.DateTimeFormat('es-ES', {
+    timeZone: SPAIN_TIMEZONE,
+    weekday: 'long',
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+  }).format(new Date(ts))
+}
+
+function formatSpainTime(ts: number): string {
+  return new Intl.DateTimeFormat('es-ES', {
+    timeZone: SPAIN_TIMEZONE,
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).format(new Date(ts))
+}
 
 function locationToMethod(location: SleepLocation): Method {
   return location === 'acunada' ? 'Acunada' : 'En cuna'
@@ -29,18 +58,28 @@ function methodToLocation(method: Method): SleepLocation {
 }
 
 function dayLabel(date: Date): string {
-  return date.toLocaleDateString('es-ES', { weekday: 'short' }).slice(0, 1).toUpperCase()
+  return new Intl.DateTimeFormat('es-ES', {
+    timeZone: SPAIN_TIMEZONE,
+    weekday: 'short',
+  })
+    .format(date)
+    .slice(0, 1)
+    .toUpperCase()
 }
 
 function relativeDateLabel(ts: number): string {
   const eventDate = new Date(ts)
   const now = new Date()
-  const eventDay = new Date(eventDate.getFullYear(), eventDate.getMonth(), eventDate.getDate())
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-  const diff = Math.round((today.getTime() - eventDay.getTime()) / 86400000)
-  if (diff === 0) return 'Hoy'
-  if (diff === 1) return 'Ayer'
-  return eventDate.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' })
+  const eventYmd = getMadridYmd(eventDate)
+  const todayYmd = getMadridYmd(now)
+  if (eventYmd === todayYmd) return 'Hoy'
+  const yesterday = new Date(now.getTime() - 86400000)
+  if (eventYmd === getMadridYmd(yesterday)) return 'Ayer'
+  return new Intl.DateTimeFormat('es-ES', {
+    timeZone: SPAIN_TIMEZONE,
+    day: '2-digit',
+    month: '2-digit',
+  }).format(eventDate)
 }
 
 function toHistorySession(ep: SleepEpisode): HistorySession | null {
@@ -79,6 +118,8 @@ export default function App() {
 
   const [manualTTS, setManualTTS] = useState(15)
   const [manualDuration, setManualDuration] = useState(120)
+  const spainDate = useMemo(() => formatSpainDate(now), [now])
+  const spainTime = useMemo(() => formatSpainTime(now), [now])
 
   useEffect(() => {
     const id = setInterval(() => setNow(Date.now()), 60000)
@@ -350,27 +391,30 @@ export default function App() {
       ) : null}
 
       {activeTab === 'dashboard' && (
-        <div className="animate-in fade-in z-10 flex min-h-[calc(100vh-6rem)] w-full flex-col space-y-6 p-6 pt-10 duration-500">
+        <div className="animate-in fade-in z-10 flex min-h-[calc(100vh-6rem)] w-full flex-col space-y-5 p-6 pt-8 duration-500">
           <div className="mb-2 flex w-full items-center justify-between">
             <div className="flex flex-col">
               <span className="mb-1 flex items-center gap-1 text-xs font-medium uppercase tracking-wider text-slate-400">
                 <Activity size={12} className="text-blue-500" /> Resumen Diario
               </span>
               <h1 className="text-3xl font-semibold tracking-tight text-slate-800">Hola, {caregiver}</h1>
+              <span className="mt-1 text-xs text-slate-500">
+                {spainDate} · {spainTime} (España)
+              </span>
             </div>
             <div className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-100 bg-white shadow-sm">
               <Baby className="text-blue-500" size={20} />
             </div>
           </div>
 
-          <div className="relative flex w-full flex-col items-center rounded-3xl bg-white p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+          <div className="relative flex w-full flex-col items-center rounded-3xl bg-white p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
             <div className="absolute top-6 flex w-full items-center justify-between px-6">
               <span className="text-sm font-medium text-slate-800">Calidad de Sueño</span>
               <span className="rounded-md bg-emerald-50 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-emerald-500">
                 Óptima
               </span>
             </div>
-            <div className="relative mt-4 flex w-full justify-center py-8">
+            <div className="relative mt-4 flex w-full justify-center py-6">
               <svg height={radius * 2} width={radius * 2} className="-rotate-90 drop-shadow-md">
                 <circle
                   stroke="#F1F5F9"
@@ -403,8 +447,8 @@ export default function App() {
             </div>
           </div>
 
-          <div className="grid w-full grid-cols-2 gap-4">
-            <div className="relative flex h-36 flex-col justify-between overflow-hidden rounded-3xl bg-white p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+          <div className="grid w-full grid-cols-2 gap-3">
+            <div className="relative flex h-[8.5rem] flex-col justify-between overflow-hidden rounded-3xl bg-white p-4 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
               <div className="z-10 flex items-start justify-between">
                 <span className="text-xs font-medium text-slate-500">Sueño Hoy</span>
                 <div className="rounded-full bg-blue-50 p-2">
@@ -412,14 +456,14 @@ export default function App() {
                 </div>
               </div>
               <div className="z-10 mt-2 flex flex-col">
-                <span className="text-3xl font-semibold text-slate-800">{formatHoursMins(todaySleepSeconds)}</span>
+                <span className="text-[1.75rem] font-semibold text-slate-800">{formatHoursMins(todaySleepSeconds)}</span>
                 <span className="mt-1 flex items-center gap-1 text-[10px] font-medium text-emerald-500">↑ En progreso</span>
               </div>
               <div className="absolute -bottom-10 -right-10 h-24 w-24 rounded-full bg-blue-50" />
             </div>
 
             <div
-              className={`flex h-36 flex-col justify-between rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition-colors ${
+              className={`flex h-[8.5rem] flex-col justify-between rounded-3xl p-4 shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition-colors ${
                 appState !== 'idle' ? 'bg-blue-600 text-white' : windowWarning ? 'border border-rose-100 bg-rose-50' : 'bg-white'
               }`}
             >
@@ -445,7 +489,7 @@ export default function App() {
                   <span className="text-2xl font-semibold">Intentando</span>
                 ) : (
                   <>
-                    <span className={`text-3xl font-semibold ${windowWarning ? 'text-rose-600' : 'text-slate-800'}`}>
+                    <span className={`text-[1.65rem] font-semibold ${windowWarning ? 'text-rose-600' : 'text-slate-800'}`}>
                       {minsRemaining > 0 ? `${Math.floor(minsRemaining / 60)}h ${minsRemaining % 60}m` : 'Ahora'}
                     </span>
                     {minsRemaining > 0 ? (
@@ -458,17 +502,17 @@ export default function App() {
               </div>
             </div>
 
-            <div className="flex h-32 flex-col justify-between rounded-3xl bg-white p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+            <div className="flex h-32 flex-col justify-between rounded-3xl bg-white p-4 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
               <span className="text-xs font-medium text-slate-500">Última Noche</span>
               <div className="flex items-end gap-2">
-                <span className="text-2xl font-semibold text-slate-800">{formatHoursMins(lastNightSeconds)}</span>
+                <span className="text-[1.6rem] font-semibold text-slate-800">{formatHoursMins(lastNightSeconds)}</span>
               </div>
             </div>
 
-            <div className="flex h-32 flex-col justify-between rounded-3xl bg-white p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+            <div className="flex h-32 flex-col justify-between rounded-3xl bg-white p-4 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
               <span className="text-xs font-medium text-slate-500">Media en dormir</span>
               <div className="flex items-end gap-1">
-                <span className="text-2xl font-semibold text-slate-800">{Math.round(todayTTSAvg / 60)}</span>
+                <span className="text-[1.6rem] font-semibold text-slate-800">{Math.round(todayTTSAvg / 60)}</span>
                 <span className="mb-1 text-sm font-medium text-slate-400">min</span>
               </div>
             </div>
@@ -565,8 +609,11 @@ export default function App() {
       )}
 
       {activeTab === 'stats' && (
-        <div className="animate-in fade-in z-10 flex min-h-[calc(100vh-6rem)] w-full flex-col space-y-6 p-6 pt-10 duration-300">
-          <h1 className="text-2xl font-semibold tracking-tight text-slate-800">Analíticas</h1>
+        <div className="animate-in fade-in z-10 flex min-h-[calc(100vh-6rem)] w-full flex-col space-y-6 p-6 pt-8 duration-300">
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight text-slate-800">Analíticas</h1>
+            <p className="mt-1 text-xs text-slate-500">{spainDate} · {spainTime} (España)</p>
+          </div>
 
           <div className="space-y-4 rounded-3xl bg-white p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
             <div className="mb-6 flex items-center justify-between">
