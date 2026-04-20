@@ -203,7 +203,7 @@ export function MeasurePage() {
         </div>
 
         <label className="measure-field">
-          <span className="measure-field__label">Padre / cuidador</span>
+          <span className="measure-field__label">Cuidador</span>
           <input
             type="text"
             value={recordedBy}
@@ -255,7 +255,7 @@ export function MeasurePage() {
         <section className="measure-panel measure-panel--manual">
           <form className="measure-form" onSubmit={submitManual}>
             <label className="measure-field">
-              <span className="measure-field__label">Padre / cuidador</span>
+              <span className="measure-field__label">Cuidador</span>
               <input
                 type="text"
                 value={manualRecordedBy}
