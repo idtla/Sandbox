@@ -1,161 +1,105 @@
-import { useEffect, useState } from 'react'
-import {
-  createEpisode,
-  deleteAllEpisodes,
-  fetchEpisodes,
-  getApiKey,
-  getDefaultRecordedBy,
-  setApiKey as persistApiKey,
-  setDefaultRecordedBy,
-} from '../api/client'
-import type { SleepEpisode } from '../types/episode'
+import { Link } from 'react-router-dom'
+import { useSleepTracking } from '../context/sleepTracking'
 
 export function SettingsPage() {
-  const [key, setKey] = useState('')
-  const [parent, setParent] = useState('')
-  const [msg, setMsg] = useState<string | null>(null)
-  const [err, setErr] = useState<string | null>(null)
-
-  useEffect(() => {
-    setKey(getApiKey() ?? '')
-    setParent(getDefaultRecordedBy())
-  }, [])
-
-  const saveKey = () => {
-    persistApiKey(key.trim())
-    setMsg('Clave guardada en este dispositivo.')
-    setErr(null)
-  }
-
-  const exportJson = async () => {
-    setErr(null)
-    setMsg(null)
-    try {
-      const episodes = await fetchEpisodes()
-      const blob = new Blob([JSON.stringify({ episodes }, null, 2)], {
-        type: 'application/json',
-      })
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `sueno-bebe-${new Date().toISOString().slice(0, 10)}.json`
-      a.click()
-      URL.revokeObjectURL(url)
-      setMsg('Exportación descargada.')
-    } catch (e) {
-      setErr(e instanceof Error ? e.message : 'Error al exportar')
-    }
-  }
-
-  const importJson = (file: File) => {
-    const reader = new FileReader()
-    reader.onload = async () => {
-      setErr(null)
-      setMsg(null)
-      try {
-        const text = String(reader.result)
-        const data = JSON.parse(text) as { episodes?: SleepEpisode[] }
-        const list = data.episodes
-        if (!Array.isArray(list)) throw new Error('Formato inválido: falta episodes[]')
-        for (const ep of list) {
-          await createEpisode({
-            id: ep.id,
-            created_at: ep.created_at,
-            try_start_at: ep.try_start_at,
-            asleep_at: ep.asleep_at,
-            wake_at: ep.wake_at,
-            location: ep.location,
-            source: ep.source,
-            cancelled: Boolean(ep.cancelled),
-            recorded_by: ep.recorded_by ?? null,
-          })
-        }
-        setMsg(`Importados ${list.length} episodios (INSERT OR REPLACE).`)
-      } catch (e) {
-        setErr(e instanceof Error ? e.message : 'Error al importar')
-      }
-    }
-    reader.readAsText(file)
-  }
-
-  const clearAll = async () => {
-    if (!window.confirm('¿Borrar todos los episodios en el servidor? No se puede deshacer.')) return
-    setErr(null)
-    setMsg(null)
-    try {
-      await deleteAllEpisodes()
-      setMsg('Todos los episodios han sido borrados.')
-    } catch (e) {
-      setErr(e instanceof Error ? e.message : 'Error al borrar')
-    }
-  }
-
-  const saveParent = () => {
-    setDefaultRecordedBy(parent)
-    setMsg('Nombre por defecto guardado en este dispositivo.')
-    setErr(null)
-  }
+  const {
+    apiKeyInput,
+    setApiKeyInput,
+    handleSaveApiKey,
+    parentName,
+    setParentName,
+    saveParentName,
+    exportBackup,
+    importBackup,
+    clearAllEpisodes,
+  } = useSleepTracking()
 
   return (
-    <div className="page settings">
-      <header className="measure-header">
-        <h1 className="measure-title">Ajustes</h1>
-        <p className="measure-tagline">Clave API y preferencias</p>
-      </header>
+    <div className="animate-in fade-in z-10 flex min-h-[calc(100vh-6rem)] w-full flex-col space-y-6 p-6 pt-8 duration-300">
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight text-slate-800">Ajustes</h1>
+        <p className="mt-1 text-xs text-slate-500">Configuración local y familia</p>
+      </div>
 
-      {msg ? (
-        <div className="banner banner--ok measure-banner" role="status">
-          {msg}
-        </div>
-      ) : null}
-      {err ? (
-        <div className="banner banner--error measure-banner" role="alert">
-          {err}
-        </div>
-      ) : null}
-
-      <section className="measure-panel">
-        <label className="measure-field">
-          <span className="measure-field__label">Clave API</span>
+      <section className="space-y-4 rounded-3xl bg-white p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+        <label className="flex flex-col gap-2">
+          <span className="text-xs font-semibold tracking-wide text-slate-500">Clave API</span>
           <input
             type="password"
+            value={apiKeyInput}
+            onChange={(e) => setApiKeyInput(e.target.value)}
+            placeholder="Pega aquí API_SECRET"
             autoComplete="off"
-            value={key}
-            onChange={(e) => setKey(e.target.value)}
-            placeholder="Mismo valor que API_SECRET en Cloudflare"
+            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm text-slate-800 outline-none ring-blue-300 focus:ring-2"
           />
         </label>
-        <button type="button" className="btn-pill btn-pill--primary" onClick={saveKey}>
-          Guardar clave
+        <button
+          type="button"
+          onClick={handleSaveApiKey}
+          className="w-full rounded-2xl bg-blue-600 py-4 text-sm font-semibold tracking-wide text-white shadow-[0_10px_25px_rgba(37,99,235,0.3)] transition-all active:scale-[0.98]"
+        >
+          GUARDAR CLAVE
         </button>
       </section>
 
-      <section className="measure-panel">
-        <label className="measure-field">
-          <span className="measure-field__label">Padre / cuidador por defecto</span>
+      <section className="space-y-4 rounded-3xl bg-white p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+        <label className="flex flex-col gap-2">
+          <span className="text-xs font-semibold tracking-wide text-slate-500">Padre / cuidador por defecto</span>
           <input
             type="text"
-            value={parent}
-            onChange={(e) => setParent(e.target.value)}
-            placeholder="Se rellena en Medir automáticamente"
+            value={parentName}
+            onChange={(e) => setParentName(e.target.value)}
+            placeholder="Se usa en formularios de registro"
             maxLength={120}
+            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm text-slate-800 outline-none ring-blue-300 focus:ring-2"
           />
         </label>
-        <button type="button" className="btn-pill btn-pill--secondary" onClick={saveParent}>
+        <button
+          type="button"
+          onClick={saveParentName}
+          className="w-full rounded-2xl border border-slate-200 bg-white py-4 text-sm font-semibold text-slate-800 transition-all active:scale-[0.98]"
+        >
           Guardar nombre
         </button>
       </section>
 
-      <section className="measure-panel">
-        <h2 className="measure-panel__label">Copia de seguridad</h2>
-        <p className="measure-hint">
-          Exporta o importa JSON (misma clave API). Incluye quién registró si estaba guardado.
+      <section className="space-y-3 rounded-3xl bg-white p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+        <h2 className="text-sm font-semibold text-slate-800">Cuenta y familia</h2>
+        <p className="text-xs text-slate-500">
+          El acceso con código OTP llegará en una próxima versión. Mientras tanto puedes usar la app con la clave API.
         </p>
-        <div className="measure-actions measure-actions--row">
-          <button type="button" className="btn-pill btn-pill--outline" onClick={() => void exportJson()}>
+        <Link
+          to="/acceso"
+          className="block rounded-2xl bg-slate-50 px-4 py-3 text-center text-sm font-semibold text-blue-600 hover:bg-slate-100"
+        >
+          Pantalla de acceso (vista previa)
+        </Link>
+        <Link
+          to="/familia"
+          className="block rounded-2xl bg-slate-50 px-4 py-3 text-center text-sm font-semibold text-slate-800 hover:bg-slate-100"
+        >
+          Gestión familiar
+        </Link>
+        <Link
+          to="/registro"
+          className="block rounded-2xl bg-slate-50 px-4 py-3 text-center text-sm font-semibold text-slate-700 hover:bg-slate-100"
+        >
+          Crear cuenta (vista previa)
+        </Link>
+      </section>
+
+      <section className="space-y-4 rounded-3xl bg-white p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+        <h2 className="text-sm font-semibold text-slate-800">Copia de seguridad</h2>
+        <p className="text-xs text-slate-500">Exporta o importa JSON con la misma clave API.</p>
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <button
+            type="button"
+            onClick={() => void exportBackup()}
+            className="flex-1 rounded-2xl border border-slate-200 bg-white py-3 text-sm font-semibold text-slate-800"
+          >
             Exportar JSON
           </button>
-          <label className="btn-pill btn-pill--outline file-btn">
+          <label className="flex flex-1 cursor-pointer items-center justify-center rounded-2xl border border-slate-200 bg-white py-3 text-sm font-semibold text-slate-800">
             Importar JSON
             <input
               type="file"
@@ -163,7 +107,7 @@ export function SettingsPage() {
               className="sr-only"
               onChange={(e) => {
                 const f = e.target.files?.[0]
-                if (f) importJson(f)
+                if (f) void importBackup(f)
                 e.target.value = ''
               }}
             />
@@ -171,9 +115,15 @@ export function SettingsPage() {
         </div>
       </section>
 
-      <section className="measure-panel measure-panel--danger">
-        <h2 className="measure-panel__label">Zona sensible</h2>
-        <button type="button" className="btn-pill btn-pill--danger" onClick={() => void clearAll()}>
+      <section className="space-y-3 rounded-3xl border border-rose-100 bg-rose-50/50 p-6">
+        <h2 className="text-sm font-semibold text-rose-900">Zona sensible</h2>
+        <button
+          type="button"
+          onClick={() => {
+            if (window.confirm('¿Borrar todos los episodios en el servidor? No se puede deshacer.')) void clearAllEpisodes()
+          }}
+          className="w-full rounded-2xl bg-rose-600 py-4 text-sm font-semibold text-white"
+        >
           Borrar todos los episodios
         </button>
       </section>

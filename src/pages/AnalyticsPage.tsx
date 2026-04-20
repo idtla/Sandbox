@@ -1,177 +1,189 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { deleteEpisode, fetchEpisodes, getApiKey } from '../api/client'
-import { dayKeyLocal, formatDuration } from '../lib/time'
+import { useCallback, useState } from 'react'
+import { ProgressBar } from '../components/SleepUi'
+import { useSleepTracking } from '../context/sleepTracking'
+import { formatDuration } from '../lib/time'
 import type { SleepEpisode } from '../types/episode'
 
-type DayAgg = {
-  day: string
-  totalSleepMs: number
-  naps: number
-  sumTimeToSleepMs: number
-  countTimeToSleep: number
-}
-
-function aggregateByDay(episodes: SleepEpisode[]): DayAgg[] {
-  const map = new Map<string, DayAgg>()
-  for (const ep of episodes) {
-    if (ep.cancelled || ep.asleep_at == null || ep.wake_at == null) continue
-    const day = dayKeyLocal(ep.try_start_at)
-    const sleepDur = ep.wake_at - ep.asleep_at
-    const tts = ep.asleep_at - ep.try_start_at
-    if (!map.has(day)) {
-      map.set(day, {
-        day,
-        totalSleepMs: 0,
-        naps: 0,
-        sumTimeToSleepMs: 0,
-        countTimeToSleep: 0,
-      })
-    }
-    const agg = map.get(day)!
-    agg.totalSleepMs += sleepDur
-    agg.naps += 1
-    if (tts >= 0) {
-      agg.sumTimeToSleepMs += tts
-      agg.countTimeToSleep += 1
-    }
-  }
-  return [...map.values()].sort((a, b) => (a.day < b.day ? 1 : -1))
-}
-
 export function AnalyticsPage() {
-  const [items, setItems] = useState<SleepEpisode[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const {
+    spainDate,
+    spainTime,
+    mockWeeklyData,
+    avgMamaTTS,
+    avgPapaTTS,
+    avgCuidadorTTS,
+    avgAcunadaTTS,
+    avgCunaTTS,
+    episodes,
+    reloadEpisodes,
+    removeEpisode,
+    setError,
+  } = useSleepTracking()
 
-  const load = useCallback(async () => {
-    if (!getApiKey()) {
-      setError('Configura la clave API en Ajustes.')
-      setItems([])
-      setLoading(false)
-      return
-    }
+  const [loading, setLoading] = useState(false)
+
+  const refresh = useCallback(async () => {
     setLoading(true)
-    setError(null)
     try {
-      const eps = await fetchEpisodes()
-      setItems(eps)
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Error al cargar')
-      setItems([])
+      await reloadEpisodes()
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [reloadEpisodes])
 
-  useEffect(() => {
-    void load()
-  }, [load])
-
-  const byDay = useMemo(() => aggregateByDay(items), [items])
-
-  const remove = async (id: string) => {
+  const onRemove = async (id: string) => {
     if (!window.confirm('¿Borrar este episodio?')) return
     try {
-      await deleteEpisode(id)
-      await load()
+      await removeEpisode(id)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Error al borrar')
     }
   }
 
   return (
-    <div className="page analytics">
-      <header className="analytics-hero">
-        <p className="analytics-hero__eyebrow">Resumen</p>
-        <h1 className="analytics-hero__title">Analíticas</h1>
-        <button type="button" className="analytics-refresh" onClick={() => void load()}>
-          Actualizar
-        </button>
-      </header>
-
-      {error ? (
-        <div className="analytics-alert analytics-alert--error" role="alert">
-          {error}
+    <div className="animate-in fade-in z-10 flex min-h-[calc(100vh-6rem)] w-full flex-col space-y-6 p-6 pt-8 duration-300">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight text-slate-800">Analíticas</h1>
+          <p className="mt-1 text-xs text-slate-500">
+            {spainDate} · {spainTime} (España)
+          </p>
         </div>
-      ) : null}
+        <button
+          type="button"
+          onClick={() => void refresh()}
+          className="shrink-0 rounded-xl bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-200"
+        >
+          {loading ? '…' : 'Actualizar'}
+        </button>
+      </div>
 
-      {loading ? <p className="analytics-muted">Cargando…</p> : null}
+      <div className="space-y-4 rounded-3xl bg-white p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+        <div className="mb-2 flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-slate-800">Ciclo Semanal</h3>
+          <div className="rounded-md bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-800">Semana</div>
+        </div>
+        <div className="mt-4 flex h-48 items-end justify-between gap-1 sm:gap-2">
+          {mockWeeklyData.map((d, i) => {
+            const isToday = d.day === 'V'
+            const hasData = d.duration > 0
+            const heightPct = hasData ? (d.duration / 16) * 100 : 0
+            return (
+              <div key={i} className="flex flex-1 flex-col items-center gap-3">
+                <div
+                  className={`relative flex h-40 w-full max-w-[2.75rem] flex-col items-center justify-end rounded-full transition-all duration-500 ${
+                    isToday
+                      ? 'bg-gradient-to-b from-blue-400 to-blue-600 shadow-[0_8px_20px_rgba(37,99,235,0.3)]'
+                      : hasData
+                        ? 'bg-gradient-to-b from-slate-50 to-slate-100/50'
+                        : 'bg-transparent'
+                  }`}
+                >
+                  {isToday && hasData ? (
+                    <div className="absolute -top-3.5 z-20 whitespace-nowrap rounded-full bg-blue-600 px-2.5 py-1 text-[10px] font-bold text-white shadow-md">
+                      {Math.round(d.duration)} hrs
+                    </div>
+                  ) : null}
 
-      {!loading && byDay.length === 0 && !error ? (
-        <p className="analytics-muted">Aún no hay episodios completados.</p>
-      ) : null}
-
-      <section className="analytics-days">
-        {byDay.map((d) => (
-          <article key={d.day} className="analytics-day-card">
-            <time className="analytics-day-card__date" dateTime={d.day}>
-              {d.day}
-            </time>
-            <ul className="analytics-stats">
-              <li>
-                <span className="analytics-stats__label">Sueño total</span>
-                <span className="analytics-stats__value">{formatDuration(d.totalSleepMs)}</span>
-              </li>
-              <li>
-                <span className="analytics-stats__label">Siestas</span>
-                <span className="analytics-stats__value analytics-stats__value--accent">{d.naps}</span>
-              </li>
-              <li>
-                <span className="analytics-stats__label">Media hasta dormir</span>
-                <span className="analytics-stats__value">
-                  {d.countTimeToSleep > 0
-                    ? formatDuration(d.sumTimeToSleepMs / d.countTimeToSleep)
-                    : '—'}
-                </span>
-              </li>
-            </ul>
-          </article>
-        ))}
-      </section>
-
-      <section className="analytics-feed">
-        <h2 className="analytics-feed__title">Episodios</h2>
-        <ul className="analytics-feed-list">
-          {items.map((ep) => (
-            <li key={ep.id} className="analytics-feed-item">
-              <div className="analytics-feed-item__body">
-                <div className="analytics-feed-item__row">
-                  <span className="analytics-feed-item__time">
-                    {new Date(ep.try_start_at).toLocaleString('es-ES', {
-                      weekday: 'short',
-                      day: 'numeric',
-                      month: 'short',
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
-                  </span>
-                  <span className="analytics-tag">{ep.location}</span>
-                  <span className="analytics-tag analytics-tag--soft">{ep.source}</span>
+                  {hasData ? (
+                    <div
+                      className="absolute bottom-4 flex w-full flex-col items-center justify-between transition-all duration-1000 ease-out"
+                      style={{ height: `${Math.max(15, heightPct)}%` }}
+                    >
+                      <div
+                        className={`z-10 h-2.5 w-2.5 shrink-0 rounded-full ${isToday ? 'bg-white shadow-[0_0_8px_rgba(255,255,255,0.8)]' : 'bg-blue-600'}`}
+                      />
+                      <div className={`z-0 -my-0.5 flex-1 w-[2px] ${isToday ? 'bg-white/50' : 'bg-slate-300'}`} />
+                      <div
+                        className={`z-10 h-3.5 w-3.5 shrink-0 rounded-full border-[2.5px] ${isToday ? 'border-white bg-blue-600' : 'border-blue-600 bg-white'}`}
+                      />
+                    </div>
+                  ) : (
+                    <div className="absolute bottom-4 flex w-full flex-col items-center">
+                      <div className="h-3.5 w-3.5 shrink-0 rounded-full border-[2.5px] border-slate-200 bg-transparent" />
+                    </div>
+                  )}
                 </div>
-                {ep.recorded_by ? (
-                  <p className="analytics-feed-item__who">{ep.recorded_by}</p>
-                ) : null}
-                {ep.cancelled ? (
-                  <p className="analytics-muted">Cancelado</p>
-                ) : ep.asleep_at != null && ep.wake_at != null ? (
-                  <p className="analytics-feed-item__metrics">
-                    <span className="analytics-metric">
-                      Intento <em>{formatDuration(ep.asleep_at - ep.try_start_at)}</em>
-                    </span>
-                    <span className="analytics-metric">
-                      Sueño <em>{formatDuration(ep.wake_at - ep.asleep_at)}</em>
-                    </span>
-                  </p>
-                ) : (
-                  <p className="analytics-muted">Incompleto</p>
-                )}
+                <span className={`text-xs font-semibold ${isToday ? 'text-blue-600' : 'text-slate-400'}`}>{d.day}</span>
               </div>
-              <button type="button" className="analytics-delete" onClick={() => void remove(ep.id)}>
-                Borrar
-              </button>
-            </li>
-          ))}
-        </ul>
+            )
+          })}
+        </div>
+        <div className="mt-4 flex gap-4 border-t border-slate-100 pt-4 text-[10px] font-medium uppercase tracking-wider text-slate-500">
+          <span className="flex items-center gap-1.5">
+            <div className="h-2.5 w-2.5 rounded-full bg-blue-600" />
+            Total Dormido
+          </span>
+          <span className="flex items-center gap-1.5">
+            <div className="h-2.5 w-2.5 rounded-full border-[2px] border-blue-600 bg-transparent" />
+            Inicio de sueño
+          </span>
+        </div>
+      </div>
+
+      <div className="space-y-6 rounded-3xl bg-white p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+        <h3 className="text-sm font-semibold text-slate-800">Desempeño en dormir (Media)</h3>
+        <div className="space-y-5">
+          <ProgressBar label="Mamá" value={avgMamaTTS} max={60} colorClass="bg-blue-500" />
+          <ProgressBar label="Papá" value={avgPapaTTS} max={60} colorClass="bg-indigo-400" />
+          <ProgressBar label="Cuidador" value={avgCuidadorTTS} max={60} colorClass="bg-slate-500" />
+        </div>
+        <div className="h-px w-full bg-slate-100" />
+        <div className="space-y-5">
+          <ProgressBar label="Acunada" value={avgAcunadaTTS} max={60} colorClass="bg-emerald-400" />
+          <ProgressBar label="En cuna" value={avgCunaTTS} max={60} colorClass="bg-amber-400" />
+        </div>
+      </div>
+
+      <section className="rounded-3xl bg-white p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+        <h2 className="mb-4 text-sm font-semibold text-slate-800">Episodios recientes</h2>
+        {episodes.length === 0 ? (
+          <p className="text-sm text-slate-500">Aún no hay episodios completados.</p>
+        ) : (
+          <ul className="space-y-3">
+            {episodes.map((ep: SleepEpisode) => (
+              <li
+                key={ep.id}
+                className="flex flex-col gap-2 rounded-2xl bg-slate-50 p-4 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2 text-xs text-slate-600">
+                    <span>
+                      {new Date(ep.try_start_at).toLocaleString('es-ES', {
+                        weekday: 'short',
+                        day: 'numeric',
+                        month: 'short',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
+                    </span>
+                    <span className="rounded-full bg-blue-100 px-2 py-0.5 font-medium text-blue-700">{ep.location}</span>
+                    <span className="rounded-full bg-slate-200/80 px-2 py-0.5 text-slate-600">{ep.source}</span>
+                  </div>
+                  {ep.recorded_by ? <p className="mt-1 text-sm text-slate-700">{ep.recorded_by}</p> : null}
+                  {!ep.cancelled && ep.asleep_at != null && ep.wake_at != null ? (
+                    <p className="mt-2 text-xs text-slate-500">
+                      Intento <em className="not-italic text-slate-800">{formatDuration(ep.asleep_at - ep.try_start_at)}</em>
+                      {' · '}
+                      Sueño <em className="not-italic text-slate-800">{formatDuration(ep.wake_at - ep.asleep_at)}</em>
+                    </p>
+                  ) : ep.cancelled ? (
+                    <p className="mt-1 text-xs text-amber-700">Cancelado</p>
+                  ) : (
+                    <p className="mt-1 text-xs text-slate-500">Incompleto</p>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  className="shrink-0 rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-700 hover:bg-rose-50"
+                  onClick={() => void onRemove(ep.id)}
+                >
+                  Borrar
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
     </div>
   )

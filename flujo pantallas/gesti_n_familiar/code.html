@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Lullaby Metrics - Family Management</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-surface": "#2c3437",
+                        "on-secondary": "#f7f9ff",
+                        "secondary-fixed": "#d3e4fe",
+                        "secondary-dim": "#44546a",
+                        "tertiary": "#006787",
+                        "on-tertiary-container": "#00465d",
+                        "on-tertiary-fixed": "#003041",
+                        "tertiary-fixed": "#7bd1fa",
+                        "primary-dim": "#0049c2",
+                        "tertiary-container": "#7bd1fa",
+                        "surface-container-lowest": "#ffffff",
+                        "background": "#f7f9fb",
+                        "on-secondary-fixed": "#314055",
+                        "outline-variant": "#acb3b7",
+                        "secondary-container": "#d3e4fe",
+                        "primary-fixed-dim": "#2d68f0",
+                        "error-dim": "#67040d",
+                        "secondary": "#506076",
+                        "surface-container-low": "#f0f4f7",
+                        "surface-container": "#eaeff2",
+                        "on-background": "#2c3437",
+                        "on-error": "#fff7f6",
+                        "tertiary-fixed-dim": "#6cc3eb",
+                        "on-secondary-container": "#435368",
+                        "primary-container": "#3e76fe",
+                        "on-primary": "#faf8ff",
+                        "on-error-container": "#6e0a12",
+                        "inverse-primary": "#618bff",
+                        "error-container": "#fa746f",
+                        "on-surface-variant": "#596064",
+                        "surface-dim": "#d4dbdf",
+                        "on-tertiary-fixed-variant": "#004f69",
+                        "surface-container-high": "#e3e9ed",
+                        "on-primary-fixed-variant": "#f9f7ff",
+                        "error": "#a83836",
+                        "on-tertiary": "#f3faff",
+                        "inverse-surface": "#0b0f10",
+                        "surface-variant": "#dce4e8",
+                        "primary-fixed": "#3e76fe",
+                        "on-primary-container": "#000000",
+                        "surface-tint": "#0053dc",
+                        "surface-bright": "#f7f9fb",
+                        "on-primary-fixed": "#ffffff",
+                        "outline": "#747c80",
+                        "on-secondary-fixed-variant": "#4d5d73",
+                        "tertiary-dim": "#005a77",
+                        "secondary-fixed-dim": "#c5d6f0",
+                        "surface-container-highest": "#dce4e8",
+                        "inverse-on-surface": "#9a9d9f",
+                        "primary": "#0053dc",
+                        "surface": "#f7f9fb"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {},
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Manrope', sans-serif; background-color: #f7f9fb; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface min-h-screen flex flex-col antialiased">
+<!-- TopAppBar -->
+<header class="bg-[#f7f9fb]/80 dark:bg-slate-950/80 backdrop-blur-md text-[#0053dc] dark:text-blue-400 font-['Manrope'] font-bold text-on-surface dark:text-slate-100 docked full-width top-0 sticky z-40 transition-opacity hover:opacity-80">
+<div class="flex justify-between items-center w-full px-6 py-4">
+<button class="text-primary hover:bg-surface-container-low p-2 rounded-full transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">arrow_back</span>
+</button>
+<h1 class="text-xl font-extrabold tracking-tight text-[#0053dc] dark:text-blue-400">Lullaby Metrics</h1>
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary/20">
+<img alt="User profile avatar" class="w-full h-full object-cover" data-alt="Portrait of a young woman with a soft smile in gentle daylight" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCWYYgUfMLMRMKbYPaZ3EQG7X6Pd01PNz9F46jFkT-V2UHYclf9HTdZ4z0eWfeRMtMvJ4lMZ6sRDKQIqenfbEN7D0TjBBz-Yw3VOFliuAOwS_v9fTVTL_Ip7upkObmql1cqmLoWGYg9uTcd5XQW0beZNk6IW2ecQ-YrZ02njV0spWLF_iVBwES0_d_zRkhqWQkEtAstsl6RS8GBu9ATCLvsGU-tsOfNTbbJ8tafDwUJzwbG2AZkQVGvGMZNdB12JxpxKMQNHPL0JbU"/>
+</div>
+</div>
+</header>
+<main class="flex-grow px-6 pt-6 pb-32 max-w-3xl mx-auto w-full space-y-8">
+<!-- Header Section -->
+<section class="space-y-2">
+<h2 class="text-3xl font-headline font-bold text-on-surface tracking-tight">Family Care Circle</h2>
+<p class="text-on-surface-variant text-base leading-relaxed">Manage who has access to your little one's sleep metrics. A calm mind starts with shared responsibility.</p>
+</section>
+<!-- Current Members List -->
+<section class="space-y-6">
+<h3 class="text-xl font-headline font-semibold text-on-surface">Current Members</h3>
+<div class="grid grid-cols-1 gap-6">
+<!-- Member Card: Primary -->
+<div class="bg-surface-container-lowest rounded-lg p-6 flex items-center justify-between shadow-[0_8px_32px_rgba(0,0,0,0.03)] border-0">
+<div class="flex items-center space-x-4">
+<div class="w-14 h-14 rounded-full overflow-hidden bg-surface-container flex-shrink-0">
+<img alt="Sarah - Mother" class="w-full h-full object-cover" data-alt="Portrait of a young woman with a soft smile in gentle daylight" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAtcINgR0znFpcYw-eF-gjqGo2VL78U9pYNVeceP5aqTtx_c0zpWUToDthgS_bSY3P-FNdYBAFNa5wE_Z0oQ14IDOE_hBG11PxFQ_c608rfsTu_XhS9eftCxHxA4r8iDpQT8RD7sYtkrg7pR7bjXib47ApLrt1Y_aXf5I4aVm94688iMjnKvROr8b9AyKDnko2dIigjNqjHPw-n-W9mP-PWR4CYhK4BsIJYO96gwx5AF0Ro9-dFG9bHWrTe_LHSX2EhZfSy4dSA3RU"/>
+</div>
+<div>
+<h4 class="text-lg font-bold text-on-surface">Sarah</h4>
+<p class="text-sm text-primary font-medium">Primary Caregiver (You)</p>
+</div>
+</div>
+</div>
+<!-- Member Card: Secondary -->
+<div class="bg-surface-container-lowest rounded-lg p-6 flex items-center justify-between shadow-[0_8px_32px_rgba(0,0,0,0.03)] border-0">
+<div class="flex items-center space-x-4">
+<div class="w-14 h-14 rounded-full overflow-hidden bg-surface-container flex-shrink-0">
+<img alt="Michael - Father" class="w-full h-full object-cover" data-alt="Portrait of a young man looking relaxed outdoors" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCZpybMjoOlqQWSVg-7tBFSVYh5Yc63xEU9spH_wznE3KIdfSbIxkRR9tU93ILtv70sU1Y3wgq7bN2Sc0iEXg__cf-VrXVQrUFzMEzNv7wa6EKa0Ecx09Lt6XdwFWXb7Nd6-XKhUA5WGBL86kulOML00q2AQ4i0wv0y6se9Lmvcn0UHGafyfZwiJmUXvrRoa_NBJdUwRkgHhL6su8MGsVOQ6ni_aiuQqx3chfNdSZ1gV18HOrutCVCewbsQSshS9a2wcCmAk6s8SjA"/>
+</div>
+<div>
+<h4 class="text-lg font-bold text-on-surface">Michael</h4>
+<p class="text-sm text-on-surface-variant">Co-Parent</p>
+</div>
+</div>
+<button class="text-on-surface-variant hover:text-primary p-2 transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<!-- Member Card: Invited/Pending -->
+<div class="bg-surface-container-lowest/60 rounded-lg p-6 flex items-center justify-between border-0">
+<div class="flex items-center space-x-4 opacity-70">
+<div class="w-14 h-14 rounded-full bg-surface-container flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-on-surface-variant">person</span>
+</div>
+<div>
+<h4 class="text-lg font-bold text-on-surface">grandma@example.com</h4>
+<p class="text-sm text-tertiary font-medium">Invitation Pending</p>
+</div>
+</div>
+<button class="text-xs font-semibold text-primary bg-primary/10 px-3 py-1.5 rounded-full hover:bg-primary/20 transition-colors">Resend</button>
+</div>
+</div>
+</section>
+<!-- Actions: Invite & Join -->
+<section class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
+<!-- Invite New Caregiver -->
+<div class="bg-surface-container-lowest rounded-lg p-8 shadow-[0_8px_32px_rgba(0,0,0,0.03)] flex flex-col justify-between h-full space-y-6">
+<div>
+<div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+<span class="material-symbols-outlined text-primary text-2xl">person_add</span>
+</div>
+<h3 class="text-xl font-bold text-on-surface mb-2">Invite a Caregiver</h3>
+<p class="text-sm text-on-surface-variant leading-relaxed">Send an email invitation to a nanny, grandparent, or co-parent to share sleep tracking duties.</p>
+</div>
+<form class="space-y-4 w-full">
+<div class="relative">
+<input class="w-full bg-surface-container-low text-on-surface rounded-DEFAULT px-4 py-4 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all placeholder:text-outline-variant border-0" placeholder="Caregiver's email address" type="email"/>
+<div class="absolute inset-x-0 bottom-0 h-0.5 bg-primary scale-x-0 origin-left transition-transform duration-300 focus-within:scale-x-100"></div>
+</div>
+<button class="w-full rounded-xl bg-gradient-to-r from-primary to-primary-container text-on-primary font-bold text-base py-4 hover:opacity-90 transition-opacity shadow-[0_8px_32px_rgba(0,83,220,0.2)]" type="button">
+                        Send Invitation
+                    </button>
+</form>
+</div>
+<!-- Join Existing Family -->
+<div class="bg-surface-container rounded-lg p-8 flex flex-col justify-between h-full space-y-6">
+<div>
+<div class="w-12 h-12 rounded-full bg-tertiary/10 flex items-center justify-center mb-4">
+<span class="material-symbols-outlined text-tertiary text-2xl">vpn_key</span>
+</div>
+<h3 class="text-xl font-bold text-on-surface mb-2">Join a Family</h3>
+<p class="text-sm text-on-surface-variant leading-relaxed">Have an invite code from another primary caregiver? Enter it below to link your accounts.</p>
+</div>
+<form class="space-y-4 w-full">
+<div class="relative">
+<input class="w-full bg-surface-container-lowest text-on-surface rounded-DEFAULT px-4 py-4 focus:outline-none focus:ring-2 focus:ring-tertiary/50 transition-all placeholder:text-outline-variant border-0 text-center tracking-widest font-mono text-lg" placeholder="Enter 6-digit invite code" type="text"/>
+</div>
+<button class="w-full rounded-xl bg-surface-container-lowest text-tertiary font-bold text-base py-4 hover:bg-surface-bright transition-colors border border-outline-variant/15" type="button">
+                        Verify Code
+                    </button>
+</form>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl text-[#0053dc] dark:text-blue-400 font-['Manrope'] text-[11px] font-semibold uppercase tracking-wider docked full-width bottom-0 rounded-t-[2.5rem] shadow-[0_-8px_40px_rgba(0,0,0,0.04)] fixed bottom-0 w-full z-50 flex justify-around items-center px-4 pb-8 pt-3 md:hidden">
+<button class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 px-4 py-2 hover:text-[#0053dc] dark:hover:text-blue-300 transition-all">
+<span class="material-symbols-outlined mb-1 text-[24px]">home</span>
+<span>Home</span>
+</button>
+<button class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 px-4 py-2 hover:text-[#0053dc] dark:hover:text-blue-300 transition-all">
+<span class="material-symbols-outlined mb-1 text-[24px]">timer</span>
+<span>Measure</span>
+</button>
+<button class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 px-4 py-2 hover:text-[#0053dc] dark:hover:text-blue-300 transition-all">
+<span class="material-symbols-outlined mb-1 text-[24px]">analytics</span>
+<span>Insights</span>
+</button>
+<button class="flex flex-col items-center justify-center bg-blue-50/50 dark:bg-blue-900/20 text-[#0053dc] dark:text-blue-300 rounded-full px-4 py-2 hover:text-[#0053dc] dark:hover:text-blue-300 transition-all active:scale-90 duration-300 ease-out">
+<span class="material-symbols-outlined mb-1 text-[24px]" style="font-variation-settings: 'FILL' 1;">family_restroom</span>
+<span>Family</span>
+</button>
+</nav>
+</body></html>

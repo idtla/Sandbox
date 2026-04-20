@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sleep Guardian - Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-container": "#7bd1fa",
+                        "tertiary-dim": "#005a77",
+                        "surface": "#f7f9fb",
+                        "on-secondary": "#f7f9ff",
+                        "primary-fixed-dim": "#2d68f0",
+                        "inverse-primary": "#618bff",
+                        "on-surface-variant": "#596064",
+                        "primary-fixed": "#3e76fe",
+                        "on-secondary-fixed-variant": "#4d5d73",
+                        "tertiary-fixed-dim": "#6cc3eb",
+                        "on-tertiary-container": "#00465d",
+                        "tertiary": "#006787",
+                        "secondary-dim": "#44546a",
+                        "primary-container": "#3e76fe",
+                        "on-secondary-container": "#435368",
+                        "primary-dim": "#0049c2",
+                        "background": "#f7f9fb",
+                        "tertiary-fixed": "#7bd1fa",
+                        "surface-container-low": "#f0f4f7",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-tint": "#0053dc",
+                        "on-primary": "#faf8ff",
+                        "on-error": "#fff7f6",
+                        "error": "#a83836",
+                        "surface-bright": "#f7f9fb",
+                        "on-background": "#2c3437",
+                        "surface-variant": "#dce4e8",
+                        "primary": "#0053dc",
+                        "on-tertiary-fixed-variant": "#004f69",
+                        "error-dim": "#67040d",
+                        "on-primary-fixed-variant": "#f9f7ff",
+                        "on-tertiary": "#f3faff",
+                        "on-secondary-fixed": "#314055",
+                        "on-primary-container": "#000000",
+                        "error-container": "#fa746f",
+                        "surface-dim": "#d4dbdf",
+                        "secondary-fixed": "#d3e4fe",
+                        "surface-container": "#eaeff2",
+                        "inverse-on-surface": "#9a9d9f",
+                        "outline-variant": "#acb3b7",
+                        "inverse-surface": "#0b0f10",
+                        "on-primary-fixed": "#ffffff",
+                        "secondary-container": "#d3e4fe",
+                        "on-error-container": "#6e0a12",
+                        "on-surface": "#2c3437",
+                        "surface-container-high": "#e3e9ed",
+                        "secondary": "#506076",
+                        "on-tertiary-fixed": "#003041",
+                        "outline": "#747c80",
+                        "secondary-fixed-dim": "#c5d6f0",
+                        "surface-container-highest": "#dce4e8"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {},
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Manrope', sans-serif;
+            background-color: #f7f9fb; /* surface */
+            color: #2c3437; /* on-surface */
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.filled {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        /* Ambient Glow for floating elements */
+        .ambient-glow {
+            box-shadow: 0 8px 32px rgba(44, 52, 55, 0.04);
+        }
+        
+        /* Subtle Gradient Text */
+        .text-gradient {
+            background: linear-gradient(135deg, #0053dc, #3e76fe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Glassmorphism utility */
+        .glass {
+            background-color: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen pb-24 pt-20">
+<!-- TopAppBar Shared Component -->
+<header class="fixed top-0 w-full z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl shadow-sm shadow-blue-900/5 bg-slate-50/50 no-border">
+<div class="flex justify-between items-center px-6 h-16 w-full max-w-md mx-auto relative">
+<!-- Leading Avatar -->
+<button class="w-10 h-10 rounded-full overflow-hidden bg-surface-container-high border-2 border-surface-container-lowest focus:outline-none transition-transform hover:scale-105">
+<img alt="Baby profile photo" class="w-full h-full object-cover" data-alt="Close up portrait of a peacefully sleeping baby with soft natural light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCcJof8BUfl_c8fx-cixYEE4rKWeG8OYugXyUBjhXVLaVqXw3yKhXsSvgHgjwtLsGQ_Ursm0QOTMERAbgKLEzXsVTg1TMaky93PIv6iZvtIxmyTzflbyWqZf761ezll8e1r_Ab2f0mcyO_6cxRU3WSKXrzKEfMJFRkYkRZTgyW2dqIwoaIqcLoesqN7MzaQSJbUPzUuS4B0o8dB7jwj1ooBo4oRr65hnXnI909b3H5w2o3APs3kuMXP9ATgEEhb_0_5pX-aNPkZ08U"/>
+</button>
+<!-- Headline -->
+<h1 class="font-manrope text-xl font-bold text-blue-700 dark:text-blue-400 tracking-tight absolute left-1/2 transform -translate-x-1/2">
+                Sleep Guardian
+            </h1>
+<!-- Trailing Icon -->
+<button class="p-2 rounded-full text-slate-500 hover:bg-slate-100/50 transition-colors focus:outline-none">
+<span class="material-symbols-outlined text-[24px]">notifications</span>
+</button>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="max-w-md mx-auto px-6 space-y-8">
+<!-- Welcome Header -->
+<div class="pt-4 flex flex-col items-start space-y-1">
+<p class="font-label text-sm text-on-surface-variant font-medium tracking-wide">HOY</p>
+<h2 class="font-headline text-3xl font-extrabold text-on-background tracking-tight">Buenos días,<br/>Emma</h2>
+</div>
+<!-- The Guardian Timer (Sleep Score) - Bespoke Component -->
+<section class="flex flex-col items-center justify-center py-6 relative">
+<div class="relative w-64 h-64 flex items-center justify-center">
+<!-- Outer decorative ring -->
+<svg class="absolute w-full h-full transform -rotate-90" viewbox="0 0 100 100">
+<circle cx="50" cy="50" fill="none" r="45" stroke="#f0f4f7" stroke-width="2"></circle>
+<!-- Progress Arc (85%) -->
+<circle cx="50" cy="50" fill="none" r="45" stroke="url(#gradient)" stroke-dasharray="283" stroke-dashoffset="42" stroke-linecap="round" stroke-width="4"></circle>
+<defs>
+<lineargradient id="gradient" x1="0%" x2="100%" y1="0%" y2="100%">
+<stop offset="0%" stop-color="#0053dc"></stop>
+<stop offset="100%" stop-color="#3e76fe"></stop>
+</lineargradient>
+</defs>
+</svg>
+<!-- Inner Content -->
+<div class="absolute flex flex-col items-center justify-center rounded-full w-48 h-48 bg-surface-container-lowest ambient-glow z-10">
+<span class="font-headline text-[3.5rem] font-extrabold text-gradient leading-none tracking-tighter">85</span>
+<span class="font-label text-sm text-on-surface-variant mt-1 font-medium">Calidad de Sueño</span>
+</div>
+<!-- Decorative glowing orb behind -->
+<div class="absolute w-40 h-40 bg-primary-container rounded-full blur-[40px] opacity-20 -z-10"></div>
+</div>
+<p class="mt-6 text-center font-body text-secondary text-sm px-4 max-w-[280px]">
+                Emma tuvo un sueño reparador esta noche. Sus ciclos fueron profundos y consistentes.
+            </p>
+</section>
+<!-- Sleep Fluency Card (Bento Style) -->
+<section class="bg-surface-container-lowest rounded-lg p-6 flex flex-col space-y-6">
+<div class="flex justify-between items-center">
+<h3 class="font-headline text-lg font-bold text-on-background">Fluidez del Sueño</h3>
+<span class="material-symbols-outlined text-primary text-[20px]">insights</span>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<!-- Metric 1 -->
+<div class="bg-surface-container-low rounded-DEFAULT p-4 flex flex-col justify-between h-28 border border-transparent hover:border-surface-variant transition-colors">
+<span class="font-label text-xs text-on-surface-variant font-medium uppercase tracking-wider">Duración Total</span>
+<div class="flex items-end space-x-1">
+<span class="font-headline text-2xl font-bold text-on-background">10</span>
+<span class="font-body text-sm text-secondary pb-1">h</span>
+<span class="font-headline text-2xl font-bold text-on-background ml-1">15</span>
+<span class="font-body text-sm text-secondary pb-1">m</span>
+</div>
+</div>
+<!-- Metric 2 -->
+<div class="bg-surface-container-low rounded-DEFAULT p-4 flex flex-col justify-between h-28 border border-transparent hover:border-surface-variant transition-colors">
+<span class="font-label text-xs text-on-surface-variant font-medium uppercase tracking-wider">Despertares</span>
+<div class="flex items-end space-x-1">
+<span class="font-headline text-2xl font-bold text-tertiary">2</span>
+<span class="font-body text-sm text-secondary pb-1">veces</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Last Session Summary (Asymmetric Layout) -->
+<section class="bg-surface-container-lowest rounded-lg p-6 relative overflow-hidden">
+<!-- Decorative background shape -->
+<div class="absolute -right-10 -top-10 w-32 h-32 bg-secondary-container rounded-full opacity-50 blur-2xl"></div>
+<div class="relative z-10">
+<div class="flex items-center space-x-3 mb-4">
+<div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-[18px]">bedtime</span>
+</div>
+<h3 class="font-headline text-lg font-bold text-on-background">Última Sesión</h3>
+</div>
+<div class="flex justify-between items-end border-l-2 border-surface-container-high pl-4 py-1">
+<div class="flex flex-col space-y-1">
+<span class="font-body text-sm text-on-background font-medium">8:30 PM - 6:45 AM</span>
+<span class="font-label text-xs text-on-surface-variant">Sueño Nocturno</span>
+</div>
+<button class="flex items-center space-x-1 text-primary hover:text-primary-dim transition-colors">
+<span class="font-label text-sm font-semibold">Detalles</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Spacer for Bottom Nav -->
+<div class="h-8"></div>
+</main>
+<!-- BottomNavBar Shared Component -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 py-3 pb-8 z-50 rounded-t-[2.5rem] glass no-border shadow-[0_-8px_32px_rgba(0,83,220,0.06)] bg-gradient-to-b from-white/20 to-transparent md:hidden">
+<!-- Active Tab: Inicio -->
+<button class="flex flex-col items-center justify-center bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full px-5 py-2 scale-95 duration-150 transition-all">
+<span class="material-symbols-outlined filled text-[24px] mb-1">home</span>
+<span class="font-manrope text-[11px] font-semibold uppercase tracking-wider">Inicio</span>
+</button>
+<!-- Inactive Tab: Medir -->
+<button class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 p-2 hover:text-blue-600 transition-all">
+<span class="material-symbols-outlined text-[24px] mb-1">timer</span>
+<span class="font-manrope text-[11px] font-semibold uppercase tracking-wider">Medir</span>
+</button>
+<!-- Inactive Tab: Análisis -->
+<button class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 p-2 hover:text-blue-600 transition-all">
+<span class="material-symbols-outlined text-[24px] mb-1">leaderboard</span>
+<span class="font-manrope text-[11px] font-semibold uppercase tracking-wider">Análisis</span>
+</button>
+<!-- Inactive Tab: Ajustes -->
+<button class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 p-2 hover:text-blue-600 transition-all">
+<span class="material-symbols-outlined text-[24px] mb-1">settings</span>
+<span class="font-manrope text-[11px] font-semibold uppercase tracking-wider">Ajustes</span>
+</button>
+</nav>
+<!-- Floating Action Button (FAB) - Quick Log -->
+<div class="fixed bottom-28 right-6 z-40 md:hidden">
+<button class="w-14 h-14 rounded-full bg-gradient-to-br from-primary to-primary-container text-on-primary flex items-center justify-center shadow-[0_8px_32px_rgba(0,83,220,0.3)] hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-[28px]">add</span>
+</button>
+</div>
+</body></html>

@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+
+<html lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sleep Guardian - Medir Sueño</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-container": "#7bd1fa",
+                        "tertiary-dim": "#005a77",
+                        "surface": "#f7f9fb",
+                        "on-secondary": "#f7f9ff",
+                        "primary-fixed-dim": "#2d68f0",
+                        "inverse-primary": "#618bff",
+                        "on-surface-variant": "#596064",
+                        "primary-fixed": "#3e76fe",
+                        "on-secondary-fixed-variant": "#4d5d73",
+                        "tertiary-fixed-dim": "#6cc3eb",
+                        "on-tertiary-container": "#00465d",
+                        "tertiary": "#006787",
+                        "secondary-dim": "#44546a",
+                        "primary-container": "#3e76fe",
+                        "on-secondary-container": "#435368",
+                        "primary-dim": "#0049c2",
+                        "background": "#f7f9fb",
+                        "tertiary-fixed": "#7bd1fa",
+                        "surface-container-low": "#f0f4f7",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-tint": "#0053dc",
+                        "on-primary": "#faf8ff",
+                        "on-error": "#fff7f6",
+                        "error": "#a83836",
+                        "surface-bright": "#f7f9fb",
+                        "on-background": "#2c3437",
+                        "surface-variant": "#dce4e8",
+                        "primary": "#0053dc",
+                        "on-tertiary-fixed-variant": "#004f69",
+                        "error-dim": "#67040d",
+                        "on-primary-fixed-variant": "#f9f7ff",
+                        "on-tertiary": "#f3faff",
+                        "on-secondary-fixed": "#314055",
+                        "on-primary-container": "#000000",
+                        "error-container": "#fa746f",
+                        "surface-dim": "#d4dbdf",
+                        "secondary-fixed": "#d3e4fe",
+                        "surface-container": "#eaeff2",
+                        "inverse-on-surface": "#9a9d9f",
+                        "outline-variant": "#acb3b7",
+                        "inverse-surface": "#0b0f10",
+                        "on-primary-fixed": "#ffffff",
+                        "secondary-container": "#d3e4fe",
+                        "on-error-container": "#6e0a12",
+                        "on-surface": "#2c3437",
+                        "surface-container-high": "#e3e9ed",
+                        "secondary": "#506076",
+                        "on-tertiary-fixed": "#003041",
+                        "outline": "#747c80",
+                        "secondary-fixed-dim": "#c5d6f0",
+                        "surface-container-highest": "#dce4e8"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {},
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Manrope', sans-serif;
+            background-color: #f7f9fb;
+        }
+        /* Custom utilities based on Design System */
+        .glass-nav {
+            background-color: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .gradient-btn {
+            background: linear-gradient(135deg, #0053dc 0%, #3e76fe 100%);
+        }
+        .ambient-shadow {
+            box-shadow: 0 16px 32px -4px rgba(44, 52, 55, 0.04);
+        }
+        .timer-stroke {
+            stroke: #3e76fe;
+            stroke-width: 8;
+            stroke-linecap: round;
+            fill: transparent;
+            stroke-dasharray: 600;
+            stroke-dashoffset: 450; /* Adjust for "progress" */
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+        .timer-bg {
+            stroke: #e3e9ed; /* surface-container-high */
+            stroke-width: 8;
+            fill: transparent;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface min-h-screen flex flex-col pt-16 pb-24">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl no-border shadow-none bg-slate-50/50 shadow-sm shadow-blue-900/5 flex justify-between items-center px-6 h-16">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full overflow-hidden bg-surface-container-highest">
+<img alt="Baby profile" class="w-full h-full object-cover" data-alt="close up of a peaceful sleeping newborn baby in soft natural daylight" src="https://lh3.googleusercontent.com/aida-public/AB6AXuADpUHD1ipQOJZnSPYpCL8oTkNMH1SkWNNwD0G5Q_oNEF6pe5ZkGY_ILV81ZcBfmCmsnfQ6p6Spvhj4FtHU1uR-T3sJZJxlz7ln0DS0GZp3SF-uQTQ7glcIJfau0fzjEUD6HO2nfvji700FZ6-VnVLqLXSkhzLm2uuFj_ObZDcmm8ZaW3PEdHwkvEb-3EwR2B8VgTHs_0DdhblA5hdew8tYrJIgGXd2cyXXo-Qfu1l8vu0eUyDyBBvtgpwabgiMhDUJ6zT-ONV7lT8"/>
+</div>
+<h1 class="font-manrope text-xl font-bold text-blue-700 dark:text-blue-400 font-manrope headline-sm font-bold tracking-tight text-slate-800 dark:text-slate-100">Sleep Guardian</h1>
+</div>
+<button class="text-slate-500 hover:bg-slate-100/50 transition-colors p-2 rounded-full">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow flex flex-col px-6 pt-8 max-w-md mx-auto w-full relative z-10">
+<!-- Timer Section: The Guardian Timer -->
+<section class="flex flex-col items-center justify-center mb-10 flex-grow">
+<h2 class="text-on-surface-variant font-medium text-lg mb-8 tracking-wide text-center">Tiempo para dormir</h2>
+<div class="relative w-64 h-64 flex items-center justify-center mb-10">
+<svg class="absolute w-full h-full" viewbox="0 0 200 200">
+<circle class="timer-bg" cx="100" cy="100" r="90"></circle>
+<circle class="timer-stroke" cx="100" cy="100" r="90"></circle>
+</svg>
+<div class="flex flex-col items-center justify-center z-10">
+<span class="text-5xl font-extrabold text-on-surface tracking-tighter" style="font-size: 3.5rem;">05:24</span>
+<span class="text-on-surface-variant text-sm mt-2 font-medium">minutos</span>
+</div>
+</div>
+<!-- Central Action Button -->
+<button class="gradient-btn text-on-primary rounded-xl px-12 py-5 font-bold text-lg tracking-wide shadow-[0_16px_32px_rgba(0,83,220,0.2)] hover:opacity-90 transition-opacity w-full max-w-xs flex items-center justify-center gap-3">
+<span class="material-symbols-outlined" data-icon="bedtime" style="font-variation-settings: 'FILL' 1;">bedtime</span>
+                Dormida
+            </button>
+</section>
+<!-- Contextual Chips -->
+<section class="bg-surface-container-lowest rounded-lg p-6 ambient-shadow mb-6">
+<!-- Who is putting to sleep -->
+<div class="mb-6">
+<h3 class="text-on-surface-variant font-semibold text-sm uppercase tracking-wider mb-3">Quién duerme al bebé</h3>
+<div class="flex flex-wrap gap-2">
+<button class="bg-primary text-on-primary rounded-full px-5 py-2 text-sm font-semibold transition-colors">
+                        Mamá
+                    </button>
+<button class="bg-surface-container-highest text-on-surface rounded-full px-5 py-2 text-sm font-medium hover:bg-surface-dim transition-colors">
+                        Papá
+                    </button>
+<button class="bg-surface-container-highest text-on-surface rounded-full px-5 py-2 text-sm font-medium hover:bg-surface-dim transition-colors">
+                        Cuidador
+                    </button>
+</div>
+</div>
+<!-- Where -->
+<div>
+<h3 class="text-on-surface-variant font-semibold text-sm uppercase tracking-wider mb-3">Dónde</h3>
+<div class="flex flex-wrap gap-2">
+<button class="bg-surface-container-highest text-on-surface rounded-full px-5 py-2 text-sm font-medium hover:bg-surface-dim transition-colors">
+                        Cuna
+                    </button>
+<button class="bg-primary text-on-primary rounded-full px-5 py-2 text-sm font-semibold transition-colors">
+                        Acunada
+                    </button>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 rounded-t-[2.5rem] bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl no-border bg-gradient-to-b from-white/20 to-transparent shadow-[0_-8px_32px_rgba(0,83,220,0.06)] md:hidden">
+<div class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 py-3 pb-8">
+<button class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 p-2 hover:text-blue-600 transition-all">
+<span class="material-symbols-outlined mb-1" data-icon="home">home</span>
+<span class="font-manrope text-[11px] font-semibold uppercase tracking-wider">Inicio</span>
+</button>
+<button class="flex flex-col items-center justify-center bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full px-5 py-2 scale-95 duration-150">
+<span class="material-symbols-outlined mb-1" data-icon="timer" style="font-variation-settings: 'FILL' 1;">timer</span>
+<span class="font-manrope text-[11px] font-semibold uppercase tracking-wider">Medir</span>
+</button>
+<button class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 p-2 hover:text-blue-600 transition-all">
+<span class="material-symbols-outlined mb-1" data-icon="leaderboard">leaderboard</span>
+<span class="font-manrope text-[11px] font-semibold uppercase tracking-wider">Análisis</span>
+</button>
+<button class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 p-2 hover:text-blue-600 transition-all">
+<span class="material-symbols-outlined mb-1" data-icon="settings">settings</span>
+<span class="font-manrope text-[11px] font-semibold uppercase tracking-wider">Ajustes</span>
+</button>
+</div>
+</nav>
+<!-- Desktop Nav Fallback (hidden on mobile, aligns with prompt intent for responsive pivot) -->
+<nav class="hidden md:flex fixed top-0 right-6 h-16 items-center gap-6 z-50">
+<button class="text-slate-500 font-semibold text-sm hover:text-blue-600 transition-all">Inicio</button>
+<button class="text-blue-700 font-bold text-sm bg-blue-50 px-4 py-2 rounded-full">Medir</button>
+<button class="text-slate-500 font-semibold text-sm hover:text-blue-600 transition-all">Análisis</button>
+<button class="text-slate-500 font-semibold text-sm hover:text-blue-600 transition-all">Ajustes</button>
+</nav>
+</body></html>

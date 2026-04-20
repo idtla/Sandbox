@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Login - Lullaby Metrics</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-container": "#7bd1fa",
+                        "tertiary-dim": "#005a77",
+                        "surface": "#f7f9fb",
+                        "on-secondary": "#f7f9ff",
+                        "primary-fixed-dim": "#2d68f0",
+                        "inverse-primary": "#618bff",
+                        "on-surface-variant": "#596064",
+                        "primary-fixed": "#3e76fe",
+                        "on-secondary-fixed-variant": "#4d5d73",
+                        "tertiary-fixed-dim": "#6cc3eb",
+                        "on-tertiary-container": "#00465d",
+                        "tertiary": "#006787",
+                        "secondary-dim": "#44546a",
+                        "primary-container": "#3e76fe",
+                        "on-secondary-container": "#435368",
+                        "primary-dim": "#0049c2",
+                        "background": "#f7f9fb",
+                        "tertiary-fixed": "#7bd1fa",
+                        "surface-container-low": "#f0f4f7",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-tint": "#0053dc",
+                        "on-primary": "#faf8ff",
+                        "on-error": "#fff7f6",
+                        "error": "#a83836",
+                        "surface-bright": "#f7f9fb",
+                        "on-background": "#2c3437",
+                        "surface-variant": "#dce4e8",
+                        "primary": "#0053dc",
+                        "on-tertiary-fixed-variant": "#004f69",
+                        "error-dim": "#67040d",
+                        "on-primary-fixed-variant": "#f9f7ff",
+                        "on-tertiary": "#f3faff",
+                        "on-secondary-fixed": "#314055",
+                        "on-primary-container": "#000000",
+                        "error-container": "#fa746f",
+                        "surface-dim": "#d4dbdf",
+                        "secondary-fixed": "#d3e4fe",
+                        "surface-container": "#eaeff2",
+                        "inverse-on-surface": "#9a9d9f",
+                        "outline-variant": "#acb3b7",
+                        "inverse-surface": "#0b0f10",
+                        "on-primary-fixed": "#ffffff",
+                        "secondary-container": "#d3e4fe",
+                        "on-error-container": "#6e0a12",
+                        "on-surface": "#2c3437",
+                        "surface-container-high": "#e3e9ed",
+                        "secondary": "#506076",
+                        "on-tertiary-fixed": "#003041",
+                        "outline": "#747c80",
+                        "secondary-fixed-dim": "#c5d6f0",
+                        "surface-container-highest": "#dce4e8"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope", "sans-serif"],
+                        "body": ["Manrope", "sans-serif"],
+                        "label": ["Manrope", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Manrope', sans-serif; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface min-h-screen flex flex-col items-center justify-center p-6 antialiased">
+<!-- Decorative ambient backgrounds (Soft Minimalism) -->
+<div class="fixed inset-0 overflow-hidden pointer-events-none -z-10">
+<div class="absolute top-[-10%] left-[-10%] w-[60vw] h-[60vw] rounded-full bg-primary/5 blur-[120px]"></div>
+<div class="absolute bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] rounded-full bg-tertiary/5 blur-[100px]"></div>
+</div>
+<!-- Main Container -->
+<main class="w-full max-w-md mx-auto flex flex-col gap-12">
+<!-- Header / Logo -->
+<header class="flex flex-col items-center text-center gap-4">
+<div class="w-20 h-20 rounded-full bg-surface-container-lowest flex items-center justify-center shadow-[0_8px_32px_rgba(0,83,220,0.08)] mb-2">
+<span class="material-symbols-outlined text-4xl text-primary" data-icon="bedtime" style="font-variation-settings: 'FILL' 1;">bedtime</span>
+</div>
+<h1 class="text-[2.5rem] leading-tight font-extrabold text-on-background tracking-tight font-headline">Lullaby Metrics</h1>
+<p class="text-on-surface-variant text-lg font-body max-w-[280px]">Serene sleep tracking for peaceful nights.</p>
+</header>
+<!-- Login Card -->
+<section class="bg-surface-container-lowest rounded-lg p-8 shadow-[0_16px_48px_-12px_rgba(0,83,220,0.05)] flex flex-col gap-8 relative z-10">
+<div class="flex flex-col gap-2">
+<h2 class="text-2xl font-bold text-on-surface font-headline">Welcome back</h2>
+<p class="text-on-surface-variant text-sm font-body">Enter your email to receive a secure login code.</p>
+</div>
+<form class="flex flex-col gap-6" onsubmit="event.preventDefault(); document.getElementById('step-1').classList.add('hidden'); document.getElementById('step-2').classList.remove('hidden');">
+<!-- Step 1: Email Input -->
+<div class="flex flex-col gap-6" id="step-1">
+<div class="flex flex-col gap-2">
+<label class="text-sm font-semibold text-on-surface font-label ml-1" for="email">Email Address</label>
+<div class="relative">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline-variant" data-icon="mail">mail</span>
+<input class="w-full bg-surface-container-low text-on-surface placeholder:text-outline-variant rounded-DEFAULT py-4 pl-12 pr-4 border-none focus:ring-0 focus:outline-none transition-shadow relative z-10" id="email" placeholder="hello@example.com" required="" style="box-shadow: inset 0 -2px 0 0 rgba(0,83,220,0.15);" type="email"/>
+</div>
+</div>
+<button class="w-full bg-gradient-to-r from-primary to-primary-container text-on-primary rounded-xl py-4 font-bold text-[1.1rem] tracking-wide shadow-[0_8px_24px_rgba(0,83,220,0.2)] hover:shadow-[0_12px_32px_rgba(0,83,220,0.3)] transition-all duration-300 active:scale-[0.98]" type="submit">
+                        Send Code
+                    </button>
+</div>
+<!-- Step 2: OTP Input (Hidden by default for demonstration, toggle via JS above) -->
+<div class="hidden flex-col gap-8" id="step-2">
+<div class="flex flex-col gap-4">
+<label class="text-sm font-semibold text-on-surface font-label ml-1 text-center">Enter 6-digit code</label>
+<div class="flex justify-between gap-2">
+<!-- Simulating 6 OTP inputs -->
+<input class="w-12 h-14 bg-surface-container-low text-center text-xl font-bold text-primary rounded-DEFAULT border-none focus:ring-0 focus:outline-none" maxlength="1" placeholder="·" style="box-shadow: inset 0 -2px 0 0 rgba(0,83,220,0.15);" type="text"/>
+<input class="w-12 h-14 bg-surface-container-low text-center text-xl font-bold text-primary rounded-DEFAULT border-none focus:ring-0 focus:outline-none" maxlength="1" placeholder="·" style="box-shadow: inset 0 -2px 0 0 rgba(0,83,220,0.15);" type="text"/>
+<input class="w-12 h-14 bg-surface-container-low text-center text-xl font-bold text-primary rounded-DEFAULT border-none focus:ring-0 focus:outline-none" maxlength="1" placeholder="·" style="box-shadow: inset 0 -2px 0 0 rgba(0,83,220,0.15);" type="text"/>
+<input class="w-12 h-14 bg-surface-container-low text-center text-xl font-bold text-primary rounded-DEFAULT border-none focus:ring-0 focus:outline-none" maxlength="1" placeholder="·" style="box-shadow: inset 0 -2px 0 0 rgba(0,83,220,0.15);" type="text"/>
+<input class="w-12 h-14 bg-surface-container-low text-center text-xl font-bold text-primary rounded-DEFAULT border-none focus:ring-0 focus:outline-none" maxlength="1" placeholder="·" style="box-shadow: inset 0 -2px 0 0 rgba(0,83,220,0.15);" type="text"/>
+<input class="w-12 h-14 bg-surface-container-low text-center text-xl font-bold text-primary rounded-DEFAULT border-none focus:ring-0 focus:outline-none" maxlength="1" placeholder="·" style="box-shadow: inset 0 -2px 0 0 rgba(0,83,220,0.15);" type="text"/>
+</div>
+</div>
+<button class="w-full bg-gradient-to-r from-primary to-primary-container text-on-primary rounded-xl py-4 font-bold text-[1.1rem] tracking-wide shadow-[0_8px_24px_rgba(0,83,220,0.2)] hover:shadow-[0_12px_32px_rgba(0,83,220,0.3)] transition-all duration-300 active:scale-[0.98]" type="button">
+                        Verify &amp; Login
+                    </button>
+<button class="text-primary font-semibold text-sm hover:text-primary-dim transition-colors text-center mt-[-1rem]" onclick="document.getElementById('step-2').classList.add('hidden'); document.getElementById('step-1').classList.remove('hidden');" type="button">
+                        Back to email
+                    </button>
+</div>
+</form>
+</section>
+<!-- Footer Note -->
+<p class="text-center text-xs text-outline font-body mt-4">
+            By continuing, you agree to our <a class="text-primary hover:underline" href="#">Terms of Service</a> and <a class="text-primary hover:underline" href="#">Privacy Policy</a>.
+        </p>
+</main>
+</body></html>

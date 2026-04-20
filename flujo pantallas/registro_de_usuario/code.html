@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+
+<html lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Lullaby Metrics - Crear Cuenta</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-surface-variant": "#596064",
+                    "inverse-primary": "#618bff",
+                    "primary-fixed-dim": "#2d68f0",
+                    "tertiary-dim": "#005a77",
+                    "surface": "#f7f9fb",
+                    "on-secondary": "#f7f9ff",
+                    "tertiary-container": "#7bd1fa",
+                    "tertiary-fixed": "#7bd1fa",
+                    "surface-container-low": "#f0f4f7",
+                    "primary-dim": "#0049c2",
+                    "on-secondary-container": "#435368",
+                    "background": "#f7f9fb",
+                    "primary-container": "#3e76fe",
+                    "secondary-dim": "#44546a",
+                    "primary-fixed": "#3e76fe",
+                    "on-secondary-fixed-variant": "#4d5d73",
+                    "tertiary": "#006787",
+                    "tertiary-fixed-dim": "#6cc3eb",
+                    "on-tertiary-container": "#00465d",
+                    "on-secondary-fixed": "#314055",
+                    "on-primary-container": "#000000",
+                    "error-container": "#fa746f",
+                    "on-primary-fixed-variant": "#f9f7ff",
+                    "on-tertiary": "#f3faff",
+                    "on-tertiary-fixed-variant": "#004f69",
+                    "primary": "#0053dc",
+                    "surface-variant": "#dce4e8",
+                    "error-dim": "#67040d",
+                    "on-primary": "#faf8ff",
+                    "on-error": "#fff7f6",
+                    "surface-tint": "#0053dc",
+                    "surface-container-lowest": "#ffffff",
+                    "on-background": "#2c3437",
+                    "surface-bright": "#f7f9fb",
+                    "error": "#a83836",
+                    "secondary-fixed-dim": "#c5d6f0",
+                    "outline": "#747c80",
+                    "on-tertiary-fixed": "#003041",
+                    "surface-container-highest": "#dce4e8",
+                    "secondary": "#506076",
+                    "surface-container-high": "#e3e9ed",
+                    "on-surface": "#2c3437",
+                    "inverse-surface": "#0b0f10",
+                    "outline-variant": "#acb3b7",
+                    "on-error-container": "#6e0a12",
+                    "secondary-container": "#d3e4fe",
+                    "on-primary-fixed": "#ffffff",
+                    "secondary-fixed": "#d3e4fe",
+                    "surface-dim": "#d4dbdf",
+                    "surface-container": "#eaeff2",
+                    "inverse-on-surface": "#9a9d9f"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "spacing": {},
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Manrope"],
+                    "label": ["Manrope"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            font-family: 'Manrope', sans-serif;
+            background-color: theme('colors.background');
+            color: theme('colors.on-surface');
+            -webkit-font-smoothing: antialiased;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden bg-background">
+<!-- Decorative ambient background elements -->
+<div class="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-secondary-container opacity-30 blur-[100px] pointer-events-none z-0"></div>
+<div class="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] rounded-full bg-tertiary-container opacity-20 blur-[120px] pointer-events-none z-0"></div>
+<!-- Main Content Container -->
+<main class="w-full max-w-md z-10 flex flex-col gap-10">
+<!-- Header Section -->
+<header class="flex flex-col gap-4 text-center">
+<!-- Brand Mark Placeholder (Subtle, no image needed) -->
+<div class="w-16 h-16 rounded-full bg-surface-container-lowest flex items-center justify-center mx-auto mb-2 shadow-[0_8px_32px_rgba(0,0,0,0.02)]">
+<span class="material-symbols-outlined text-primary text-3xl" data-icon="bedtime" style="font-variation-settings: 'FILL' 1;">bedtime</span>
+</div>
+<h1 class="text-4xl md:text-[3.5rem] font-extrabold text-on-surface tracking-tight leading-tight">
+                Crear Cuenta
+            </h1>
+<p class="text-lg text-on-surface-variant font-medium leading-relaxed px-4">
+                Únete a Lullaby Metrics para empezar a cuidar el sueño de tu bebé
+            </p>
+</header>
+<!-- Form Section -->
+<form class="flex flex-col gap-6 bg-surface-container-lowest p-8 rounded-lg shadow-[0_16px_48px_rgba(0,0,0,0.03)] relative">
+<!-- Input Field: Nombre completo -->
+<div class="flex flex-col gap-2">
+<label class="text-sm font-semibold text-on-surface-variant ml-1" for="fullName">Nombre completo</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline-variant" data-icon="person">person</span>
+<input class="w-full bg-surface-container-low border-none rounded-xl py-4 pl-12 pr-4 text-on-surface placeholder:text-outline-variant focus:ring-2 focus:ring-primary focus:bg-surface-container-lowest transition-colors text-base font-medium" id="fullName" name="fullName" placeholder="Ej. María Pérez" type="text"/>
+</div>
+</div>
+<!-- Input Field: Correo electrónico -->
+<div class="flex flex-col gap-2">
+<label class="text-sm font-semibold text-on-surface-variant ml-1" for="email">Correo electrónico</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline-variant" data-icon="mail">mail</span>
+<input class="w-full bg-surface-container-low border-none rounded-xl py-4 pl-12 pr-4 text-on-surface placeholder:text-outline-variant focus:ring-2 focus:ring-primary focus:bg-surface-container-lowest transition-colors text-base font-medium" id="email" name="email" placeholder="tu@correo.com" type="email"/>
+</div>
+</div>
+<!-- Primary CTA Button -->
+<button class="mt-4 w-full h-[3rem] rounded-xl bg-gradient-to-r from-primary to-primary-container text-on-primary font-bold text-base shadow-[0_8px_24px_rgba(0,83,220,0.2)] hover:opacity-90 transition-opacity flex items-center justify-center gap-2" type="submit">
+<span>Registrarse</span>
+<span class="material-symbols-outlined text-xl" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</form>
+<!-- Footer Link -->
+<div class="text-center mt-2">
+<a class="inline-flex items-center gap-2 text-on-surface-variant hover:text-primary font-medium transition-colors" href="#">
+<span>¿Ya tienes cuenta? Inicia sesión</span>
+</a>
+</div>
+</main>
+</body></html>

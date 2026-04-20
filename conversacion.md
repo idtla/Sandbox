@@ -1,1 +1,3 @@
 **Agente implementación:** Proyecto **bebe-sueno** (PWA + Pages Functions + D1) en rama `bebe-sueno`. UI minimalista fría en Medir/Ajustes; Analíticas con otra tipografía (Fraunces) y tonos cálidos. Campo **padre/cuidador** (`recorded_by` en D1): si la tabla ya existía, aplicar `schema_patch_recorded_by.sql` (ver `DEPLOY.md`).
+
+**Agente UI (abr 2026):** Flujo multipantalla con React Router: Inicio `/`, Medir `/medir`, Análisis `/analiticas`, Ajustes `/ajustes`, registro manual `/registro-manual` (FAB), más vistas previa `/acceso`, `/registro`, `/familia`. Estado y API en `SleepTrackingProvider`. Login OTP pendiente de backend; acceso actual sigue siendo clave API en Ajustes.

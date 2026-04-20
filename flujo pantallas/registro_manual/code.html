@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Registro Manual - Lullaby Metrics</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed-dim": "#6cc3eb",
+                        "secondary-fixed-dim": "#c5d6f0",
+                        "on-tertiary-fixed": "#003041",
+                        "surface-variant": "#dce4e8",
+                        "on-secondary-container": "#435368",
+                        "on-primary-fixed-variant": "#f9f7ff",
+                        "surface-bright": "#f7f9fb",
+                        "surface-tint": "#0053dc",
+                        "primary-fixed-dim": "#2d68f0",
+                        "on-surface-variant": "#596064",
+                        "secondary-container": "#d3e4fe",
+                        "outline-variant": "#acb3b7",
+                        "error-container": "#fa746f",
+                        "on-secondary-fixed-variant": "#4d5d73",
+                        "secondary": "#506076",
+                        "error": "#a83836",
+                        "surface-container": "#eaeff2",
+                        "inverse-primary": "#618bff",
+                        "background": "#f7f9fb",
+                        "on-primary": "#faf8ff",
+                        "on-tertiary": "#f3faff",
+                        "surface-container-high": "#e3e9ed",
+                        "on-background": "#2c3437",
+                        "on-secondary-fixed": "#314055",
+                        "on-tertiary-container": "#00465d",
+                        "surface-container-low": "#f0f4f7",
+                        "inverse-on-surface": "#9a9d9f",
+                        "primary-dim": "#0049c2",
+                        "outline": "#747c80",
+                        "on-error": "#fff7f6",
+                        "on-error-container": "#6e0a12",
+                        "on-primary-container": "#000000",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-fixed": "#d3e4fe",
+                        "surface-container-highest": "#dce4e8",
+                        "error-dim": "#67040d",
+                        "tertiary-container": "#7bd1fa",
+                        "inverse-surface": "#0b0f10",
+                        "primary": "#0053dc",
+                        "on-primary-fixed": "#ffffff",
+                        "primary-fixed": "#3e76fe",
+                        "on-secondary": "#f7f9ff",
+                        "tertiary-fixed": "#7bd1fa",
+                        "surface-dim": "#d4dbdf",
+                        "on-surface": "#2c3437",
+                        "secondary-dim": "#44546a",
+                        "surface": "#f7f9fb",
+                        "on-tertiary-fixed-variant": "#004f69",
+                        "tertiary-dim": "#005a77",
+                        "tertiary": "#006787",
+                        "primary-container": "#3e76fe"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {},
+                    "fontFamily": {
+                        "headline": ["Manrope", "sans-serif"],
+                        "body": ["Manrope", "sans-serif"],
+                        "label": ["Manrope", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Manrope', sans-serif; background-color: #f7f9fb; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .glass-nav { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        input[type="time"]::-webkit-calendar-picker-indicator,
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            opacity: 0;
+            position: absolute;
+            right: 1rem;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen antialiased flex flex-col pb-safe">
+<!-- TopAppBar -->
+<header class="bg-[#f7f9fb] docked full-width top-0 flex justify-between items-center px-6 py-4 w-full sticky z-40 transition-opacity">
+<div class="flex items-center gap-4">
+<button class="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center text-on-surface hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined text-xl">arrow_back</span>
+</button>
+<h1 class="font-['Manrope'] text-2xl font-bold tracking-tight text-slate-900">Registro Manual</h1>
+</div>
+<button class="w-12 h-12 rounded-full overflow-hidden border-2 border-surface-container-lowest">
+<img alt="Baby Profile" class="w-full h-full object-cover" data-alt="Close up portrait of a sleeping baby in soft natural morning light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBE_WpJb6SOb_ILb1z6ZoYdjv2jVkBR7wHDv4Xh1FBpDwokwoLzrLGMkDQL301N_krsjOWsirNRPnwPL8kI0sCo9AaG-6gmK0dcrkbPGModiBr6ZTIbmqeoQpnG-QNVZ_KaFXgLXL3lHpPOTkXOzrJZIoIotzPZAvQRqxr9KW8DlXlYlHEkcnndqo4aJvY4sOMrl8XIxxMPKldIAV4JjYtXacmna7PyF6SSdKmPlitoNfhIV7lOf-ORmpe1b6nOWFhWsRaE0oDiPoo"/>
+</button>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-1 px-6 pb-32 pt-4 max-w-2xl mx-auto w-full">
+<div class="space-y-8">
+<!-- Date & Time Section -->
+<section class="bg-surface-container-lowest rounded-lg p-6 flex flex-col gap-6">
+<h2 class="text-lg font-semibold text-on-surface mb-2">Cuándo durmió</h2>
+<!-- Date Picker -->
+<div class="relative">
+<label class="block text-sm font-medium text-on-surface-variant mb-2">Fecha</label>
+<div class="relative flex items-center bg-surface-container-low rounded-DEFAULT p-4">
+<span class="material-symbols-outlined text-primary mr-3" style="font-variation-settings: 'FILL' 1;">calendar_today</span>
+<input class="bg-transparent border-none outline-none w-full text-on-surface font-medium focus:ring-0 p-0" type="date" value="2023-10-27"/>
+</div>
+</div>
+<div class="flex gap-4">
+<!-- Start Time -->
+<div class="flex-1 relative">
+<label class="block text-sm font-medium text-on-surface-variant mb-2">Inicio</label>
+<div class="relative flex items-center bg-surface-container-low rounded-DEFAULT p-4 focus-within:ring-2 focus-within:ring-primary transition-all">
+<span class="material-symbols-outlined text-tertiary mr-3" style="font-variation-settings: 'FILL' 1;">schedule</span>
+<input class="bg-transparent border-none outline-none w-full text-on-surface font-medium text-lg focus:ring-0 p-0" type="time" value="14:30"/>
+</div>
+</div>
+<!-- End Time -->
+<div class="flex-1 relative">
+<label class="block text-sm font-medium text-on-surface-variant mb-2">Fin</label>
+<div class="relative flex items-center bg-surface-container-low rounded-DEFAULT p-4 focus-within:ring-2 focus-within:ring-primary transition-all">
+<span class="material-symbols-outlined text-tertiary mr-3" style="font-variation-settings: 'FILL' 1;">schedule</span>
+<input class="bg-transparent border-none outline-none w-full text-on-surface font-medium text-lg focus:ring-0 p-0" type="time" value="16:45"/>
+</div>
+</div>
+</div>
+<!-- Duration Calculation (Auto-updates visually) -->
+<div class="flex items-center justify-between pt-4 border-t-0 bg-surface-container-low rounded-DEFAULT p-4 mt-2">
+<span class="text-sm font-medium text-on-surface-variant">Duración total</span>
+<span class="text-2xl font-bold text-primary">2h 15m</span>
+</div>
+</section>
+<!-- Location Section -->
+<section class="bg-surface-container-lowest rounded-lg p-6">
+<h2 class="text-lg font-semibold text-on-surface mb-4">Dónde durmió</h2>
+<div class="flex bg-surface-container-low rounded-xl p-2 relative">
+<!-- Active background pill (absolute) - simulated active state -->
+<div class="absolute left-2 top-2 bottom-2 w-[calc(50%-0.5rem)] bg-primary rounded-lg shadow-sm transition-all duration-300"></div>
+<button class="flex-1 relative z-10 py-3 flex items-center justify-center gap-2 text-on-primary font-semibold transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">crib</span>
+                        En la cuna
+                    </button>
+<button class="flex-1 relative z-10 py-3 flex items-center justify-center gap-2 text-on-surface-variant font-medium hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined">child_care</span>
+                        Acunada
+                    </button>
+</div>
+</section>
+<!-- Notes Section -->
+<section class="bg-surface-container-lowest rounded-lg p-6">
+<h2 class="text-lg font-semibold text-on-surface mb-4">Notas adicionales</h2>
+<textarea class="w-full bg-surface-container-low border-none rounded-DEFAULT p-4 text-on-surface placeholder:text-outline focus:ring-2 focus:ring-primary/20 focus:border-none resize-none" placeholder="Ej: Se despertó una vez, le costó dormir..." rows="3"></textarea>
+<div class="flex flex-wrap gap-2 mt-4">
+<button class="px-4 py-2 rounded-full bg-surface-container-highest text-sm font-medium text-on-surface-variant hover:bg-surface-dim transition-colors">Dificultad media</button>
+<button class="px-4 py-2 rounded-full bg-primary text-sm font-medium text-on-primary shadow-sm">Despertar tranquilo</button>
+<button class="px-4 py-2 rounded-full bg-surface-container-highest text-sm font-medium text-on-surface-variant hover:bg-surface-dim transition-colors">Ruido blanco</button>
+</div>
+</section>
+</div>
+</main>
+<!-- Fixed Bottom Action -->
+<div class="fixed bottom-0 left-0 w-full p-6 bg-gradient-to-t from-background via-background to-transparent z-40 pb-safe pb-8">
+<button class="w-full max-w-2xl mx-auto block rounded-xl bg-gradient-to-r from-primary to-primary-container text-on-primary text-lg font-bold py-5 shadow-lg hover:shadow-xl transition-all transform active:scale-95 duration-150">
+            Guardar Registro
+        </button>
+</div>
+</body></html>
