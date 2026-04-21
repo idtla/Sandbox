@@ -1,3 +1,4 @@
+import type { ReactElement } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { SleepTrackingProvider } from './context/sleepTracking'
 import { AppShell } from './layout/AppShell'
@@ -11,7 +12,7 @@ import { RegisterPage } from './pages/RegisterPage'
 import { SettingsPage } from './pages/SettingsPage'
 import { TimerPage } from './pages/TimerPage'
 
-function RequireOtpSession({ children }: { children: JSX.Element }) {
+function RequireOtpSession({ children }: { children: ReactElement }) {
   const token = getSessionToken()
   if (!token) return <Navigate to="/acceso" replace />
   return children
