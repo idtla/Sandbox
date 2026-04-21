@@ -22,9 +22,19 @@
    npx wrangler d1 execute sueno --remote --file=./schema_patch_recorded_by.sql
    ```
 
-4. **Secreto API**: en el proyecto Pages (o `wrangler secret put`), define **`API_SECRET`**. La misma cadena va en la app → **Ajustes** → clave API. Tipo **Secret** en el panel.
+4. **Zero Trust Access**: protege el subdominio con Cloudflare Access (OTP/email).  
+   La app ya no necesita guardar clave API en Ajustes para sincronizar.
 
-5. **Binding D1 en Pages**: **Settings** → **Functions** → **D1 database bindings** → binding **`DB`** apuntando a esa base.
+5. **Activar OTP + familia** (si tu base ya existe): ejecuta una vez:
+
+   ```bash
+   npx wrangler d1 execute sueno --remote --file=./schema_auth_family.sql
+   ```
+
+6. **OTP en desarrollo** (opcional): añade el secreto `OTP_DEBUG_CODE` (por ejemplo `123456`) para pruebas rápidas.  
+   Si no existe, el backend genera un OTP aleatorio y lo expone en la cabecera `X-Debug-Otp` para entorno de desarrollo.
+
+7. **Binding D1 en Pages**: **Settings** → **Functions** → **D1 database bindings** → binding **`DB`** apuntando a esa base.
 
 ## Build
 
@@ -33,10 +43,10 @@
 
 ## Desarrollo local
 
-1. Copia `.dev.vars.example` a `.dev.vars` y pon `API_SECRET`.
+1. Copia `.dev.vars.example` a `.dev.vars`.
 2. `npm run dev:cf` (Vite bajo `wrangler pages dev` para `/api/*`).
 3. Si usas D1 local sin tablas: `npx wrangler d1 execute sueno --local --file=./schema.sql`
 
 ## PWA
 
-Tras el despliegue, abre el sitio en HTTPS para instalar la PWA. La clave API se guarda en el dispositivo (`localStorage`).
+Tras el despliegue, abre el sitio en HTTPS para instalar la PWA.

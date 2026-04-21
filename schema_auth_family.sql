@@ -1,29 +1,15 @@
--- Esquema inicial para una D1 vacía (sin migraciones versionadas en el repo).
--- Aplica una sola vez con: wrangler d1 execute (ver DEPLOY.md).
+-- Migracion para activar OTP + familia en una base ya existente.
+-- Ejecuta una vez:
+-- npx wrangler d1 execute sueno --remote --file=./schema_auth_family.sql
 
-CREATE TABLE sleep_episodes (
-  id TEXT PRIMARY KEY NOT NULL,
-  created_at INTEGER NOT NULL,
-  try_start_at INTEGER NOT NULL,
-  asleep_at INTEGER,
-  wake_at INTEGER,
-  location TEXT NOT NULL CHECK (location IN ('cuna', 'acunada')),
-  source TEXT NOT NULL CHECK (source IN ('timer', 'manual')),
-  cancelled INTEGER NOT NULL DEFAULT 0 CHECK (cancelled IN (0, 1)),
-  recorded_by TEXT
-);
-
-CREATE INDEX idx_sleep_episodes_try_start ON sleep_episodes(try_start_at);
-CREATE INDEX idx_sleep_episodes_wake ON sleep_episodes(wake_at);
-
-CREATE TABLE app_users (
+CREATE TABLE IF NOT EXISTS app_users (
   id TEXT PRIMARY KEY NOT NULL,
   email TEXT NOT NULL UNIQUE,
   full_name TEXT,
   created_at INTEGER NOT NULL
 );
 
-CREATE TABLE otp_challenges (
+CREATE TABLE IF NOT EXISTS otp_challenges (
   id TEXT PRIMARY KEY NOT NULL,
   email TEXT NOT NULL,
   full_name TEXT,
@@ -36,14 +22,14 @@ CREATE TABLE otp_challenges (
   consumed_at INTEGER
 );
 
-CREATE TABLE families (
+CREATE TABLE IF NOT EXISTS families (
   id TEXT PRIMARY KEY NOT NULL,
   created_by TEXT NOT NULL,
   created_at INTEGER NOT NULL,
   FOREIGN KEY(created_by) REFERENCES app_users(id)
 );
 
-CREATE TABLE family_members (
+CREATE TABLE IF NOT EXISTS family_members (
   family_id TEXT NOT NULL,
   user_id TEXT NOT NULL,
   role TEXT NOT NULL CHECK (role IN ('owner', 'caregiver')),
@@ -54,7 +40,7 @@ CREATE TABLE family_members (
   FOREIGN KEY(user_id) REFERENCES app_users(id)
 );
 
-CREATE TABLE family_invites (
+CREATE TABLE IF NOT EXISTS family_invites (
   id TEXT PRIMARY KEY NOT NULL,
   family_id TEXT NOT NULL,
   invited_by TEXT NOT NULL,
@@ -69,7 +55,7 @@ CREATE TABLE family_invites (
   FOREIGN KEY(accepted_by) REFERENCES app_users(id)
 );
 
-CREATE TABLE auth_sessions (
+CREATE TABLE IF NOT EXISTS auth_sessions (
   token TEXT PRIMARY KEY NOT NULL,
   user_id TEXT NOT NULL,
   created_at INTEGER NOT NULL,
@@ -77,9 +63,9 @@ CREATE TABLE auth_sessions (
   FOREIGN KEY(user_id) REFERENCES app_users(id)
 );
 
-CREATE INDEX idx_users_email ON app_users(email);
-CREATE INDEX idx_otp_email ON otp_challenges(email);
-CREATE INDEX idx_otp_expires ON otp_challenges(expires_at);
-CREATE INDEX idx_family_members_user ON family_members(user_id);
-CREATE INDEX idx_family_invites_code ON family_invites(invite_code);
-CREATE INDEX idx_auth_sessions_user ON auth_sessions(user_id);
+CREATE INDEX IF NOT EXISTS idx_users_email ON app_users(email);
+CREATE INDEX IF NOT EXISTS idx_otp_email ON otp_challenges(email);
+CREATE INDEX IF NOT EXISTS idx_otp_expires ON otp_challenges(expires_at);
+CREATE INDEX IF NOT EXISTS idx_family_members_user ON family_members(user_id);
+CREATE INDEX IF NOT EXISTS idx_family_invites_code ON family_invites(invite_code);
+CREATE INDEX IF NOT EXISTS idx_auth_sessions_user ON auth_sessions(user_id);

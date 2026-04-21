@@ -1,7 +1,7 @@
 import type { CreateEpisodePayload, SleepEpisode } from '../types/episode'
 
-const STORAGE_KEY = 'bebe_sueno_api_key'
 const RECORDED_BY_DEFAULT_KEY = 'bebe_sueno_recorded_by_default'
+const SESSION_TOKEN_KEY = 'bebe_sueno_session_token'
 
 export function getDefaultRecordedBy(): string {
   try {
@@ -19,29 +19,37 @@ export function setDefaultRecordedBy(value: string): void {
   }
 }
 
-export function getApiKey(): string | null {
+export function getSessionToken(): string | null {
   try {
-    return localStorage.getItem(STORAGE_KEY)
+    return localStorage.getItem(SESSION_TOKEN_KEY)
   } catch {
     return null
   }
 }
 
-export function setApiKey(key: string): void {
-  localStorage.setItem(STORAGE_KEY, key.trim())
+export function setSessionToken(token: string): void {
+  localStorage.setItem(SESSION_TOKEN_KEY, token.trim())
+}
+
+export function clearSessionToken(): void {
+  localStorage.removeItem(SESSION_TOKEN_KEY)
 }
 
 function authHeaders(): HeadersInit {
-  const key = getApiKey()
+  return { 'Content-Type': 'application/json' }
+}
+
+function sessionHeaders(): HeadersInit {
+  const token = getSessionToken()
   const h: Record<string, string> = { 'Content-Type': 'application/json' }
-  if (key) h.Authorization = `Bearer ${key}`
+  if (token) h.Authorization = `Bearer ${token}`
   return h
 }
 
 async function handle<T>(r: Response): Promise<T> {
   const text = await r.text()
   if (r.status === 401) {
-    throw new Error('No autorizado: revisa la clave en Ajustes')
+    throw new Error('No autorizado: revisa tu acceso en Cloudflare Zero Trust')
   }
   if (!r.ok) {
     let msg = text || r.statusText
@@ -97,4 +105,64 @@ export async function deleteAllEpisodes(): Promise<void> {
     headers: authHeaders(),
   })
   await handle<{ ok: boolean }>(r)
+}
+
+export type OtpCase = 'login' | 'register' | 'invite'
+
+export async function requestOtp(payload: {
+  email: string
+  fullName?: string
+  otpCase: OtpCase
+  inviteCode?: string
+}): Promise<{ challengeId: string; otpDigits: number }> {
+  const r = await fetch('/api/auth/request-otp', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
+  return handle<{ challengeId: string; otpDigits: number }>(r)
+}
+
+export async function verifyOtp(payload: {
+  challengeId: string
+  code: string
+}): Promise<{ token: string; userId: string; email: string; fullName: string | null }> {
+  const r = await fetch('/api/auth/verify-otp', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
+  const data = await handle<{ token: string; userId: string; email: string; fullName: string | null }>(r)
+  setSessionToken(data.token)
+  return data
+}
+
+export type FamilyMember = {
+  user_id: string
+  email: string
+  full_name: string | null
+  role: 'owner' | 'caregiver'
+  status: 'active' | 'pending'
+}
+
+export type FamilyInvite = {
+  id: string
+  invite_code: string
+  invite_email: string
+  role: 'caregiver'
+  status: 'pending' | 'accepted'
+}
+
+export async function fetchFamilyData(): Promise<{ members: FamilyMember[]; invites: FamilyInvite[] }> {
+  const r = await fetch('/api/family', { headers: sessionHeaders() })
+  return handle<{ members: FamilyMember[]; invites: FamilyInvite[] }>(r)
+}
+
+export async function inviteCaregiver(payload: { email: string }): Promise<{ inviteCode: string }> {
+  const r = await fetch('/api/family/invite', {
+    method: 'POST',
+    headers: sessionHeaders(),
+    body: JSON.stringify(payload),
+  })
+  return handle<{ inviteCode: string }>(r)
 }

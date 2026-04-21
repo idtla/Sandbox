@@ -12,9 +12,7 @@ import {
   deleteAllEpisodes,
   deleteEpisode,
   fetchEpisodes,
-  getApiKey,
   getDefaultRecordedBy,
-  setApiKey,
   setDefaultRecordedBy,
 } from '../api/client'
 import type { SleepEpisode, SleepLocation } from '../types/episode'
@@ -116,8 +114,6 @@ type SleepTrackingValue = {
   setError: (e: string | null) => void
   notice: string | null
   setNotice: (n: string | null) => void
-  apiKeyInput: string
-  setApiKeyInput: (v: string) => void
   manualTTS: number
   setManualTTS: (n: number) => void
   manualDuration: number
@@ -131,7 +127,6 @@ type SleepTrackingValue = {
   handleCancel: () => void
   handleWakeUp: () => Promise<void>
   handleSaveManual: () => Promise<boolean>
-  handleSaveApiKey: () => void
   todaySleepSeconds: number
   lastNightSeconds: number
   minsAwake: number
@@ -210,7 +205,6 @@ export function SleepTrackingProvider({ children }: { children: ReactNode }) {
   const [episodes, setEpisodes] = useState<SleepEpisode[]>([])
   const [error, setError] = useState<string | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
-  const [apiKeyInput, setApiKeyInput] = useState(() => getApiKey() ?? '')
   const [manualTTS, setManualTTS] = useState(15)
   const [manualDuration, setManualDuration] = useState(120)
   const [parentName, setParentName] = useState(() => getDefaultRecordedBy())
@@ -219,11 +213,6 @@ export function SleepTrackingProvider({ children }: { children: ReactNode }) {
   const spainTime = useMemo(() => formatSpainTime(now), [now])
 
   const reloadEpisodes = useCallback(async () => {
-    if (!getApiKey()) {
-      setEpisodes([])
-      setHistory([])
-      return
-    }
     try {
       const eps = await fetchEpisodes()
       setEpisodes(eps)
@@ -247,12 +236,6 @@ export function SleepTrackingProvider({ children }: { children: ReactNode }) {
   }, [reloadEpisodes])
 
   useEffect(() => {
-    if (!getApiKey()) {
-      setError('Configura la clave API en Ajustes para sincronizar los datos.')
-    }
-  }, [])
-
-  useEffect(() => {
     let interval: number | undefined
     if (appState === 'trying' && tryStartTime != null) {
       interval = window.setInterval(() => {
@@ -273,10 +256,6 @@ export function SleepTrackingProvider({ children }: { children: ReactNode }) {
   const handleStartTrying = () => {
     setNotice(null)
     setError(null)
-    if (!getApiKey()) {
-      setError('No autorizado: revisa la clave en Ajustes')
-      return
-    }
     setTryStartTime(Date.now())
     setAppState('trying')
   }
@@ -340,13 +319,6 @@ export function SleepTrackingProvider({ children }: { children: ReactNode }) {
       setError(e instanceof Error ? e.message : 'Error guardando sesión')
       return false
     }
-  }
-
-  const handleSaveApiKey = () => {
-    setApiKey(apiKeyInput)
-    setError(null)
-    setNotice('Clave API guardada en este dispositivo.')
-    void reloadEpisodes()
   }
 
   const saveParentName = () => {
@@ -490,8 +462,6 @@ export function SleepTrackingProvider({ children }: { children: ReactNode }) {
     setError,
     notice,
     setNotice,
-    apiKeyInput,
-    setApiKeyInput,
     manualTTS,
     setManualTTS,
     manualDuration,
@@ -505,7 +475,6 @@ export function SleepTrackingProvider({ children }: { children: ReactNode }) {
     handleCancel,
     handleWakeUp,
     handleSaveManual,
-    handleSaveApiKey,
     todaySleepSeconds,
     lastNightSeconds,
     minsAwake,

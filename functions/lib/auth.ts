@@ -1,6 +1,7 @@
 export interface PagesEnv {
   DB: D1Database
-  API_SECRET: string
+  API_SECRET?: string
+  OTP_DEBUG_CODE?: string
 }
 
 export function json(data: unknown, status = 200): Response {
@@ -27,8 +28,14 @@ function normalizeSecret(value: string | null | undefined): string {
 }
 
 export function authorize(request: Request, env: PagesEnv): boolean {
+  const accessEmail = request.headers.get('Cf-Access-Authenticated-User-Email')?.trim()
+  if (accessEmail) return true
+
   const secret = normalizeSecret(env.API_SECRET)
-  if (!secret) return false
+  if (!secret) {
+    const host = new URL(request.url).hostname
+    return host === 'localhost' || host === '127.0.0.1'
+  }
   const auth = normalizeSecret(request.headers.get('Authorization'))
   const apiKey = normalizeSecret(request.headers.get('X-API-Key'))
   if (auth.startsWith('Bearer ')) {
