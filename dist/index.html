@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VipVan Madrid · Admin de reservas</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <h1>VipVan Madrid · Administración de reservas</h1>
+  </header>
+
+  <main class="layout">
+    <aside class="panel reservations-panel">
+      <h2>Reservas</h2>
+      <ul id="reservation-list" class="reservation-list"></ul>
+    </aside>
+
+    <section class="panel editor-panel">
+      <div class="editor-header">
+        <h2 id="reservation-title">Selecciona una reserva</h2>
+        <p id="reservation-meta" class="muted"></p>
+      </div>
+
+      <div class="month-nav">
+        <button id="prev-month" type="button">← Mes anterior</button>
+        <h3 id="calendar-month"></h3>
+        <button id="next-month" type="button">Mes siguiente →</button>
+      </div>
+
+      <div id="calendar" class="calendar"></div>
+
+      <section class="day-editor">
+        <h3 id="selected-day-title">Selecciona un día</h3>
+        <div class="actions-row">
+          <button id="mark-full-day" type="button">Marcar día completo</button>
+          <button id="free-day" type="button" class="danger">Liberar todo el día</button>
+        </div>
+
+        <div class="slot-creator">
+          <h4>Añadir slots por horas (checkboxes)</h4>
+          <div id="hour-checkboxes" class="hour-grid"></div>
+          <button id="add-checked-hours" type="button">Añadir horas seleccionadas</button>
+        </div>
+
+        <div class="slot-creator">
+          <h4>Añadir slot manual por rango</h4>
+          <div class="manual-range">
+            <label>Inicio <input id="manual-start" type="time" /></label>
+            <label>Fin <input id="manual-end" type="time" /></label>
+            <button id="add-manual-range" type="button">Añadir rango</button>
+          </div>
+        </div>
+
+        <div>
+          <h4>Slots cerrados del día</h4>
+          <ul id="day-slots" class="slot-list"></ul>
+        </div>
+      </section>
+    </section>
+
+    <aside class="panel finance-panel">
+      <h2>Cierre económico</h2>
+      <div id="finance-box" class="finance-box"></div>
+    </aside>
+  </main>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
