@@ -1,6 +1,6 @@
 /* ============================================================
-   ctOS MOBILE — atrezzo audiovisual (software de ficción)
-   Todo lo que muestra es SIMULADO. No accede a nada real.
+   remote-shell — atrezzo terminal (software de ficción)
+   Simula una sesión adb/shell remota. No accede a nada real.
    ============================================================ */
 (() => {
   'use strict';
@@ -10,23 +10,34 @@
   const rnd = (a, b) => Math.random() * (b - a) + a;
   const ri = (a, b) => Math.floor(rnd(a, b));
   const pick = (a) => a[ri(0, a.length)];
+  const hex = (n) => n.toString(16).padStart(8, '0');
 
-  // --- "Objetivo" ficticio (puedes editarlo para tu escena) ---
   const TARGET = {
-    name: 'OBJETIVO_01',
-    meta: 'IMEI 35·7782·••• · Android 14 · 4G/5G',
-    lat: 40.4168, lon: -3.7038,                 // Madrid por defecto
+    host: '192.168.43.127',
+    port: 5555,
+    device: 'SM-G991B',
+    serial: 'R5CR90XXXX',
+    android: '14',
+    imei: '357782012345678',
+    name: 'u0_a142',
+    lat: 40.4168,
+    lon: -3.7038,
   };
+
+  const SESSION_ID = hex(ri(0x10000000, 0xffffffff));
 
   const els = {
     tapStart: $('#tapStart'),
+    tapTarget: $('#tapTarget'),
     boot: $('#screen-boot'),
     bootLog: $('#bootLog'),
     bootBar: $('#bootBar'),
     bootPct: $('#bootPct'),
     takeover: $('#takeover'),
+    takeoverMsg: $('#takeoverMsg'),
+    takeoverSub: $('#takeoverSub'),
     dash: $('#screen-dash'),
-    glitch: $('#glitchFlash'),
+    dashHost: $('#dashHost'),
     clock: $('#dashClock'),
     targetName: $('#targetName'),
     targetMeta: $('#targetMeta'),
@@ -37,6 +48,8 @@
     btnBg: $('#btnBackground'),
     widget: $('#floatWidget'),
   };
+
+  els.tapTarget.textContent = `${TARGET.host}:${TARGET.port}`;
 
   let wakeLock = null;
   async function keepAwake() {
@@ -53,15 +66,7 @@
     try { if (screen.orientation && screen.orientation.lock) await screen.orientation.lock('portrait'); } catch (_) {}
   }
 
-  function glitch() {
-    els.glitch.classList.remove('fire');
-    void els.glitch.offsetWidth;
-    els.glitch.classList.add('fire');
-    if (navigator.vibrate) navigator.vibrate(ri(20, 60));
-  }
-
-  // ---------- escritura tipo terminal ----------
-  async function typeLine(target, text, cls = '', speed = 8) {
+  async function typeLine(target, text, cls = '', speed = 6) {
     const span = document.createElement('span');
     if (cls) span.className = cls;
     target.appendChild(span);
@@ -70,48 +75,61 @@
     target.scrollTop = target.scrollHeight;
   }
 
-  // ============ SECUENCIA DE INTRUSIÓN ============
   const BOOT = [
-    ['[ctOS] Inicializando enlace remoto...', 'dim', 6],
-    ['[net] Buscando torre de telefonía más cercana...', '', 6],
-    ['[net] BTS-4471 enganchada · -67 dBm', 'ok', 6],
-    ['[exploit] Inyectando payload en banda base...', 'warn', 10],
-    ['[exploit] CVE-2024-•••• → root', 'warn', 10],
-    ['[*] Escalando privilegios..............', '', 4],
-    ['[+] ACCESO ROOT OBTENIDO', 'ok', 14],
-    ['[sys] Desactivando antivirus del dispositivo', 'err', 8],
-    ['[sys] Silenciando notificaciones de seguridad', 'err', 8],
-    ['[data] Montando /sdcard del objetivo...', '', 6],
-    ['[data] Volcando contactos · mensajes · galería', '', 6],
-    ['[cam] Activando cámara frontal (sin LED)', 'err', 10],
-    ['[mic] Abriendo micrófono · 48kHz', 'err', 10],
-    ['[gps] Suscripción a ubicación en tiempo real', '', 8],
-    ['[persist] Instalando servicio residente...', 'warn', 8],
-    ['[persist] Se ejecutará en SEGUNDO PLANO al reiniciar', 'warn', 8],
-    ['[ctOS] Control total del terminal establecido.', 'ok', 12],
+    ['* daemon not running; starting now at tcp:5037', 'dim', 4],
+    ['* daemon started successfully', 'dim', 4],
+    [`connected to ${TARGET.host}:${TARGET.port}`, 'ok', 5],
+    ['', '', 0],
+    [`$ adb -s ${TARGET.host}:${TARGET.port} shell`, 'cmd', 8],
+    [`${TARGET.name}@${TARGET.device}:/ $ id`, 'dim', 6],
+    ['uid=2000(shell) gid=2000(shell) groups=2000(shell),1004(input),...', '', 4],
+    [`${TARGET.name}@${TARGET.device}:/ $ getprop ro.product.model`, 'cmd', 7],
+    [TARGET.device, 'ok', 5],
+    [`${TARGET.name}@${TARGET.device}:/ $ getprop ro.build.version.release`, 'cmd', 7],
+    [TARGET.android, 'ok', 5],
+    [`${TARGET.name}@${TARGET.device}:/ $ dumpsys iphonesubinfo | grep DeviceId`, 'cmd', 6],
+    [`    DeviceId=${TARGET.imei.slice(0, 8)}••••••`, 'dim', 5],
+    [`${TARGET.name}@${TARGET.device}:/ $ pm list packages -3 | wc -l`, 'cmd', 7],
+    ['47', 'ok', 4],
+    [`${TARGET.name}@${TARGET.device}:/ $ ls /sdcard/DCIM/Camera | wc -l`, 'cmd', 7],
+    ['1284', 'ok', 4],
+    [`${TARGET.name}@${TARGET.device}:/ $ content query --uri content://sms/inbox --projection _id | wc -l`, 'cmd', 6],
+    ['312', 'ok', 4],
+    [`${TARGET.name}@${TARGET.device}:/ $ am start-service com.android.shell/.BugreportWarningActivity 2>/dev/null`, 'cmd', 5],
+    ['', '', 0],
+    [`${TARGET.name}@${TARGET.device}:/ $ nohup /data/local/tmp/.svc > /dev/null 2>&1 &`, 'cmd', 8],
+    ['[1] 28471', 'warn', 5],
+    [`${TARGET.name}@${TARGET.device}:/ $ ps -A | grep .svc`, 'cmd', 7],
+    ['u0_a142      28471  892  ... /data/local/tmp/.svc', 'ok', 4],
+    ['', '', 0],
+    ['session attached — forwarding streams', 'ok', 8],
   ];
 
   async function runBoot() {
+    await typeLine(els.bootLog, `$ adb connect ${TARGET.host}:${TARGET.port}`, 'cmd', 10);
+    await sleep(300);
+
     let pct = 0;
+    const total = BOOT.length;
     for (let i = 0; i < BOOT.length; i++) {
       const [txt, cls, sp] = BOOT[i];
-      if (cls === 'err' || cls === 'warn') glitch();
+      if (!txt) { await sleep(80); continue; }
       await typeLine(els.bootLog, txt, cls, sp);
-      pct = Math.round(((i + 1) / BOOT.length) * 100);
+      pct = Math.round(((i + 1) / total) * 100);
       els.bootBar.style.width = pct + '%';
       els.bootPct.textContent = pct + '%';
-      await sleep(rnd(120, 320));
+      await sleep(rnd(60, 200));
     }
-    await sleep(400);
-    glitch();
+
+    await sleep(500);
+    els.takeoverMsg.textContent = `shell@${TARGET.device}: session open`;
+    els.takeoverSub.textContent = `session id: ${SESSION_ID}`;
     els.takeover.classList.remove('hidden');
-    if (navigator.vibrate) navigator.vibrate([60, 40, 120]);
-    await sleep(2600);
+    await sleep(1800);
     els.boot.classList.add('hidden');
     startDashboard();
   }
 
-  // ============ DASHBOARD ============
   let dashTimer = null, consoleTimer = null;
   let counters = { msg: 0, contacts: 0, bat: 100 };
 
@@ -127,39 +145,52 @@
   }
 
   async function profileTarget() {
-    els.targetName.textContent = TARGET.name;
-    els.targetMeta.textContent = TARGET.meta;
+    els.dashHost.textContent = `${TARGET.name}@${TARGET.device}`;
+    els.targetName.textContent = `${TARGET.serial} · ${TARGET.device}`;
+    els.targetMeta.textContent = `android ${TARGET.android} · imei ${TARGET.imei.slice(0, 8)}••••••`;
     let p = 0;
-    const states = ['Perfilando objetivo…', 'Cruzando bases de datos…', 'Reconocimiento facial…', 'PERFIL COMPLETO'];
+    const states = ['leyendo getprop…', 'dumpsys battery…', 'content://contacts…', 'listo'];
     const iv = setInterval(() => {
-      p = Math.min(100, p + ri(4, 14));
+      p = Math.min(100, p + ri(3, 12));
       els.profileBar.style.width = p + '%';
       els.profileStatus.textContent = states[Math.min(states.length - 1, Math.floor(p / 26))];
-      if (p >= 100) { clearInterval(iv); els.profileStatus.textContent = '● OBJETIVO BAJO CONTROL'; }
-    }, 350);
+      if (p >= 100) { clearInterval(iv); els.profileStatus.textContent = 'device profile complete'; }
+    }, 400);
+  }
+
+  function ts() {
+    const d = new Date();
+    const pad = (n, l = 2) => String(n).padStart(l, '0');
+    return `${pad(d.getMonth() + 1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}.${pad(d.getMilliseconds(), 3)}`;
   }
 
   const CONSOLE_LINES = [
-    () => `<span class="a">[gps]</span> ${fmtCoord()} · v=${ri(0,7)} km/h`,
-    () => `<span class="b">[cam]</span> frame capturado ${ri(640,1920)}x${ri(480,1080)} → buffer`,
-    () => `<span class="c">[mic]</span> audio ${ri(2,9)}s exfiltrado (${ri(40,260)} KB)`,
-    () => `<span class="a">[msg]</span> WhatsApp: nuevo mensaje interceptado`,
-    () => `<span class="b">[key]</span> keylog: ${pick(['••••••', 'pin: 4 díg.', 'patrón: L', '"ok nos vemos"'])}`,
-    () => `<span class="c">[net]</span> ${pick(['WiFi','4G','5G'])} ${ri(2,40)} paquetes → C2 ${ip()}`,
-    () => `<span class="a">[fs]</span> /DCIM/IMG_${ri(1000,9999)}.jpg copiado`,
-    () => `<span class="b">[sys]</span> intento de cierre bloqueado · servicio residente OK`,
+    () => {
+      const c = fmtCoord().split(',');
+      return `<span class="ts">${ts()}</span> <span class="a">gps</span> lat=${c[0]} lon=${c[1].trim()} acc=${ri(3, 18)}m`;
+    },
+    () => `<span class="ts">${ts()}</span> <span class="b">pull</span> /sdcard/DCIM/CIMG_${ri(1000, 9999)}.jpg → /tmp/ (${ri(800, 4200)} KB)`,
+    () => `<span class="ts">${ts()}</span> <span class="c">audio</span> chunk ${ri(1, 99)}/${ri(100, 200)} ${ri(40, 260)} KB → ${ip()}:443`,
+    () => `<span class="ts">${ts()}</span> <span class="a">sms</span> content://sms/inbox _id=${ri(100, 9999)} read`,
+    () => `<span class="ts">${ts()}</span> <span class="b">tcp</span> ${ip()}:443 ← ${TARGET.host}:${ri(40000, 65000)} ${ri(12, 890)} bytes`,
+    () => `<span class="ts">${ts()}</span> <span class="c">cam</span> frame ${ri(640, 1920)}x${ri(480, 1080)} yuv420`,
+    () => `<span class="ts">${ts()}</span> <span class="a">db</span> contacts row ${ri(1, 847)} exported`,
+    () => `<span class="ts">${ts()}</span> <span class="b">svc</span> .svc pid 28471 heartbeat ok`,
   ];
-  function ip(){return `${ri(10,220)}.${ri(0,255)}.${ri(0,255)}.${ri(2,254)}`;}
-  function fmtCoord(){
-    TARGET.lat += rnd(-0.0004,0.0004); TARGET.lon += rnd(-0.0004,0.0004);
+
+  function ip() { return `${ri(10, 220)}.${ri(0, 255)}.${ri(0, 255)}.${ri(2, 254)}`; }
+  function fmtCoord() {
+    TARGET.lat += rnd(-0.0003, 0.0003);
+    TARGET.lon += rnd(-0.0003, 0.0003);
     return `${TARGET.lat.toFixed(6)}, ${TARGET.lon.toFixed(6)}`;
   }
+
   async function pushConsole() {
     const line = pick(CONSOLE_LINES)();
     const div = document.createElement('div');
     div.innerHTML = line;
     els.console.appendChild(div);
-    while (els.console.childElementCount > 18) els.console.firstChild.remove();
+    while (els.console.childElementCount > 20) els.console.firstChild.remove();
     els.console.scrollTop = els.console.scrollHeight;
   }
 
@@ -170,32 +201,28 @@
     els.vLoc.textContent = fmtCoord();
 
     dashTimer = setInterval(() => {
-      counters.msg += ri(0, 3);
-      counters.contacts = Math.min(847, counters.contacts + ri(0, 9));
-      if (Math.random() < 0.25) counters.bat = Math.max(3, counters.bat - 1);
+      counters.msg += ri(0, 2);
+      counters.contacts = Math.min(847, counters.contacts + ri(0, 7));
+      if (Math.random() < 0.18) counters.bat = Math.max(3, counters.bat - 1);
       els.vMsg.textContent = counters.msg;
       els.vContacts.textContent = counters.contacts;
       els.vBat.textContent = counters.bat + '%';
       els.vLoc.textContent = fmtCoord();
-    }, 1400);
+    }, 1600);
 
-    consoleTimer = setInterval(pushConsole, 650);
-    for (let i = 0; i < 4; i++) setTimeout(pushConsole, i * 200);
+    consoleTimer = setInterval(pushConsole, 900);
+    for (let i = 0; i < 3; i++) setTimeout(pushConsole, i * 250);
   }
 
-  // ============ "SEGUNDO PLANO" ============
   els.btnBg.addEventListener('click', () => {
     els.dash.classList.add('hidden');
     els.widget.classList.remove('hidden');
-    if (navigator.vibrate) navigator.vibrate(30);
   });
   els.widget.addEventListener('click', () => {
     els.widget.classList.add('hidden');
     els.dash.classList.remove('hidden');
-    glitch();
   });
 
-  // ============ ARRANQUE ============
   els.tapStart.addEventListener('click', async () => {
     els.tapStart.classList.add('hidden');
     await goFullscreen();
@@ -204,7 +231,6 @@
     runBoot();
   });
 
-  // Service worker (hace que sea "instalable" y funcione sin red en rodaje)
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
   }

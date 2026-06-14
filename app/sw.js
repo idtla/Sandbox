@@ -1,5 +1,5 @@
-/* ctOS — service worker (cache offline para rodaje sin red) */
-const CACHE = 'ctos-v1';
+/* remote-shell — service worker (cache offline para rodaje sin red) */
+const CACHE = 'remote-shell-v2';
 const ASSETS = [
   './',
   './index.html',
