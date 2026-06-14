@@ -1,0 +1,5 @@
+# Config de Cloudflare Pages: indica que la web estatica esta en app/
+# (no hay paso de build; es HTML/CSS/JS plano)
+name = "ctos-pwa"
+compatibility_date = "2026-06-14"
+pages_build_output_dir = "app"
