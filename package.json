@@ -1,0 +1,9 @@
+{
+  "name": "ctos-pwa",
+  "version": "1.0.0",
+  "private": true,
+  "description": "PWA estatica de atrezzo (ctOS). No requiere compilacion.",
+  "scripts": {
+    "build": "echo \"Sitio estatico: no hay build. Sirviendo app/\""
+  }
+}
