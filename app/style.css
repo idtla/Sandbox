@@ -1,0 +1,180 @@
+/* ===================== ctOS MOBILE — atrezzo audiovisual ===================== */
+:root{
+  --bg:#04070d;
+  --bg2:#070d18;
+  --cyan:#19e6ff;
+  --cyan-dim:#0a8aa0;
+  --orange:#ff7a1a;
+  --red:#ff2e4d;
+  --green:#27ff8b;
+  --txt:#bfe9f5;
+  --grid:rgba(25,230,255,.08);
+  --mono:"SF Mono",ui-monospace,"Cascadia Code","Roboto Mono",Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0}
+body{
+  background:
+    radial-gradient(120% 80% at 50% -10%, #0b1830 0%, var(--bg) 60%),
+    var(--bg);
+  color:var(--txt);
+  font-family:var(--mono);
+  overflow:hidden;
+  position:fixed; inset:0;
+  -webkit-user-select:none; user-select:none;
+  background-attachment:fixed;
+}
+body::before{ /* rejilla hexa/ctOS sutil */
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:0;
+  background-image:
+    linear-gradient(var(--grid) 1px,transparent 1px),
+    linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:34px 34px;
+  mask-image:radial-gradient(120% 90% at 50% 30%,#000 40%,transparent 100%);
+}
+
+.screen{position:fixed; inset:0; z-index:2; display:flex; flex-direction:column;
+  padding:max(18px,env(safe-area-inset-top)) 16px max(18px,env(safe-area-inset-bottom));}
+.hidden{display:none !important}
+
+/* ---------- efectos globales ---------- */
+.overlay-fx{position:fixed; inset:0; z-index:50; pointer-events:none}
+.scanlines{position:absolute; inset:0;
+  background:repeating-linear-gradient(0deg,rgba(0,0,0,.18) 0 1px,transparent 1px 3px);
+  mix-blend-mode:multiply; opacity:.55; animation:scrollLines 8s linear infinite}
+@keyframes scrollLines{to{background-position:0 600px}}
+.vignette{position:absolute; inset:0;
+  background:radial-gradient(120% 100% at 50% 50%,transparent 55%,rgba(0,0,0,.65) 100%)}
+.glitch-flash{position:absolute; inset:0; background:var(--cyan); opacity:0; mix-blend-mode:screen}
+.glitch-flash.fire{animation:flash .22s steps(2) 1}
+@keyframes flash{0%{opacity:0}40%{opacity:.5}100%{opacity:0}}
+
+/* ===================== TAP START ===================== */
+.tap-start{
+  position:fixed; inset:0; z-index:40; border:0; background:transparent;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:14px; color:var(--cyan); font-family:var(--mono); cursor:pointer;
+}
+.ctos-logo{width:118px; height:118px; filter:drop-shadow(0 0 18px rgba(25,230,255,.55))}
+.logo-svg polygon{fill:none; stroke:var(--cyan); stroke-width:3}
+.logo-svg .inner{stroke:var(--cyan-dim); stroke-width:2}
+.logo-svg circle{fill:var(--cyan)}
+.pulse{animation:pulse 1.8s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:.85}50%{transform:scale(1.06);opacity:1}}
+.tap-label{font-size:38px; letter-spacing:6px; font-weight:700}
+.tap-label span{color:var(--orange)}
+.tap-hint{font-size:12px; letter-spacing:3px; color:var(--cyan-dim); text-transform:uppercase}
+
+/* ===================== BOOT / INTRUSIÓN ===================== */
+#screen-boot{justify-content:flex-start}
+.boot-log{
+  flex:1; margin:0; font-size:12.5px; line-height:1.5; color:var(--cyan);
+  white-space:pre-wrap; word-break:break-word; overflow:hidden;
+  text-shadow:0 0 8px rgba(25,230,255,.35);
+}
+.boot-log .ok{color:var(--green)}
+.boot-log .warn{color:var(--orange)}
+.boot-log .err{color:var(--red)}
+.boot-log .dim{color:#4a6b78}
+.boot-progress{display:flex; align-items:center; gap:10px; padding:6px 2px}
+.progress-bar{flex:1; height:8px; background:rgba(25,230,255,.12);
+  border:1px solid rgba(25,230,255,.3); border-radius:2px; overflow:hidden}
+.progress-bar i{display:block; height:100%; width:0;
+  background:linear-gradient(90deg,var(--cyan-dim),var(--cyan));
+  box-shadow:0 0 12px var(--cyan); transition:width .2s}
+.progress-pct{font-size:12px; color:var(--cyan); min-width:42px; text-align:right}
+
+/* takeover */
+.takeover{position:fixed; inset:0; z-index:30; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:16px; background:rgba(4,7,13,.7)}
+.takeover-line{position:absolute; left:0; right:0; height:2px; top:50%;
+  background:var(--red); box-shadow:0 0 24px var(--red); animation:sweep 1.2s ease-out}
+@keyframes sweep{0%{transform:scaleX(0);opacity:0}30%{opacity:1}100%{transform:scaleX(1);opacity:.2}}
+.hacked-title{
+  margin:0; font-size:clamp(26px,8vw,52px); font-weight:800; letter-spacing:2px;
+  color:var(--red); text-align:center; line-height:1.05; position:relative;
+  text-shadow:0 0 18px rgba(255,46,77,.6);
+  animation:glitchIn .5s steps(3) 1;
+}
+.hacked-title::before,.hacked-title::after{
+  content:attr(data-text); position:absolute; left:0; top:0; width:100%; overflow:hidden;
+}
+.hacked-title::before{color:var(--cyan); clip-path:inset(0 0 55% 0); animation:gl1 .4s infinite}
+.hacked-title::after{color:var(--orange); clip-path:inset(55% 0 0 0); animation:gl2 .4s infinite}
+@keyframes gl1{0%,100%{transform:translate(0)}50%{transform:translate(-3px,-1px)}}
+@keyframes gl2{0%,100%{transform:translate(0)}50%{transform:translate(3px,1px)}}
+@keyframes glitchIn{0%{opacity:0;transform:scale(1.2)}100%{opacity:1;transform:scale(1)}}
+.hacked-sub{margin:0; color:var(--cyan); letter-spacing:4px; font-size:13px}
+
+/* ===================== DASHBOARD ===================== */
+#screen-dash{gap:12px; overflow-y:auto}
+.dash-head{display:flex; align-items:center; justify-content:space-between;
+  border-bottom:1px solid rgba(25,230,255,.2); padding-bottom:10px}
+.dash-brand{font-size:13px; letter-spacing:2px; color:var(--cyan)}
+.dash-brand span{color:var(--orange)}
+.live-dot{display:inline-block; width:9px; height:9px; border-radius:50%;
+  background:var(--red); box-shadow:0 0 10px var(--red); margin-right:6px;
+  animation:blink 1s steps(2) infinite}
+@keyframes blink{50%{opacity:.25}}
+.dash-clock{font-size:14px; color:var(--orange); letter-spacing:1px}
+
+.target-card{display:flex; gap:14px; align-items:center;
+  background:linear-gradient(180deg,rgba(25,230,255,.06),transparent);
+  border:1px solid rgba(25,230,255,.22); border-radius:6px; padding:12px}
+.avatar{position:relative; width:64px; height:64px; flex:0 0 64px;
+  border:1px solid var(--cyan-dim); border-radius:4px; overflow:hidden;
+  background:rgba(25,230,255,.05)}
+.avatar svg{width:100%; height:100%; fill:none; stroke:var(--cyan-dim); stroke-width:3}
+.scan-line{position:absolute; left:0; right:0; height:2px; top:0;
+  background:var(--cyan); box-shadow:0 0 10px var(--cyan); animation:scan 1.6s linear infinite}
+@keyframes scan{0%{top:0}100%{top:100%}}
+.target-info{flex:1; min-width:0}
+.t-name{font-size:16px; color:#eaffff; letter-spacing:1px}
+.t-meta{font-size:11px; color:var(--cyan-dim); margin:2px 0 8px}
+.t-bar{height:6px; background:rgba(25,230,255,.12); border-radius:2px; overflow:hidden}
+.t-bar i{display:block; height:100%; width:0; background:var(--orange);
+  box-shadow:0 0 10px var(--orange); transition:width .3s}
+.t-status{font-size:10.5px; color:var(--orange); margin-top:5px; letter-spacing:1px}
+
+.grid{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+.tile{background:rgba(7,13,24,.7); border:1px solid rgba(25,230,255,.18);
+  border-radius:5px; padding:10px 12px; position:relative; overflow:hidden}
+.tile::after{content:""; position:absolute; top:0; right:0; width:18px; height:18px;
+  border-top:2px solid var(--cyan-dim); border-right:2px solid var(--cyan-dim)}
+.tile-h{font-size:10px; letter-spacing:1.5px; color:var(--cyan-dim)}
+.tile-v{font-size:18px; color:#eaffff; margin:6px 0 4px; word-break:break-all}
+.tile-v.rec{color:var(--red); animation:blink 1.2s steps(2) infinite}
+.tile-s{font-size:10px; color:var(--cyan-dim); display:flex; align-items:center; gap:6px}
+.led{width:7px; height:7px; border-radius:50%; display:inline-block}
+.led.on{background:var(--green); box-shadow:0 0 8px var(--green); animation:blink 1.4s steps(2) infinite}
+.led.warn{background:var(--orange); box-shadow:0 0 8px var(--orange)}
+
+.console-wrap{border:1px solid rgba(25,230,255,.18); border-radius:5px; overflow:hidden}
+.console-h{font-size:10px; letter-spacing:1.5px; color:var(--orange);
+  padding:6px 10px; background:rgba(255,122,26,.08); border-bottom:1px solid rgba(255,122,26,.18)}
+.console{margin:0; padding:8px 10px; height:120px; overflow:hidden; font-size:11px;
+  line-height:1.5; color:var(--green); white-space:pre-wrap; word-break:break-word}
+.console .a{color:var(--cyan)} .console .b{color:var(--orange)} .console .c{color:#7fa}
+
+.btn-bg{margin-top:4px; background:rgba(25,230,255,.08); color:var(--cyan);
+  border:1px solid rgba(25,230,255,.35); border-radius:5px; padding:13px;
+  font-family:var(--mono); font-size:13px; letter-spacing:2px; cursor:pointer}
+.btn-bg:active{background:rgba(25,230,255,.2)}
+
+/* ===================== WIDGET FLOTANTE ===================== */
+.float-widget{position:fixed; z-index:45; right:16px; bottom:24px;
+  width:62px; height:62px; border-radius:50%; border:0; cursor:pointer;
+  background:radial-gradient(circle,#0b1830,#04070d);
+  box-shadow:0 0 0 1px var(--cyan-dim),0 6px 22px rgba(0,0,0,.6);
+  display:flex; align-items:center; justify-content:center;
+  animation:floatY 3.5s ease-in-out infinite}
+@keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.fw-ring{position:absolute; inset:-4px; border-radius:50%;
+  border:2px solid var(--cyan); opacity:.6; animation:ring 2s ease-out infinite}
+@keyframes ring{0%{transform:scale(.85);opacity:.7}100%{transform:scale(1.5);opacity:0}}
+.fw-logo{width:34px; height:34px}
+.fw-logo polygon{fill:none; stroke:var(--cyan); stroke-width:4}
+.fw-logo circle{fill:var(--red)}
+.fw-badge{position:absolute; top:-2px; right:-2px; background:var(--red); color:#fff;
+  font-size:8px; letter-spacing:1px; padding:2px 4px; border-radius:3px;
+  animation:blink 1.1s steps(2) infinite}

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>ctOS</title>
+  <meta name="description" content="Sistema de control urbano - acceso remoto" />
+
+  <!-- PWA (opcional: se puede añadir a inicio, pero no hace falta para usarla) -->
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="theme-color" content="#04070d" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="ctOS" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="icon" href="icons/icon-192.png" />
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Capa de efectos (scanlines / grano / glitch) sobre todo -->
+  <div class="overlay-fx" aria-hidden="true">
+    <div class="scanlines"></div>
+    <div class="vignette"></div>
+    <div class="glitch-flash" id="glitchFlash"></div>
+  </div>
+
+  <!-- Botón invisible para arrancar (los móviles exigen un toque para pantalla completa + sonido) -->
+  <button class="tap-start" id="tapStart">
+    <div class="ctos-logo pulse">
+      <svg viewBox="0 0 100 100" class="logo-svg">
+        <polygon points="50,6 90,28 90,72 50,94 10,72 10,28" />
+        <polygon points="50,22 76,37 76,63 50,78 24,63 24,37" class="inner" />
+        <circle cx="50" cy="50" r="6" />
+      </svg>
+    </div>
+    <span class="tap-label">ct<span>OS</span></span>
+    <span class="tap-hint">tocar para conectar</span>
+  </button>
+
+  <!-- ============ FASE 1: INTRUSIÓN / BOOT ============ -->
+  <section class="screen hidden" id="screen-boot">
+    <pre class="boot-log" id="bootLog"></pre>
+    <div class="boot-progress">
+      <div class="progress-bar"><i id="bootBar"></i></div>
+      <span class="progress-pct" id="bootPct">0%</span>
+    </div>
+    <div class="takeover hidden" id="takeover">
+      <div class="takeover-line"></div>
+      <h1 class="hacked-title" data-text="DISPOSITIVO COMPROMETIDO">DISPOSITIVO COMPROMETIDO</h1>
+      <p class="hacked-sub">ACCESO TOTAL CONCEDIDO · ctOS</p>
+    </div>
+  </section>
+
+  <!-- ============ FASE 2: DASHBOARD (control del móvil) ============ -->
+  <section class="screen hidden" id="screen-dash">
+    <header class="dash-head">
+      <div class="dash-brand">
+        <span class="live-dot"></span> ct<span>OS</span> · ENLACE ACTIVO
+      </div>
+      <div class="dash-clock" id="dashClock">00:00:00</div>
+    </header>
+
+    <div class="target-card">
+      <div class="avatar" id="avatarScan">
+        <div class="scan-line"></div>
+        <svg viewBox="0 0 64 64"><circle cx="32" cy="22" r="13"/><path d="M8 60c0-13 10-21 24-21s24 8 24 21"/></svg>
+      </div>
+      <div class="target-info">
+        <div class="t-name" id="targetName">IDENTIFICANDO…</div>
+        <div class="t-meta" id="targetMeta">———</div>
+        <div class="t-bar"><i id="profileBar"></i></div>
+        <div class="t-status" id="profileStatus">Perfilando objetivo…</div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="tile" data-k="loc">
+        <div class="tile-h">GPS · UBICACIÓN</div>
+        <div class="tile-v" id="vLoc">--.------, --.------</div>
+        <div class="tile-s"><span class="led on"></span> rastreando</div>
+      </div>
+      <div class="tile" data-k="cam">
+        <div class="tile-h">CÁMARA</div>
+        <div class="tile-v rec" id="vCam">● REC</div>
+        <div class="tile-s"><span class="led on"></span> stream remoto</div>
+      </div>
+      <div class="tile" data-k="mic">
+        <div class="tile-h">MICRÓFONO</div>
+        <div class="tile-v" id="vMic">CAPTANDO</div>
+        <div class="tile-s"><span class="led on"></span> 48 kHz</div>
+      </div>
+      <div class="tile" data-k="msg">
+        <div class="tile-h">MENSAJES</div>
+        <div class="tile-v" id="vMsg">0</div>
+        <div class="tile-s"><span class="led on"></span> exfiltrando</div>
+      </div>
+      <div class="tile" data-k="contacts">
+        <div class="tile-h">CONTACTOS</div>
+        <div class="tile-v" id="vContacts">0</div>
+        <div class="tile-s"><span class="led on"></span> volcados</div>
+      </div>
+      <div class="tile" data-k="bat">
+        <div class="tile-h">BATERÍA</div>
+        <div class="tile-v" id="vBat">100%</div>
+        <div class="tile-s"><span class="led warn"></span> consumo oculto</div>
+      </div>
+    </div>
+
+    <div class="console-wrap">
+      <div class="console-h">// FLUJO DE DATOS EN VIVO</div>
+      <pre class="console" id="liveConsole"></pre>
+    </div>
+
+    <button class="btn-bg" id="btnBackground">DEJAR EN SEGUNDO PLANO ▾</button>
+  </section>
+
+  <!-- ============ WIDGET FLOTANTE: "EN SEGUNDO PLANO" ============ -->
+  <button class="float-widget hidden" id="floatWidget" title="ctOS activo">
+    <div class="fw-ring"></div>
+    <svg viewBox="0 0 100 100" class="fw-logo">
+      <polygon points="50,6 90,28 90,72 50,94 10,72 10,28" />
+      <circle cx="50" cy="50" r="8" />
+    </svg>
+    <span class="fw-badge" id="fwBadge">REC</span>
+  </button>
+
+  <script src="app.js"></script>
+</body>
+</html>
