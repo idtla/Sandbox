@@ -1,0 +1,8 @@
+{
+  "name": "remote-shell",
+  "private": true,
+  "description": "PWA de atrezzo — sitio estático sin bundler",
+  "scripts": {
+    "build": "rm -rf dist && mkdir -p dist && cp -r app/. dist/"
+  }
+}
