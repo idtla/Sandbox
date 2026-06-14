@@ -19,6 +19,9 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <!-- Lluvia matrix de fondo -->
+  <canvas id="matrix" class="matrix-bg" aria-hidden="true"></canvas>
+
   <!-- Capa de efectos (scanlines / grano / glitch) sobre todo -->
   <div class="overlay-fx" aria-hidden="true">
     <div class="scanlines"></div>
@@ -106,6 +109,11 @@
         <div class="tile-v" id="vBat">100%</div>
         <div class="tile-s"><span class="led warn"></span> consumo oculto</div>
       </div>
+    </div>
+
+    <div class="console-wrap">
+      <div class="console-h amber">// DESENSAMBLADO · PAYLOAD RESIDENTE</div>
+      <pre class="console code-stream" id="codeStream"></pre>
     </div>
 
     <div class="console-wrap">

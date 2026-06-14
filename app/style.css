@@ -37,6 +37,11 @@ body::before{ /* rejilla hexa/ctOS sutil */
   padding:max(18px,env(safe-area-inset-top)) 16px max(18px,env(safe-area-inset-bottom));}
 .hidden{display:none !important}
 
+/* ---------- lluvia matrix ---------- */
+.matrix-bg{position:fixed; inset:0; z-index:1; pointer-events:none;
+  opacity:.22; transition:opacity .8s}
+.matrix-bg.intense{opacity:.5}
+
 /* ---------- efectos globales ---------- */
 .overlay-fx{position:fixed; inset:0; z-index:50; pointer-events:none}
 .scanlines{position:absolute; inset:0;
@@ -152,9 +157,13 @@ body::before{ /* rejilla hexa/ctOS sutil */
 .console-wrap{border:1px solid rgba(25,230,255,.18); border-radius:5px; overflow:hidden}
 .console-h{font-size:10px; letter-spacing:1.5px; color:var(--orange);
   padding:6px 10px; background:rgba(255,122,26,.08); border-bottom:1px solid rgba(255,122,26,.18)}
+.console-h.amber{color:#ffd24a; background:rgba(255,210,74,.06); border-bottom-color:rgba(255,210,74,.18)}
 .console{margin:0; padding:8px 10px; height:120px; overflow:hidden; font-size:11px;
   line-height:1.5; color:var(--green); white-space:pre-wrap; word-break:break-word}
 .console .a{color:var(--cyan)} .console .b{color:var(--orange)} .console .c{color:#7fa}
+.code-stream{height:104px; color:#8fd6c0; font-size:10.5px; line-height:1.45;
+  white-space:pre; overflow:hidden; opacity:.92}
+.code-stream .ad{color:#ffd24a} .code-stream .op{color:var(--cyan)} .code-stream .nm{color:var(--orange)}
 
 .btn-bg{margin-top:4px; background:rgba(25,230,255,.08); color:var(--cyan);
   border:1px solid rgba(25,230,255,.35); border-radius:5px; padding:13px;
