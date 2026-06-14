@@ -25,6 +25,16 @@ python3 -m http.server 8000
 # abre http://<IP-del-PC>:8000 en el móvil
 ```
 
+### Despliegue en Cloudflare Pages
+El repo incluye `package.json` y `wrangler.toml` en la raíz:
+
+| Campo | Valor |
+|-------|-------|
+| **Build command** | `npm run build` |
+| **Build output** | `dist` |
+
+El script copia `app/` → `dist/` (sitio estático, sin bundler). Si ya tienes el proyecto en Pages, un redeploy debería bastar.
+
 ## Personalizar para tu escena
 Edita el objeto `TARGET` al principio de `app.js`:
 ```js
