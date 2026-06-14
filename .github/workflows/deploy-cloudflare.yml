@@ -1,0 +1,33 @@
+name: Deploy ctOS PWA to Cloudflare Pages
+
+# Despliega la PWA (carpeta app/) a Cloudflare Pages.
+# Requiere dos secrets en el repo (Settings > Secrets and variables > Actions):
+#   - CLOUDFLARE_API_TOKEN   (token con permiso "Cloudflare Pages: Edit")
+#   - CLOUDFLARE_ACCOUNT_ID  (ID de tu cuenta de Cloudflare)
+# Tambien puedes lanzarlo a mano desde la pestaña Actions (workflow_dispatch).
+
+on:
+  push:
+    branches:
+      - claude/movie-pwa-cloudflare-deploy
+    paths:
+      - 'app/**'
+      - '.github/workflows/deploy-cloudflare.yml'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      deployments: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy app --project-name=ctos-pwa --branch=main
