@@ -1,0 +1,12 @@
+node_modules/
+dist/
+*.log
+
+# Por si alguien crea perfiles o BD dentro del repo por error:
+# lo sensible vive en %LOCALAPPDATA%\mail-mcp\, nunca aquí.
+imap.profiles.json
+profiles.json
+data/
+*.db
+*.db-wal
+*.db-shm

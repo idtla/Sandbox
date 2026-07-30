@@ -1,0 +1,37 @@
+{
+  "accounts": {
+    "gmail-personal": {
+      "label": "Gmail personal",
+      "host": "imap.gmail.com",
+      "port": 993,
+      "secure": true,
+      "user": "tucuenta@gmail.com",
+      "pass": "abcd efgh ijkl mnop"
+    },
+    "ionos-info": {
+      "label": "IONOS",
+      "host": "imap.ionos.es",
+      "port": 993,
+      "secure": true,
+      "user": "info@tudominio.es",
+      "pass": "TU_PASSWORD"
+    }
+  },
+  "sync": { "windowDays": 90, "refreshSeconds": 60 },
+  "classification": {
+    "classes": [
+      "accion-requerida",
+      "facturas-recibos",
+      "citas-eventos",
+      "personal",
+      "newsletters",
+      "notificaciones-automaticas",
+      "promociones",
+      "spam-sospechoso"
+    ],
+    "gmailLabelPrefix": "AI/",
+    "genericFolderPrefix": "INBOX.AI-",
+    "autoCreate": true,
+    "moveOnClassify": { "gmail": false, "generic": false }
+  }
+}
